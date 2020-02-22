@@ -53,3 +53,27 @@
 	margin: -6px 0;
 	
 }
+
+@media screen and (max-width: 800px) {
+
+TABLE TD {
+	display: block;
+	text-align: center;
+	border: none !important;
+}
+
+TABLE TD:first-child {display:none;}
+TABLE TD:nth-child(2) {
+	background-color: #343a40 ;
+	color: white;
+}
+
+TABLE TR {
+	border-top: 2px solid black;
+}
+
+TABLE THEAD {
+	display: none;
+}
+
+}

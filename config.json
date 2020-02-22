@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.01",
+  "version": "0.02",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],

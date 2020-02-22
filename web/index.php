@@ -123,9 +123,10 @@
 							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="7" <?php echo is_checked($s->off_dow,7); ?> >Do</label>
 						</td>							
 						<td>
+							<button type="button" onclick="deleteRow('<?php echo $s->id ?>')" class="btn btn-default btn-circle bg-danger"><span class="mdi mdi-delete" ></span> </button>
+							&nbsp;&nbsp;&nbsp;
 							<button type="button" onclick="showForm('<?php echo $s->id ?>') " class="btn btn-default btn-circle bg-warning"><span class="mdi mdi-pencil-off" ></span></button>
 							<button type="button" onclick="saveRow('<?php echo $s->id ?>')  " class="btn btn-default btn-circle bg-success"><span class="mdi mdi-content-save" ></span> </button>
-							<!-- <button type="button" onclick="deleteRow('<?php echo $s->id ?>')" class="btn btn-default btn-circle bg-danger"><span class="mdi mdi-delete" ></span> </button> -->
 						</td>
 					</form>
 				  </tr>

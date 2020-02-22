@@ -36,8 +36,10 @@ function showAddRow(id) {
 function deleteRow(id) {
 	var elementId = "form_" + id ;
 	var f = document.getElementById(elementId);
-	f.action.value="delete"; 	
-	f.submit(); 
+	if (window.confirm("Are you sure?")) {
+		f.action.value="delete"; 
+		f.submit(); 
+	}
 }
 
 function saveRow(id) {
