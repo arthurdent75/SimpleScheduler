@@ -1,0 +1,19 @@
+{
+  "name": "Simple Scheduler",
+  "version": "0.01",
+  "slug": "simplescheduler",
+  "description": "Simple timer on weekly base",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "startup": "application",
+  "panel_icon": "mdi:calendar-clock",
+  "panel_title": "Scheduler",
+  "panel_admin": false,
+  "boot": "auto",
+  "hassio_api": true,
+  "homeassistant_api": true,
+  "ingress": true,
+  "map": [ "share:rw" ],  
+  "options": {},
+  "schema": {},
+  "webui": "http://[HOST]:[PORT:8099]"
+}
