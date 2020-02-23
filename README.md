@@ -2,7 +2,7 @@
 An Home Assistant AddOn to schedule switches and lights on weekly basis in a visual way without coding.
 You can keep all the schedules in one place and add/changhe in a few clicks.
 
-![SimpleScheduler](logo.png)
+![SimpleScheduler](https://github.com/arthurdent75/SimpleScheduler/blob/master/logo.png)
 
 
 ### Installation
@@ -18,6 +18,11 @@ It's not mandatory to add both ON and OFF time. You can leave one of them empty 
 For example: you want to turn off a light every day at 22:00, but you don't need to turn it on.
 You can then edit any of the schedule with the icon at the end of the row.
 You can also choose to delete it or disable it (the schedule will stay there, but it will not be executed until you enable it back)
+
+### Translation
+The default text language is English. They are very few words.
+If you want to translate them, you just need to take a look in the configuration section of the addon.
+Rewrite the words you would like to have in your language and restart the addon.
 
 ### Two words about the stored data
 Every schedule (or row, if you prefer) is a json file stored in the [share/simplescheduler] folder under the SAMBA share.
