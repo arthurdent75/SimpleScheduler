@@ -122,8 +122,8 @@ function create_file(string $eid) {
 	$off_dow="";
 	$id = ($eid!="") ? $eid : uniqid();
 	$filename = $json_folder.$id.".json";
-	foreach($_POST['on_dow'] as $v) $on_dow.= $v;
-	foreach($_POST['off_dow'] as $v) $off_dow.= $v;
+	if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
+	if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
 	
 	$item = new stdClass();	
 	$item->id = $id;
