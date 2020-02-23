@@ -31,7 +31,7 @@ You can easily backup and restore them in case of failure. In the same way, you 
 
 ### Last but not the list
 If you want to convince me to stay up at night, just <a target="_blank" href="https://www.buymeacoffee.com/arthurdent75">buy me a beer 🍺</a>
-You may say that regular people need coffee to do that. Well, I'm not like the others.
+You may say that regular people need coffee to do that. Well, I'm not a regular person.
 
 
 
