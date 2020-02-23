@@ -18,7 +18,7 @@
 		header("Location: index.php");
 	}
 	
-
+	$wd=0;
 	$sched = load_data();
 	$select_option = get_switch_html_select_options();
 ?>
@@ -45,10 +45,10 @@
 			<thead class="thead-dark">
 			<tr>
 			  <th scope="col">&nbsp;</th>
-			  <th scope="col">Device</th>
-			  <th scope="col">ON</th>
+			  <th scope="col"><?php echo $options->text_device; ?></th>
+			  <th scope="col"><?php echo $options->text_ON; ?></th>
 			  <th scope="col"></th>
-			  <th scope="col">OFF</th>
+			  <th scope="col"><?php echo $options->text_OFF; ?></th>
 			  <th scope="col"></th>
 			  <th scope="col"></th>
 			</tr>
@@ -62,25 +62,17 @@
 					<td><select name="entity_id" class="form-control"><?php echo $select_option ?></select></td>
 					<td><input type="text" name="on_tod" class="form-control input-sm" placeholder="00:00"></td>
 					<td>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="1">Lu</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="2">Ma</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="3">Me</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="4">Gi</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="5">Ve</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="6">Sa</label>
-						<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="7">Do</label>
+						<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
+							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="<?php echo $wd; ?>"><?php echo substr($weekdays[$wd],0,2); ?></label>
+						<?php endfor; ?>
 					</td>
 					<td><input type="text" name="off_tod" class="form-control input-sm" placeholder="00:00"></td>
 					<td>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="1">Lu</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="2">Ma</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="3">Me</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="4">Gi</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="5">Ve</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="6">Sa</label>
-						<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="7">Do</label>
+						<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
+							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>"><?php echo substr($weekdays[$wd],0,2); ?></label>
+						<?php endfor; ?>					
 					</td>							
-					<td><button type="submit" class="btn btn-default" >Save</button></td>
+					<td><button type="submit" class="btn btn-default" ><?php echo $options->text_save; ?></button></td>
 				</form>
 			  </tr>
 								
@@ -100,28 +92,20 @@
 					<form  id="form_<?php echo $s->id ?>" class="form-inline" action="#" method="post"  >
 					 <input type="hidden" name="id" value="<?php echo $s->id ?>" >
 					 <input type="hidden" name="action" value="update" >
-						<td><label class="checkbox-inline"><input type="checkbox" name="enabled" value="1" <?php echo ($s->enabled) ? "checked" : "" ; ?> > Abilitato</label></td>
+						<td><label class="checkbox-inline"><input type="checkbox" name="enabled" value="1" <?php echo ($s->enabled) ? "checked" : "" ; ?> > <?php echo $options->text_enabled; ?></label></td>
 						<td><select id="select_f_<?php echo $s->id ?>" name="entity_id"  class="form-control"><?php echo $select_option ?></select></td>
 						<td><input type="text" name="on_tod" class="form-control input-sm" value="<?php echo $s->on_tod ?>"></td>
 						<td>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="1" <?php echo is_checked($s->on_dow,1); ?> >Lu</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="2" <?php echo is_checked($s->on_dow,2); ?> >Ma</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="3" <?php echo is_checked($s->on_dow,3); ?> >Me</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="4" <?php echo is_checked($s->on_dow,4); ?> >Gi</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="5" <?php echo is_checked($s->on_dow,5); ?> >Ve</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="6" <?php echo is_checked($s->on_dow,6); ?> >Sa</label>
-							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="7" <?php echo is_checked($s->on_dow,7); ?> >Do</label>
+							<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
+								<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->on_dow,$wd); ?> ><?php echo substr($weekdays[$wd],0,2); ?></label>
+							<?php endfor; ?>							
 						</td>
 						<td><input type="text" name="off_tod" class="form-control input-sm"  value="<?php echo $s->off_tod ?>"></td>
 						<td>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="1" <?php echo is_checked($s->off_dow,1); ?> >Lu</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="2" <?php echo is_checked($s->off_dow,2); ?> >Ma</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="3" <?php echo is_checked($s->off_dow,3); ?> >Me</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="4" <?php echo is_checked($s->off_dow,4); ?> >Gi</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="5" <?php echo is_checked($s->off_dow,5); ?> >Ve</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="6" <?php echo is_checked($s->off_dow,6); ?> >Sa</label>
-							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="7" <?php echo is_checked($s->off_dow,7); ?> >Do</label>
-						</td>							
+							<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
+								<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->off_dow,$wd); ?> ><?php echo substr($weekdays[$wd],0,2); ?></label>
+							<?php endfor; ?>							
+						</td>						
 						<td>
 							<button type="button" onclick="deleteRow('<?php echo $s->id ?>')" class="btn btn-default btn-circle bg-danger"><span class="mdi mdi-delete" ></span> </button>
 							&nbsp;&nbsp;&nbsp;

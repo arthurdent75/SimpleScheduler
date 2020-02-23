@@ -1,6 +1,19 @@
 <?php
 
 include_once("conf.php");
+
+$options_json_file = file_get_contents("/data/options.json");
+$options = json_decode($options_json_file);
+$weekdays = Array("",
+	$options->text_monday,
+	$options->text_tuesday,
+	$options->text_wednesday,
+	$options->text_thursday,
+	$options->text_friday,
+	$options->text_saturday,
+	$options->text_sunday 
+	);		
+	
 $switch_friendly_name=array();
 
 	
@@ -21,13 +34,8 @@ function get_switch_list() {
 	$result = json_decode( curl_exec($curlSES) );
 	curl_close($curlSES);
 	
-	// echo "<pre>";
-	// print_r($result);
-	// echo "</pre>";
-
 	foreach ($result as $item) {
 		$eid = $item->entity_id;
-		// echo $eid . "\n\r";
 		if ( substr( $eid, 0, 7 ) === "switch." || substr( $eid, 0, 6 ) === "light." ) {
 			$switch = new stdClass();
 			$switch->entity_id = $eid;
@@ -53,10 +61,6 @@ function call_HA (string $eid, string $action ) {
     $command_url = $HASSIO_URL . "/services/" . $domain[0] . "/turn_" . $action;
 	
     $postdata = "{\"entity_id\":\"$eid\"}" ;
-
-	// echo "URL: ". $command_url . "\n";
-	// echo "postdata: ". $postdata . "\n";
-	
 	
 	$curlSES=curl_init(); 
 	curl_setopt($curlSES,CURLOPT_URL,"$command_url");
@@ -135,12 +139,12 @@ function create_file(string $eid) {
 }
 
 function get_friendly_html_dow(string $s,bool $on) {
-	$dows = Array("Lu","Ma","Me","Gi","Ve","Sa","Do");
+	global $weekdays;
 	$html = "<div>";
 	$onOffClass = ($on) ? "dowHiglightG" : "dowHiglightR";
-	for($i=0; $i<7; $i++) {
-		$d = $dows[$i];
-		$class = (strpos($s, chr($i+49)  ) !== false ) ? $onOffClass : "" ;
+	for($i=1; $i<=7; $i++) {
+		$d = substr($weekdays[$i],0,2);
+		$class = (strpos($s, chr($i+48)  ) !== false ) ? $onOffClass : "" ;
 		$html .= "<div class=\"dowIcon $class \" >$d</div> ";
 	}
 	$html .= "</div>";
