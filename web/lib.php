@@ -4,25 +4,33 @@ include_once("conf.php");
 
 $options_json_file = file_get_contents("/data/options.json");
 $options = json_decode($options_json_file);
+$translations = $options->translations;
+$components = (array) $options->components;
 $weekdays = Array("",
-	$options->text_monday,
-	$options->text_tuesday,
-	$options->text_wednesday,
-	$options->text_thursday,
-	$options->text_friday,
-	$options->text_saturday,
-	$options->text_sunday 
+	$translations->text_monday,
+	$translations->text_tuesday,
+	$translations->text_wednesday,
+	$translations->text_thursday,
+	$translations->text_friday,
+	$translations->text_saturday,
+	$translations->text_sunday 
 	);		
 	
 $switch_friendly_name=array();
 
-	
+// echo "<pre>";
+// print_r($options);
+// print_r($components);
+// echo "</pre>";
+
 function get_switch_list() {
 	global $switch_friendly_name;
 	global $SUPERVISOR_TOKEN;
 	global $HASSIO_URL;
+	global $components;
 	
-	$switch_list = array();
+	
+	$full_switch_list = array();
 	$curlSES=curl_init(); 
 	curl_setopt($curlSES,CURLOPT_URL,"$HASSIO_URL/states");
 	curl_setopt($curlSES,CURLOPT_RETURNTRANSFER,true);
@@ -34,22 +42,28 @@ function get_switch_list() {
 	$result = json_decode( curl_exec($curlSES) );
 	curl_close($curlSES);
 	
-	foreach ($result as $item) {
-		$eid = $item->entity_id;
-		if ( substr( $eid, 0, 7 ) === "switch." || substr( $eid, 0, 6 ) === "light." ) {
-			$switch = new stdClass();
-			$switch->entity_id = $eid;
-			$switch->friendly_name = $item->attributes->friendly_name;
-			$switch->icon = str_replace(':','-',$item->attributes->icon);
-			$switch->state = $item->state;
-			$switch_list[] = $switch;
-			$switch_friendly_name[$eid]=$item->attributes->friendly_name;
-			unset($switch);
-		}
-	}
+	foreach ($components as $c=>$cstate) :
+		if ($cstate) :
+			$switch_list = array();
+			foreach ($result as $item) :
+				$eid = $item->entity_id;
+				if ( substr( $eid, 0, strlen($c) ) === $c ) :
+					$switch = new stdClass();
+					$switch->entity_id = $eid;
+					$switch->friendly_name = $item->attributes->friendly_name;
+					$switch->icon = str_replace(':','-',$item->attributes->icon);
+					$switch->state = $item->state;
+					$switch_list[] = $switch;
+					$switch_friendly_name[$eid]=$item->attributes->friendly_name;
+					unset($switch);
+				endif;
+			endforeach;
+			usort($switch_list, function($a, $b) { return ($a->friendly_name=="") ? 1 : strcasecmp($a->friendly_name, $b->friendly_name)  ; } );
+			$full_switch_list = array_merge($full_switch_list,$switch_list);
+		endif;
+	endforeach;
 	
-	usort($switch_list, function($a, $b) { return ($a->friendly_name=="") ? 1 : strcasecmp($a->friendly_name, $b->friendly_name)  ; } );
-	return $switch_list;
+	return $full_switch_list;
 }	
 
 

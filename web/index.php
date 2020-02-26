@@ -45,10 +45,10 @@
 			<thead class="thead-dark">
 			<tr>
 			  <th scope="col">&nbsp;</th>
-			  <th scope="col"><?php echo $options->text_device; ?></th>
-			  <th scope="col"><?php echo $options->text_ON; ?></th>
+			  <th scope="col"><?php echo $translations->text_device; ?></th>
+			  <th scope="col"><?php echo $translations->text_ON; ?></th>
 			  <th scope="col"></th>
-			  <th scope="col"><?php echo $options->text_OFF; ?></th>
+			  <th scope="col"><?php echo $translations->text_OFF; ?></th>
 			  <th scope="col"></th>
 			  <th scope="col"></th>
 			</tr>
@@ -72,7 +72,7 @@
 							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>"><?php echo substr($weekdays[$wd],0,2); ?></label>
 						<?php endfor; ?>					
 					</td>							
-					<td><button type="submit" class="btn btn-default" ><?php echo $options->text_save; ?></button></td>
+					<td><button type="submit" class="btn btn-default" ><?php echo $translations->text_save; ?></button></td>
 				</form>
 			  </tr>
 								
@@ -92,7 +92,7 @@
 					<form  id="form_<?php echo $s->id ?>" class="form-inline" action="#" method="post"  >
 					 <input type="hidden" name="id" value="<?php echo $s->id ?>" >
 					 <input type="hidden" name="action" value="update" >
-						<td><label class="checkbox-inline"><input type="checkbox" name="enabled" value="1" <?php echo ($s->enabled) ? "checked" : "" ; ?> > <?php echo $options->text_enabled; ?></label></td>
+						<td><label class="checkbox-inline"><input type="checkbox" name="enabled" value="1" <?php echo ($s->enabled) ? "checked" : "" ; ?> > <?php echo $translations->text_enabled; ?></label></td>
 						<td><select id="select_f_<?php echo $s->id ?>" name="entity_id"  class="form-control"><?php echo $select_option ?></select></td>
 						<td><input type="text" name="on_tod" class="form-control input-sm" value="<?php echo $s->on_tod ?>"></td>
 						<td>
