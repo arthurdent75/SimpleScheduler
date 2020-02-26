@@ -169,10 +169,18 @@ function get_friendly_html_dow(string $s,bool $on) {
 function get_switch_html_select_options() {	
 	$html = "";
 	$switch_list = get_switch_list();	
+	$comp="";
 	foreach ($switch_list as $s) {
+		$c = explode('.',$s->entity_id); 
+		if ($comp!=$c[0]) {
+			if ($comp!="") $html .= '</optgroup>';
+			$comp=$c[0];
+			$html .= '<optgroup label="' . $comp . '">';
+		}
 		$name = ($s->friendly_name=="") ? $s->entity_id : "$s->friendly_name ($s->entity_id)" ;
 		$html .= "<option value=\"$s->entity_id\">$name</option>";
 	}
+	$html .= '</optgroup>';
 	return $html;
 }
 
