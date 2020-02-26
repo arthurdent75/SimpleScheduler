@@ -37,7 +37,8 @@
 		"camera": true,
 		"climate": true,
 		"automation": true,
-		"media_player": true
+		"media_player": true,
+		"input_boolean": true
 	}
   },
   "schema": {
@@ -63,7 +64,8 @@
 		"camera": "bool",
 		"climate": "bool",
 		"automation": "bool",
-		"media_player": "bool"
+		"media_player": "bool",
+		"input_boolean": "bool"
 	}
   },
   "webui": "http://[HOST]:[PORT:8099]"
