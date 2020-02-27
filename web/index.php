@@ -60,13 +60,13 @@
 			      <input type="hidden" name="enabled" value="1" >				
 					<td></td>
 					<td><select name="entity_id" class="form-control"><?php echo $select_option ?></select></td>
-					<td><input type="text" name="on_tod" class="form-control input-sm" placeholder="00:00"></td>
+					<td><input type="text" name="on_tod" class="form-control input-sm" placeholder="00:00 / sunset / sunrise"></td>
 					<td>
 						<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
 							<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="<?php echo $wd; ?>"><?php echo substr($weekdays[$wd],0,2); ?></label>
 						<?php endfor; ?>
 					</td>
-					<td><input type="text" name="off_tod" class="form-control input-sm" placeholder="00:00"></td>
+					<td><input type="text" name="off_tod" class="form-control input-sm" placeholder="00:00 / sunset / sunrise"></td>
 					<td>
 						<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
 							<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>"><?php echo substr($weekdays[$wd],0,2); ?></label>

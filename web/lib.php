@@ -1,9 +1,12 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL & ~E_NOTICE);
 
 include_once("conf.php");
 
-$options_json_file = file_get_contents("/data/options.json");
-$options = json_decode($options_json_file);
+$sun_file_age = 3600 * 6;
+$options = json_decode(file_get_contents($options_json_file) );
 $translations = $options->translations;
 $components = (array) $options->components;
 $weekdays = Array("",
@@ -17,11 +20,6 @@ $weekdays = Array("",
 	);		
 	
 $switch_friendly_name=array();
-
-// echo "<pre>";
-// print_r($options);
-// print_r($components);
-// echo "</pre>";
 
 function get_switch_list() {
 	global $switch_friendly_name;
@@ -41,6 +39,8 @@ function get_switch_list() {
 	
 	$result = json_decode( curl_exec($curlSES) );
 	curl_close($curlSES);
+
+	save_sunset_sunrise($result);
 	
 	foreach ($components as $c=>$cstate) :
 		if ($cstate) :
@@ -51,7 +51,7 @@ function get_switch_list() {
 					$switch = new stdClass();
 					$switch->entity_id = $eid;
 					$switch->friendly_name = $item->attributes->friendly_name;
-					$switch->icon = str_replace(':','-',$item->attributes->icon);
+					// $switch->icon = str_replace(':','-',$item->attributes->icon);
 					$switch->state = $item->state;
 					$switch_list[] = $switch;
 					$switch_friendly_name[$eid]=$item->attributes->friendly_name;
@@ -89,7 +89,8 @@ function call_HA (string $eid, string $action ) {
 	
 	$result = curl_exec($curlSES);
 	curl_close($curlSES);	
-	echo "\n\nTurning $action $eid \n\n";
+	$ts = date("Y-m-d H:i");
+	echo "\n\n$ts --> Turning $action $eid \n\n";
 	return $result;
 }
 
@@ -189,3 +190,37 @@ function is_checked(string $s , int $i) {
 	if (strpos($s, chr($i+48)  ) === false ) $checked = "";
 	return $checked;
 }
+
+function get_sunset_sunrise() {
+	global $sun_filename;
+	global $sun_file_age;
+	$result = array("sunset"=>"","sunrise"=>"",);
+	
+	if (!file_exists($sun_filename))  get_switch_list();
+	if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) get_switch_list();
+
+	$json=json_decode(file_get_contents($sun_filename));
+	$sunset_timestamp = strtotime($json->next_setting);
+	$sunrise_timestamp = strtotime($json->next_rising);
+	$result["sunset"] = date("H:i",$sunset_timestamp);
+	$result["sunrise"] = date("H:i",$sunrise_timestamp);
+	
+	return $result;
+ }
+ 
+ function save_sunset_sunrise(array $json) {
+	global $sun_filename;
+	foreach ($json as $item) : 
+	if ($item->entity_id == "sun.sun") :
+		$attr = $item->attributes;
+		break;
+	endif;
+	endforeach;
+
+	if (file_exists($sun_filename)) {
+		if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) file_put_contents( $sun_filename,json_encode($attr) );
+	} else {
+		file_put_contents( $sun_filename,json_encode($attr) );
+	}
+
+ }
