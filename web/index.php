@@ -14,13 +14,26 @@
 					delete_file($_POST["id"]);
 					break;					
 		}
+			
 		header("HTTP/1.1 303 See Other");
 		header("Location: index.php");
 	}
 	
+	if ( isset($_GET["action"]) ) {
+		switch ($_GET["action"]) {
+			case "status":
+					echo is_scheduler_running();
+					die();
+			case "log":
+					if (file_exists($logfile)) readfile($logfile); 
+					die();					
+		}
+	}					
+	
 	$wd=0;
 	$sched = load_data();
 	$select_option = get_switch_html_select_options();
+	$sun = get_sunset_sunrise();
 ?>
 
 <!doctype html>
@@ -32,16 +45,19 @@
 
 <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.8.95/css/materialdesignicons.min.css" >
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" href="style.css" >
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" ></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" ></script>
 <script src="script.js" ></script>
 <link rel="stylesheet" href="style.css" >
 </head>
 <body>
 
 	<div class="table-responsive">
-		<table class="table ">
+		<table class="table " id="dtable">
 			<thead class="thead-dark">
 			<tr>
 			  <th scope="col">&nbsp;</th>
@@ -121,6 +137,38 @@
 	</div>
 	
 	<button type="button" onclick="showAddRow()" class="btn btn-default btn-circle btn-xl bg-primary floating-bottom-right"><span class="mdi mdi-plus"></span> </button>
+	
+	<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+	  <div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLongTitle">Scheluler LOG</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">&times;</span>
+			</button>
+		  </div>
+		  <div class="modal-body">
+			<pre>
+				<?php readfile($logfile); ?>
+			</pre>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	<footer class="footer">
+      <div class="statusbar">
+        <p>
+			<span data-toggle="modal" data-target="#exampleModalLong">Scheduler:</span> <span class="statusbar_span" id="schedulerstatus"><?php echo (is_scheduler_running()) ? "" : "NOT " ?>RUNNING</span>
+			<span class="statusbar_span"><?php echo "Sunrise ".$sun["sunrise"] ?></span>
+			<span class="statusbar_span"><?php echo "Sunset ".$sun["sunset"] ?></span>
+		</p>
+      </div>
+    </footer>
+
 
 </body>
 </html>

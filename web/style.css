@@ -1,4 +1,8 @@
 
+#dtable {
+	margin-top: 0 !important;
+}
+
 .dowIcon  {
 	border: 0px solid ;
 	border-radius: 20px;
@@ -53,6 +57,26 @@
 	margin: -6px 0;
 	
 }
+
+footer {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	margin:0;
+	padding: 0;
+	width: 100%;
+	height: 2em;
+	line-height: 2em;
+	font-size: 0.8em;
+	background-color: grey;
+	color: white;
+}
+
+footer .statusbar {
+	margin-left: 1em;
+}
+
+.statusbar_span {margin-right: 2em;}
 
 @media screen and (max-width: 800px) {
 

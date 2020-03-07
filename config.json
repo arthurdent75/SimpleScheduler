@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.13",
+  "version": "0.14",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
@@ -39,7 +39,8 @@
 		"automation": true,
 		"input_boolean": true,
 		"media_player": true
-	}
+	},
+	"debug" : false
   },
   "schema": {
 	"translations": {  
@@ -66,7 +67,8 @@
 		"automation": "bool",
 		"input_boolean": "bool",
 		"media_player": "bool"
-	}
+	},
+	"debug" : "bool"	
   },
   "webui": "http://[HOST]:[PORT:8099]"
 }

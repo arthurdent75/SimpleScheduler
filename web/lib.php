@@ -1,10 +1,10 @@
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL & ~E_NOTICE);
 
 include_once("conf.php");
 
+$logfile="/share/simplescheduler/scheduler.log";
 $sun_file_age = 3600 * 6;
 $options = json_decode(file_get_contents($options_json_file) );
 $translations = $options->translations;
@@ -18,6 +18,13 @@ $weekdays = Array("",
 	$translations->text_saturday,
 	$translations->text_sunday 
 	);		
+
+if ($options->debug) {
+		error_reporting(E_ALL);
+    } else {
+		error_reporting(0);
+	}
+
 	
 $switch_friendly_name=array();
 
@@ -40,7 +47,7 @@ function get_switch_list() {
 	$result = json_decode( curl_exec($curlSES) );
 	curl_close($curlSES);
 
-	save_sunset_sunrise($result);
+	if (is_array($result)) save_sunset_sunrise($result);
 	
 	foreach ($components as $c=>$cstate) :
 		if ($cstate) :
@@ -50,11 +57,10 @@ function get_switch_list() {
 				if ( substr( $eid, 0, strlen($c) ) === $c ) :
 					$switch = new stdClass();
 					$switch->entity_id = $eid;
-					$switch->friendly_name = $item->attributes->friendly_name;
-					// $switch->icon = str_replace(':','-',$item->attributes->icon);
+					$switch->friendly_name =  (isset($item->attributes->friendly_name)) ? $item->attributes->friendly_name : "" ;
 					$switch->state = $item->state;
 					$switch_list[] = $switch;
-					$switch_friendly_name[$eid]=$item->attributes->friendly_name;
+					$switch_friendly_name[$eid] = (isset($item->attributes->friendly_name)) ? $item->attributes->friendly_name : "" ;
 					unset($switch);
 				endif;
 			endforeach;
@@ -210,17 +216,34 @@ function get_sunset_sunrise() {
  
  function save_sunset_sunrise(array $json) {
 	global $sun_filename;
+	global $sun_file_age;
 	foreach ($json as $item) : 
 	if ($item->entity_id == "sun.sun") :
 		$attr = $item->attributes;
 		break;
 	endif;
 	endforeach;
+	
+	try {	
 
-	if (file_exists($sun_filename)) {
-		if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) file_put_contents( $sun_filename,json_encode($attr) );
-	} else {
-		file_put_contents( $sun_filename,json_encode($attr) );
-	}
+		if (file_exists($sun_filename)) {
+			if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) file_put_contents( $sun_filename,json_encode($attr) );
+		} else {
+			file_put_contents( $sun_filename,json_encode($attr) );
+		}
+	} catch (Exception $e) {
+		if ($options->debug) echo 'Caught exception: ',  $e->getMessage(), "\n";
+	}	
 
+ }
+ 
+ function is_scheduler_running() {
+	$response=0;
+	try {
+		exec("pgrep -af scheduler", $pids);
+		foreach ($pids as $p) {		if (strpos($p,"scheduler.php")!== false) $response=1; }
+	} catch (Exception $e) {
+		if ($options->debug) echo 'Caught exception: ',  $e->getMessage(), "\n";
+	}		
+	return $response ;
  }

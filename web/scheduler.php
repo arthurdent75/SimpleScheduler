@@ -4,8 +4,6 @@
 	
 	include_once("lib.php");
 
-	date_default_timezone_set(get_ha_timezone());	
-	
 	while(true) :
 	
 		$seconds = date("s");
