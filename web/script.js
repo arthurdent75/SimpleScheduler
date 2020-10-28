@@ -1,15 +1,15 @@
-$(document).ready(function() {
-    $('#dtable').DataTable( {
-		"dom": "t",
-        "paging":   false,
-		"bStateSave": true,
-		"aSorting": [[1, "desc" ]],
-        "ordering": true,
-		"aoColumnDefs": [
-			{ "bSortable": false , "aTargets": [ 0,3,5,6 ] },
-		]
-    } );
-} );
+// $(document).ready(function() {
+    // $('#dtable').DataTable( {
+		// "dom": "t",
+        // "paging":   false,
+		// "bStateSave": false,
+		// "aSorting": [[1, "desc" ]],
+        // "ordering": true,
+		// "aoColumnDefs": [
+			// { "bSortable": false , "aTargets": [ 0,3,5,6 ] },
+		// ]
+    // } );
+// } );
 
 
 $(function () {
