@@ -1,3 +1,7 @@
+**Version 0.16**
+- Fix option.json issue
+- Removed table sorting
+
 **Version 0.15**
 - Fix Timezone Issue
 
