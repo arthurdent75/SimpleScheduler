@@ -16,8 +16,6 @@
 				
 		}					
 	
-		echo "<pre>";
-		print_r($_POST);
 		header("HTTP/1.1 303 See Other");
 		header("Location: index.php");
 
@@ -44,10 +42,7 @@
 	$order_array=get_order_array();
 	$order=0;
 	
-	// echo "<pre>";
-		// print_r($order_array);
-	// echo "</pre>";
-		
+	
 ?>
 
 <!doctype html>
