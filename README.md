@@ -6,14 +6,17 @@ You can keep all the schedules in one place and add/change in a few clicks, even
 
 
 ### Installation
-You can add the URL of this page in your "add-on store" as a new repository. Click refresh and you will find the add-on "Simple Scheduler" listed.
+You can add the URL of this page in your "add-on store" as a new repository.
+(Supervisor > Add-on store > three dots in top right corner > Repository)
+Click refresh and you will find the add-on "Simple Scheduler" listed.
 
 ### How to use it
 The add-on is very easy and intuitive (or, at least, that's what I hope)
 Once installed, open the GUI or click on the sidebar (if you choose to add to it)
 Just click on the round plus button in the bottom right and add your first schedule.
-Choose the switch/light from the dropdown, fill the ON time (in 24 hours format, as suggested) and select the weekdays. Do the same for the OFF time and click "save".
+Choose one or more entity from the dropdown, fill the ON time (in 24 hours format, as suggested) and select the weekdays. Do the same for the OFF time and click "save".
 That's it!
+You can also set multiple time in the same scheduler. Just write them in the field separated by spaces. Also, you can use the words "sunrise" and "sunset".
 It's not mandatory to add both ON and OFF time. You can leave one of them empty if you don't need it.
 For example, you want to turn off a light every day at 22:00, but you don't need to turn it on.
 You can then edit any of the schedules with the icon at the end of the row.
@@ -30,7 +33,7 @@ Every schedule (or row, if you prefer) is a JSON file stored in the [share/simpl
 This gives the chance to the data to "survive" to an addon upgrade or reinstallation.
 You can easily backup and restore them in case of failure. In the same way, you can (accidentally?) delete them. So be aware of that.
 
-### Last but not the least
+### Last but not least
 If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.buymeacoffee.com/arthurdent75">buy me a beer 🍺</a>
 You may say that regular people need coffee to do that. Well, I'm not a regular person.
 

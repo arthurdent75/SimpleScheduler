@@ -8,7 +8,9 @@ date_default_timezone_set(get_ha_timezone());
 
 $logfile="/share/simplescheduler/scheduler.log";
 $sun_file_age = 3600 * 6;
-$options = json_decode(file_get_contents($options_json_file) );
+$options_json = @file_get_contents($options_json_file);
+if (!$options_json) $options_json='{"translations":{"text_monday":"Monday","text_tuesday":"Tuesday","text_wednesday":"Wednesday","text_thursday":"Thursday","text_friday":"Friday","text_saturday":"Saturday","text_sunday":"Sunday","text_ON":"Turn ON","text_OFF":"Turn OFF","text_save":"Save","text_enabled":"Enabled","text_device":"Device"},"components":{"light":true,"scene":true,"switch":true,"script":true,"camera":true,"climate":true,"automation":true,"input_boolean":true,"media_player":true},"debug":false}';
+$options = json_decode($options_json);
 $translations = $options->translations;
 $components = (array) $options->components;
 $weekdays = Array("",
@@ -75,30 +77,36 @@ function get_switch_list() {
 }	
 
 
-function call_HA (string $eid, string $action ) {
+function call_HA (Array $eid_list, string $action ) {
 	global $SUPERVISOR_TOKEN;
 	global $HASSIO_URL;
-
-    $domain = explode(".",$eid);
-    $command_url = $HASSIO_URL . "/services/" . $domain[0] . "/turn_" . $action;
+	$result ="";
 	
-    $postdata = "{\"entity_id\":\"$eid\"}" ;
+	foreach ($eid_list as $eid):
+			$domain = explode(".",$eid);
+			$command_url = $HASSIO_URL . "/services/" . $domain[0] . "/turn_" . $action;
+			
+			$postdata = "{\"entity_id\":\"$eid\"}" ;
+			
+			$curlSES=curl_init(); 
+			curl_setopt($curlSES,CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curlSES,CURLOPT_URL,"$command_url");
+			curl_setopt($curlSES,CURLOPT_POST, 1);
+			// curl_setopt($curlSES,CURLOPT_VERBOSE, 1);
+			curl_setopt($curlSES,CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($curlSES,CURLOPT_POSTFIELDS, $postdata);
+			curl_setopt($curlSES,CURLOPT_HTTPHEADER, array(
+				'content-type: application/json',
+				"Authorization: Bearer $SUPERVISOR_TOKEN"
+			));
+			
+			//$result += curl_exec($curlSES);
+			$foo = curl_exec($curlSES);
+			curl_close($curlSES);	
+			$ts = date("Y-m-d H:i");
+			echo "\n$ts --> Turning $action $eid";
+	endforeach;
 	
-	$curlSES=curl_init(); 
-	curl_setopt($curlSES,CURLOPT_URL,"$command_url");
-	curl_setopt($curlSES,CURLOPT_POST, 1);
-	// curl_setopt($curlSES,CURLOPT_VERBOSE, 1);
-	curl_setopt($curlSES,CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($curlSES,CURLOPT_POSTFIELDS, $postdata);
-	curl_setopt($curlSES,CURLOPT_HTTPHEADER, array(
-		'content-type: application/json',
-		"Authorization: Bearer $SUPERVISOR_TOKEN"
-	));
-	
-	$result = curl_exec($curlSES);
-	curl_close($curlSES);	
-	$ts = date("Y-m-d H:i");
-	echo "\n\n$ts --> Turning $action $eid \n\n";
 	return $result;
 }
 
@@ -147,11 +155,13 @@ function create_file(string $eid) {
 	$filename = $json_folder.$id.".json";
 	if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
 	if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
+	foreach($_POST['entity_id'] as $e) $entity_id_array[]=$e;
 	
 	$item = new stdClass();	
 	$item->id = $id;
+	$item->name      = $_POST["name"];
 	$item->enabled   = $_POST["enabled"];
-	$item->entity_id = $_POST["entity_id"];
+	$item->entity_id = $entity_id_array; 
 	$item->on_tod 	 = $_POST["on_tod"];
 	$item->on_dow    = $on_dow;
 	$item->off_tod 	 = $_POST["off_tod"];
@@ -159,6 +169,45 @@ function create_file(string $eid) {
 	file_put_contents($filename, json_encode($item));
 	
 	return $filename;
+}
+
+function get_events_array(string $s) {
+	$trim_space = trim(preg_replace('/\s+/', ' ',$s));
+	$list=explode(" ",$trim_space);
+	asort($list);
+	return $list;
+}
+
+function get_html_events_list(string $s) {
+	$elist = get_events_array($s);
+	$result ="";
+	foreach ($elist as $e) $result .="<span>$e</span>";
+	return $result;
+}
+
+function save_sort() {
+	global $json_folder;
+	$filename = $json_folder."sort.dat";
+	
+	$item = new stdClass();	
+	$item->id_order = $_GET['list'];
+	file_put_contents($filename, json_encode($item));
+	
+	return $filename;
+}
+
+function get_order_array() {
+	global $json_folder;
+	$ret_array=Array();
+	$i=0;
+	$filename = $json_folder."sort.dat";
+	if (file_exists($filename)){
+		$item = json_decode(@file_get_contents($filename));
+		if (isset($item->id_order)) {
+			foreach($item->id_order as $key=>$value) { $ret_array["$value"]=$key; }
+		 }
+	}
+	return $ret_array;
 }
 
 function get_friendly_html_dow(string $s,bool $on) {
@@ -207,7 +256,7 @@ function get_sunset_sunrise() {
 	if (!file_exists($sun_filename))  get_switch_list();
 	if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) get_switch_list();
 
-	$json=json_decode(file_get_contents($sun_filename));
+	$json=json_decode(@file_get_contents($sun_filename));
 	$sunset_timestamp = strtotime($json->next_setting);
 	$sunrise_timestamp = strtotime($json->next_rising);
 	$result["sunset"] = date("H:i",$sunset_timestamp);
@@ -231,7 +280,7 @@ function get_sunset_sunrise() {
 		if (file_exists($sun_filename)) {
 			if ( (time()-filemtime($sun_filename) ) > $sun_file_age ) file_put_contents( $sun_filename,json_encode($attr) );
 		} else {
-			file_put_contents( $sun_filename,json_encode($attr) );
+			@file_put_contents( $sun_filename,json_encode($attr) );
 		}
 	} catch (Exception $e) {
 		if ($options->debug) echo 'Caught exception: ',  $e->getMessage(), "\n";

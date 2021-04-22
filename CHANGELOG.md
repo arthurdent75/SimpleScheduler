@@ -1,3 +1,12 @@
+**Version 0.20**
+- Add Name to scheduling
+- Can add more entities in one scheduler
+- Can add multiple time in one scheduler
+- Can drag rows to sort them
+- Changed edit from row to sidebar
+- Little graphic rewiew
+- Code improvements
+
 **Version 0.16**
 - Fix option.json issue
 - Removed table sorting

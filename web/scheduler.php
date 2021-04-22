@@ -24,15 +24,21 @@
 				if ($s->enabled):
 				
 					if (strpos($s->on_dow,  $current_dow)!== false) :
-						if ( $s->on_tod==$current_time  ) call_HA($s->entity_id,"on");
-						if ( strtolower($s->on_tod)=="sunset"  && $is_sunset   ) call_HA($s->entity_id,"on");
-						if ( strtolower($s->on_tod)=="sunrise" && $is_sunrise  ) call_HA($s->entity_id,"on");
+						$elist = get_events_array($s->on_tod);
+						foreach($elist as  $e) :
+							if ( $e==$current_time  ) call_HA($s->entity_id,"on");
+							if ( strtolower($e)=="sunset"  && $is_sunset   ) call_HA($s->entity_id,"on");
+							if ( strtolower($e)=="sunrise" && $is_sunrise  ) call_HA($s->entity_id,"on");
+						endforeach;
 					endif;
 					
 					if (strpos($s->off_dow,  $current_dow)!== false) :
-						if ( $s->off_tod==$current_time  ) call_HA($s->entity_id,"off");					
-						if ( strtolower($s->off_tod)=="sunset"  && $is_sunset  ) call_HA($s->entity_id,"off");
-						if ( strtolower($s->off_tod)=="sunrise" && $is_sunrise ) call_HA($s->entity_id,"off");
+						$elist = get_events_array($s->off_tod);
+						foreach($elist as  $e) :					
+							if ( $e==$current_time  ) call_HA($s->entity_id,"off");					
+							if ( strtolower($e)=="sunset"  && $is_sunset  ) call_HA($s->entity_id,"off");
+							if ( strtolower($e)=="sunrise" && $is_sunrise ) call_HA($s->entity_id,"off");
+						endforeach;
 					endif;
 					
 				endif;
@@ -44,4 +50,3 @@
 		sleep(1);
 		
 	endwhile;
-	

@@ -1,28 +1,59 @@
 
-#dtable {
-	margin-top: 0 !important;
+#sidebar {
+	display:none;
+    min-width: 250px;
+    max-width: 25%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    right: 0;
+	padding: 1em;
+    z-index: 9999;
+	background-color: rgba(255,255,255,0.98);
+    box-shadow: 5px 5px 18px 0px #000;	
 }
+
+.edit-form > div {
+	margin: 1em 0;
+}
+
+.btn-default { color: white;}
 
 .dowIcon  {
 	border: 0px solid ;
 	border-radius: 20px;
 	background: grey;
 	color: white;
-	width: 32px;
-	height: 32px;
+	font-size: 1rem;
+	width: 2rem;
+	height: 2rem;
+	line-height: 2rem;
 	text-align: center;
-	line-height: 32px;
 	margin-right: 0.1em;
 	display: inline-block
 }
-
-.text-green {color:green;}
-.text-red   {color:red;}
 
 .dowHiglightR { 	background: red ; }
 .dowHiglightG { 	background: green ; }
 
 .icon-space {width: 32px;}
+
+.text-green {color:green;}
+.text-red   {color:red;}
+.text-white   {color:white;}
+
+.bg-primary  {color:white;}
+
+
+div.edit-section-label {
+	width: 100%;
+	border-bottom: 1px solid #777;
+	margin-top: 1em;
+}
+div.edit-section-label label{
+	line-height: 1em;
+	font-weight: bold;
+}
 
 .btn-circle.btn-xl {
     width: 70px;
@@ -52,11 +83,18 @@
 	right: 5%;
 }
 
-.resize-icon:before {
-	line-height: 1em;
-	margin: -6px 0;
-	
+.table td, .table th {
+    vertical-align: middle;
+    
 }
+
+.event-list span {
+	font-weight: bold;
+	font-size: 1.25rem;
+	margin-right: 1rem;
+	line-height: 2rem;
+}
+
 
 footer {
 	position: fixed;
@@ -78,7 +116,17 @@ footer .statusbar {
 
 .statusbar_span {margin-right: 2em;}
 
+@media screen and (min-width: 1281px) {
+	html {	font-size: 10pt; }
+}
+
+@media screen and (max-width: 1280px) {
+	html {	font-size: 9pt; }
+}
+
 @media screen and (max-width: 800px) {
+	
+html {	font-size: 8pt; }
 
 TABLE TD {
 	display: block;
@@ -88,12 +136,11 @@ TABLE TD {
 
 TABLE TD:first-child {display:none;}
 TABLE TD:nth-child(2) {
-	background-color: #343a40 ;
-	color: white;
+
 }
 
 TABLE TR {
-	border-top: 2px solid black;
+    box-shadow: 0px -10px 20px -10px #777;
 }
 
 TABLE THEAD {
