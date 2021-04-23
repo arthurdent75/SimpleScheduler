@@ -215,7 +215,7 @@ function get_friendly_html_dow(string $s,bool $on) {
 	$html = "<div>";
 	$onOffClass = ($on) ? "dowHiglightG" : "dowHiglightR";
 	for($i=1; $i<=7; $i++) {
-		$d = substr($weekdays[$i],0,2);
+		$d = mb_substr($weekdays[$i],0,2);
 		$class = (strpos($s, chr($i+48)  ) !== false ) ? $onOffClass : "" ;
 		$html .= "<div class=\"dowIcon $class \" >$d</div> ";
 	}
