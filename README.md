@@ -37,7 +37,7 @@ You can easily backup and restore them in case of failure. In the same way, you 
 If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.buymeacoffee.com/arthurdent75">buy me a beer 🍺</a>
 You may say that regular people need coffee to do that. Well, I'm not a regular person.
 
-###  - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - -** 
+###  - - - - F A Q - - - - - F A Q - - - - - F A Q - - - -** 
 
 **I set a timer but it switchs on/off at a wrong time**
 *Be sure to set the correct timezone in Settings->General*
