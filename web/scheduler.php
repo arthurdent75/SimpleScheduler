@@ -1,6 +1,6 @@
 <?php
 
-	echo "Starting...\n";
+	echo "\n\nStarting...\n";
 	
 	include_once("lib.php");
 
@@ -22,6 +22,8 @@
 			foreach ($sched as $s) :
 		
 				if ($s->enabled):
+				
+					if ( !is_array($s->entity_id) ) { $tmp = $s->entity_id; $s->entity_id = Array($tmp); }
 				
 					if (strpos($s->on_dow,  $current_dow)!== false) :
 						$elist = get_events_array($s->on_tod);
