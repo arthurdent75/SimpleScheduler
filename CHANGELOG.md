@@ -2,7 +2,7 @@
 - Fixed a bug in scheduler
 
 **Version 0.21**
-- Fixed visualization of UTF-8 chars (#11)
+- Fixed visualization of UTF-8 chars (issue #11)
 
 **Version 0.20**
 - Add Name to scheduling
