@@ -1,3 +1,10 @@
+**Version 0.30**
+- Can set brightness to Lights
+- Can set temperature in Climates
+- Can add positive/negative offset to sunset/sunrise
+- Embed style and script to avoid cache issues
+- Bugfix
+
 **Version 0.22**
 - Fixed a bug in scheduler
 

@@ -3,7 +3,8 @@ FOLDER=/share/simplescheduler
 
 mkdir -p $FOLDER
 
-cp /data/options.json $FOLDER/options.json
+cp /data/options.json $FOLDER/options.dat
+rm $FOLDER/options.json 
 
 chmod -R 777 $FOLDER
 

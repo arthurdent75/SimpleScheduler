@@ -29,7 +29,6 @@ if ($options->debug) {
 		error_reporting(0);
 	}
 
-	
 $switch_friendly_name=array();
 
 function get_switch_list() {
@@ -77,16 +76,44 @@ function get_switch_list() {
 }	
 
 
-function call_HA (Array $eid_list, string $action ) {
-	global $SUPERVISOR_TOKEN;
+function call_HA (Array $eid_list, string $action , string $value="" ) {
+
 	global $HASSIO_URL;
 	$result ="";
 	
 	foreach ($eid_list as $eid):
+	
 			$domain = explode(".",$eid);
 			$command_url = $HASSIO_URL . "/services/" . $domain[0] . "/turn_" . $action;
 			
 			$postdata = "{\"entity_id\":\"$eid\"}" ;
+			
+			if ($domain[0]=="light" && $value!="" ) {
+				$v = (int)((int)$value * 2.55);
+				$postdata = "{\"entity_id\":\"$eid\",\"brightness\":\"$v\"}" ;
+			}
+
+			call_HA_API($command_url,$postdata);
+
+			if ($domain[0]=="climate" && $value!="" ) {
+				$command_url = $HASSIO_URL . "/services/climate/set_temperature";
+				$postdata = "{\"entity_id\":\"$eid\",\"temperature\":$value}" ;
+				call_HA_API($command_url,$postdata);
+			}			
+
+			$ts = date("Y-m-d H:i");
+			echo "\n$ts --> Turning $action $eid";
+			if ($domain[0]=="light" && $value!="" ) echo " at $value%";
+			if ($domain[0]=="climate" && $value!="" ) echo " at ${value}°";
+			
+	endforeach;
+	
+	return $result;
+}
+
+function call_HA_API (string $command_url , string $postdata ) {
+			
+			global $SUPERVISOR_TOKEN;
 			
 			$curlSES=curl_init(); 
 			curl_setopt($curlSES,CURLOPT_RETURNTRANSFER, 1);
@@ -103,11 +130,7 @@ function call_HA (Array $eid_list, string $action ) {
 			//$result += curl_exec($curlSES);
 			$foo = curl_exec($curlSES);
 			curl_close($curlSES);	
-			$ts = date("Y-m-d H:i");
-			echo "\n$ts --> Turning $action $eid";
-	endforeach;
-	
-	return $result;
+			return $foo;
 }
 
 function get_ha_timezone() {
@@ -153,14 +176,14 @@ function create_file(string $eid) {
 	$off_dow="";
 	$id = ($eid!="") ? $eid : uniqid();
 	$filename = $json_folder.$id.".json";
-	if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
-	if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
+	if (isset($_POST['on_dow']))  if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
+	if (isset($_POST['off_dow'])) if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
 	foreach($_POST['entity_id'] as $e) $entity_id_array[]=$e;
-	
+	$enabled = (isset($_POST["enabled"])) ? 1 : 0;
 	$item = new stdClass();	
 	$item->id = $id;
 	$item->name      = $_POST["name"];
-	$item->enabled   = $_POST["enabled"];
+	$item->enabled   = $enabled;
 	$item->entity_id = $entity_id_array; 
 	$item->on_tod 	 = $_POST["on_tod"];
 	$item->on_dow    = $on_dow;
@@ -181,8 +204,51 @@ function get_events_array(string $s) {
 function get_html_events_list(string $s) {
 	$elist = get_events_array($s);
 	$result ="";
-	foreach ($elist as $e) $result .="<span>$e</span>";
+	foreach ($elist as $e) {
+		$extra="";
+		$piece=explode(">",$e);
+		if (isset($piece[1])) {
+			$v = substr(trim($piece[1]), 1);
+			if(strtoupper($piece[1][0])=="B") $extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
+			if(strtoupper($piece[1][0])=="T") $extra="<span class=\"event-type-t\"><i class=\"mdi mdi-thermometer\" aria-hidden=\"true\"></i>$v&deg;</span>";
+		}
+		$result .="<span>$piece[0]$extra</span>";
+	}
 	return $result;
+}
+
+function evaluate_event_time(string $e, array $sun) {
+		$event="";
+		$e=strtoupper($e);
+		$piece=explode(">",$e);	
+		$event=trim($piece[0]);
+		$operator="~";
+		
+		if (substr($event,0,3)=="SUN") {
+			if (strpos($event, '+') !== false) $operator="+";
+			if (strpos($event, '-') !== false) $operator="-";
+			$split=explode($operator,$event);
+			if ($split[0]=="SUNSET") $event=$sun["sunset"];
+			if ($split[0]=="SUNRISE") $event=$sun["sunrise"];
+			if (isset($split[1])) {
+				$offset=(int)$split[1];
+				$event_time_format = strtotime("$event $operator $offset minute  ");
+				$event = date("H:i", $event_time_format );
+			}
+		}
+	return $event;
+}
+
+function get_event_extra_info(string $e) {
+		$extra="";
+		$t = "";
+		$v = "";
+		$piece=explode(">",$e);
+		if (isset($piece[1])) {
+			$t = substr(trim($piece[1]), 0,1);
+			$v = substr(trim($piece[1]), 1);
+		}	
+		return Array($t,$v);
 }
 
 function save_sort() {

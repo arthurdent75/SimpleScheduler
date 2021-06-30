@@ -14,8 +14,6 @@
 			$current_dow = date("N");
 			
 			$sun = get_sunset_sunrise();
-			$is_sunset  = (bool)($current_time==$sun["sunset"]);
-			$is_sunrise = (bool)($current_time==$sun["sunrise"]);
 			
 			$sched = load_data();
 			
@@ -28,18 +26,21 @@
 					if (strpos($s->on_dow,  $current_dow)!== false) :
 						$elist = get_events_array($s->on_tod);
 						foreach($elist as  $e) :
-							if ( $e==$current_time  ) call_HA($s->entity_id,"on");
-							if ( strtolower($e)=="sunset"  && $is_sunset   ) call_HA($s->entity_id,"on");
-							if ( strtolower($e)=="sunrise" && $is_sunrise  ) call_HA($s->entity_id,"on");
+							$extra = ""; $value = "";
+							$event_time = evaluate_event_time($e,$sun);
+							if ( $event_time==$current_time ) :
+								$extra = get_event_extra_info($e);
+								$value=$extra[1] ;
+								call_HA($s->entity_id,"on",$value);
+							endif;								
 						endforeach;
 					endif;
 					
 					if (strpos($s->off_dow,  $current_dow)!== false) :
 						$elist = get_events_array($s->off_tod);
-						foreach($elist as  $e) :					
-							if ( $e==$current_time  ) call_HA($s->entity_id,"off");					
-							if ( strtolower($e)=="sunset"  && $is_sunset  ) call_HA($s->entity_id,"off");
-							if ( strtolower($e)=="sunrise" && $is_sunrise ) call_HA($s->entity_id,"off");
+						foreach($elist as  $e) :
+							$event_time = evaluate_event_time($e,$sun);
+							if ( $event_time==$current_time ) call_HA($s->entity_id,"off");					
 						endforeach;
 					endif;
 					
