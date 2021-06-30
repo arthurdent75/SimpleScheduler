@@ -25,7 +25,7 @@ If you need more advanced feature then:
 - You can also choose to disable a schedule: the schedule will stay there, but it will not be executed until you will enable it back
 - You can drag the rows to sort them, so you can keep them organized as you like!
 
-Look at the picture just above to see all this things in actions (and combined!).
+Look at the picture above to see all this things in actions (and combined!).
 
 ### Translation
 The default text language is English. They are very few words.
