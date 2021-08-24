@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.30.05",
+  "version": "0.31",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
@@ -8,7 +8,7 @@
   "startup": "application",
   "panel_icon": "mdi:calendar-clock",
   "panel_title": "Scheduler",
-  "panel_admin": false,
+  "panel_admin": true,
   "boot": "auto",
   "hassio_api": true,
   "homeassistant_api": true,

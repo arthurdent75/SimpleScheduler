@@ -4,7 +4,9 @@ FOLDER=/share/simplescheduler
 mkdir -p $FOLDER
 
 cp /data/options.json $FOLDER/options.dat
-rm $FOLDER/options.json 
+if [ -f $FOLDER/options.json ]; then
+	rm $FOLDER/options.json 
+fi
 
 chmod -R 777 $FOLDER
 

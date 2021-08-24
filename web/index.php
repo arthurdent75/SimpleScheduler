@@ -309,19 +309,6 @@
 
 <script>
 
-	$(document).on('click', '#addRow', function () {		
-			var html = '';
-			html += '<div id="inputFormRow">';
-			html += '<div class="input-group mb-3">';
-			html += '<select name="entity_id[]" class="form-control"><?php echo $select_option ?></select>';
-			html += '<div class="input-group-append"><button id="removeRow" type="button" class="btn btn-danger"><span class="mdi mdi-delete" ></span></button></div>';
-			html += '</div>';
-			html += '</div>';
-			$("#info").html('Clic ADD');
-			$('.indexInput').append(html);
-	});
-
-
 	$( document ).ready(function() {
 		
 			var $tbody = $("#dtable tbody");
@@ -334,11 +321,9 @@
 				update:  function(e, tr) {
 							var orderlist = '';
 							$('tr.ui-sortable-handle').each(function (i) {
-								// console.log(i, $(this).attr('data-order') , $(this).attr('data-value') );
 								$(this).attr('data-order',i);
 								orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
 							});
-							// console.log(orderlist);
 							$("#sidebar-wrapper").load("index.php?action=sort"+orderlist);
 						}
 			}).disableSelection();
@@ -392,9 +377,21 @@
 		$("body").css('overflow','auto');
 	}
 	
-
-	
-	
 </script>
+
+<script>
+	$(document).on('click', '#addRow', function () {		
+			var html = '';
+			html += '<div id="inputFormRow">';
+			html += '<div class="input-group mb-3">';
+			html += '<select name="entity_id[]" class="form-control"><?php echo addslashes($select_option); ?></select>';
+			html += '<div class="input-group-append"><button id="removeRow" type="button" class="btn btn-danger"><span class="mdi mdi-delete" ></span></button></div>';
+			html += '</div>';
+			html += '</div>';
+			$("#info").html('Clic ADD');
+			$('.indexInput').append(html);
+	});
+</script>
+
 </body>
 </html>

@@ -1,3 +1,7 @@
+**Version 0.31**
+- Fix single quote issue (#44)
+- Javascript optimization
+
 **Version 0.30**
 - Can set brightness to Lights
 - Can set temperature in Climates
