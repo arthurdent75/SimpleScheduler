@@ -154,6 +154,7 @@
 		font-size: 1.25rem;
 		margin-right: 1rem;
 		line-height: 2rem;
+		float:left;
 	}
 
 	span.event-type-b {
@@ -271,10 +272,12 @@
 												  </td>
 												  <td class="text-green event-cell">
 														<div class="event-list"><?php echo get_html_events_list($s->on_tod); ?></div>
+														<div style="clear:both;"></div>
 														<?php if ($s->on_dow!="") echo get_friendly_html_dow($s->on_dow,true);  ?>
 												  </td>
 												  <td class="text-red event-cell">
 														<div class="event-list"><?php echo get_html_events_list($s->off_tod); ?></div>
+														<div style="clear:both;"></div>
 														<?php if ($s->off_dow!="") echo get_friendly_html_dow($s->off_dow,false);  ?>
 												  </td>
 												  <td><button type="button" class="btn btn-default bg-primary edit-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-pencil" ></span></button></td>
