@@ -39,7 +39,7 @@ This gives the chance to the data to "survive" to an addon upgrade or reinstalla
 You can easily backup and restore them in case of failure. In the same way, you can (accidentally?) delete them. So be aware of that.
 
 ### Last but not least
-If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.buymeacoffee.com/arthurdent75">buy me a beer 🍺</a>
+If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=8FN58C8SM9LLW">buy me a beer 🍺</a>
 You may say that regular people need coffee to do that. Well, I'm not a regular person.
 
 ###  - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - F A Q - - - - - 
