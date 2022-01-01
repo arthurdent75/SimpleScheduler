@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.33",
+  "version": "0.33.1",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
@@ -65,6 +65,7 @@
 		"script": "bool",	
 		"camera": "bool",
 		"climate": "bool",
+		"cover": "bool",
 		"automation": "bool",
 		"input_boolean": "bool",
 		"media_player": "bool"
