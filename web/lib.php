@@ -92,7 +92,23 @@ function call_HA (Array $eid_list, string $action , string $value="" ) {
 				$v = (int)((int)$value * 2.55);
 				$postdata = "{\"entity_id\":\"$eid\",\"brightness\":\"$v\"}" ;
 			}
-
+			
+			if ($domain[0]=="cover"  ) {
+				if ( $value!=""  ) {
+					$v = (int)$value ;
+					$command_url = $HASSIO_URL . "/services/cover/set_cover_position";
+					$postdata = "{\"entity_id\":\"$eid\",\"position\":\"$v\"}" ;
+				} else {
+					if ($action=="on" ) {
+						$command_url = $HASSIO_URL . "/services/cover/open_cover";
+						$postdata = "{\"entity_id\":\"$eid\"}" ;
+					} else {
+						$command_url = $HASSIO_URL . "/services/cover/close_cover";
+						$postdata = "{\"entity_id\":\"$eid\"}" ;
+					}
+				}
+			}			
+			
 			call_HA_API($command_url,$postdata);
 
 			if ($domain[0]=="climate" && $value!="" ) {
@@ -105,6 +121,7 @@ function call_HA (Array $eid_list, string $action , string $value="" ) {
 			echo "\n$ts --> Turning $action $eid";
 			if ($domain[0]=="light" && $value!="" ) echo " at $value%";
 			if ($domain[0]=="climate" && $value!="" ) echo " at ${value}°";
+			if ($domain[0]=="cover" && $value!="" ) echo " at ${value}%";
 			
 	endforeach;
 	
@@ -196,21 +213,24 @@ function create_file(string $eid) {
 
 function get_events_array(string $s) {
 	$trim_space = trim(preg_replace('/\s+/', ' ',$s));
-	$list=explode(" ",$trim_space);
+	$remove_commas=str_replace( ',' , ' ' , $trim_space );
+	$remove_commas=str_replace( ';' , ' ' , $remove_commas );
+	$list=explode(" ",$remove_commas);
 	asort($list);
 	return $list;
 }
 
-function get_html_events_list(string $s) {
+function get_html_events_list(string $s,bool $showvalue=true) {
 	$elist = get_events_array($s);
 	$result ="";
 	foreach ($elist as $e) {
 		$extra="";
 		$piece=explode(">",$e);
-		if (isset($piece[1])) {
+		if (isset($piece[1]) && $showvalue) {
 			$v = substr(trim($piece[1]), 1);
 			if(strtoupper($piece[1][0])=="B") $extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="T") $extra="<span class=\"event-type-t\"><i class=\"mdi mdi-thermometer\" aria-hidden=\"true\"></i>$v&deg;</span>";
+			if(strtoupper($piece[1][0])=="P") $extra="<span class=\"event-type-p\"><i class=\"mdi mdi-arrow-up-down\" aria-hidden=\"true\"></i>$v%</span>";
 		}
 		$result .="<span>$piece[0]$extra</span>";
 	}

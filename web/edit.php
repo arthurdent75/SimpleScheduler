@@ -60,7 +60,7 @@
 						
 						<div>
 							<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
-								<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->on_dow,$wd); ?> ><?php echo substr($weekdays[$wd],0,2); ?></label>
+								<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->on_dow,$wd); ?> ><?php echo mb_substr($weekdays[$wd],0,2); ?></label>
 							<?php endfor; ?>							
 						</div>
 						
@@ -71,7 +71,7 @@
 						
 						<div>
 							<?php for ($wd=1 ; $wd<=7; $wd++) : ?>
-								<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->off_dow,$wd); ?> ><?php echo substr($weekdays[$wd],0,2); ?></label>
+								<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="<?php echo $wd; ?>" <?php echo is_checked($s->off_dow,$wd); ?> ><?php echo mb_substr($weekdays[$wd],0,2); ?></label>
 							<?php endfor; ?>							
 						</div>						
 

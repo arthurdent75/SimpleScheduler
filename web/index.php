@@ -171,6 +171,12 @@
 		font-weight: normal;
 	}
 
+	span.event-type-p {
+		font-size: 1rem;
+		color: #2196f3;
+		margin-left: 0.1rem;
+		font-weight: normal;
+	}
 
 	footer {
 		position: fixed;
@@ -276,7 +282,7 @@
 														<?php if ($s->on_dow!="") echo get_friendly_html_dow($s->on_dow,true);  ?>
 												  </td>
 												  <td class="text-red event-cell">
-														<div class="event-list"><?php echo get_html_events_list($s->off_tod); ?></div>
+														<div class="event-list"><?php echo get_html_events_list($s->off_tod,false); ?></div>
 														<div style="clear:both;"></div>
 														<?php if ($s->off_dow!="") echo get_friendly_html_dow($s->off_dow,false);  ?>
 												  </td>

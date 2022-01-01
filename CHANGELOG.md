@@ -1,3 +1,10 @@
+**Version 0.33**
+- Improvement: manage commas as separator in time list (#46)
+- Improvement: Added cover (with position) (#49)
+
+**Version 0.32**
+- Fix "too many time" visualization issue (#48)
+
 **Version 0.31**
 - Fix single quote issue (#44)
 - Javascript optimization
