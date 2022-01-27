@@ -52,7 +52,7 @@
 <title>Home Assistant Simple Scheduler</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" >
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" >
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
@@ -161,21 +161,28 @@
 		font-size: 1rem;
 		color: #d39e00;
 		margin-left: 0.2rem;
-		font-weight: normal;
+		font-weight: bold;
 	}
 
 	span.event-type-t {
 		font-size: 1rem;
-		color: #795548;
+		color: #8b442b;
 		margin-left: 0.1rem;
-		font-weight: normal;
+		font-weight: bold;
 	}
+
+	span.event-type-to {
+		font-size: 1rem;
+		color: #9c27b0;
+		margin-left: 0.1rem;
+		font-weight: bold;
+	}	
 
 	span.event-type-p {
 		font-size: 1rem;
 		color: #2196f3;
 		margin-left: 0.1rem;
-		font-weight: normal;
+		font-weight: bold;
 	}
 
 	footer {

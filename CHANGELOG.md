@@ -1,3 +1,7 @@
+**Version 0.34**
+- Improvement: Change climate temperature without turning it on (#51)
+- Update material icons to latest version 
+
 **Version 0.33**
 - Improvement: manage commas as separator in time list (#46)
 - Improvement: Added cover (with position) (#49)
