@@ -1,3 +1,6 @@
+**Version 0.35**
+- Fix Temperature Only on multiple climate issue (#53)
+
 **Version 0.34**
 - Improvement: Change climate temperature without turning it on (#51)
 - Update material icons to latest version 

@@ -76,13 +76,14 @@ function get_switch_list() {
 }	
 
 
-function call_HA (Array $eid_list, string $action , string $value="" ) {
+function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 
 	global $HASSIO_URL;
 	$result ="";
 	
 	foreach ($eid_list as $eid):
 	
+			$value=$passedvalue;
 			$domain = explode(".",$eid);
 			$command_url = $HASSIO_URL . "/services/" . $domain[0] . "/turn_" . $action;
 			
@@ -109,11 +110,12 @@ function call_HA (Array $eid_list, string $action , string $value="" ) {
 				}
 			}			
 			
-			if ($domain[0]=="climate" && $value[0]=="O" ) {
+			if ($domain[0]=="climate" && $value!="" ) {
+				if ($domain[0]=="climate" && $value[0]=="O" ) {
 				$value=substr($value, 1);
 				$command_url = $HASSIO_URL . "/services/climate/set_temperature";
 				$postdata = "{\"entity_id\":\"$eid\",\"temperature\":$value}" ;
-				$value="";
+				}
 			}
 			
 			call_HA_API($command_url,$postdata);
@@ -126,7 +128,7 @@ function call_HA (Array $eid_list, string $action , string $value="" ) {
 
 			$ts = date("Y-m-d H:i");
 			echo "\n$ts --> Turning $action $eid";
-			if ($domain[0]=="light" && $value!="" ) echo " at $value%";
+			if ($domain[0]=="light" && $value!="" ) echo " at ${value}%";
 			if ($domain[0]=="climate" && $value!="" ) echo " at ${value}°";
 			if ($domain[0]=="cover" && $value!="" ) echo " at ${value}%";
 			
@@ -154,6 +156,9 @@ function call_HA_API (string $command_url , string $postdata ) {
 			//$result += curl_exec($curlSES);
 			$foo = curl_exec($curlSES);
 			curl_close($curlSES);	
+			//echo "\x1B[0;31m"; // red
+			echo "\n\t  $command_url $postdata ";
+			//echo "\x1B[0m"; //No color
 			return $foo;
 }
 
