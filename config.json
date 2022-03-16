@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.35",
+  "version": "0.40",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
@@ -27,7 +27,8 @@
 		"text_OFF": "Turn OFF",
 		"text_save": "Save",
 		"text_enabled": "Enabled",
-		"text_device": "Device"
+		"text_device": "Device",
+		"text_name": "Name"
 	},
 	"components": {
 		"light": true,
@@ -37,10 +38,13 @@
 		"camera": true,
 		"climate": true,
 		"cover": true,
+		"fan": true,
 		"automation": true,
 		"input_boolean": true,
 		"media_player": true
 	},
+    "details_uncovered": false,
+	"dark_theme" : false,
 	"debug" : false
   },
   "schema": {
@@ -56,7 +60,8 @@
 		"text_OFF": "str",
 		"text_save": "str",	
 		"text_enabled": "str",
-		"text_device": "str"  
+		"text_device": "str", 
+		"text_name": "str"  
 	},
 	"components": {
 		"light": "bool",
@@ -66,11 +71,14 @@
 		"camera": "bool",
 		"climate": "bool",
 		"cover": "bool",
+		"fan": "bool",
 		"automation": "bool",
 		"input_boolean": "bool",
 		"media_player": "bool"
 	},
-	"debug" : "bool"	
+    "details_uncovered": "bool",
+	"dark_theme" : "bool",
+	"debug" : "bool"
   },
   "webui": "http://[HOST]:[PORT:8099]"
 }

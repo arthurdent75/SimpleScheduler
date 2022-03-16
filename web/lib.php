@@ -9,7 +9,7 @@ date_default_timezone_set(get_ha_timezone());
 $logfile="/share/simplescheduler/scheduler.log";
 $sun_file_age = 3600 * 6;
 $options_json = @file_get_contents($options_json_file);
-if (!$options_json) $options_json='{"translations":{"text_monday":"Monday","text_tuesday":"Tuesday","text_wednesday":"Wednesday","text_thursday":"Thursday","text_friday":"Friday","text_saturday":"Saturday","text_sunday":"Sunday","text_ON":"Turn ON","text_OFF":"Turn OFF","text_save":"Save","text_enabled":"Enabled","text_device":"Device"},"components":{"light":true,"scene":true,"switch":true,"script":true,"camera":true,"climate":true,"automation":true,"input_boolean":true,"media_player":true},"debug":false}';
+if (!$options_json) $options_json='{"translations":{"text_monday":"Monday","text_tuesday":"Tuesday","text_wednesday":"Wednesday","text_thursday":"Thursday","text_friday":"Friday","text_saturday":"Saturday","text_sunday":"Sunday","text_ON":"Turn ON","text_OFF":"Turn OFF","text_save":"Save","text_enabled":"Enabled","text_device":"Device"},"components":{"light":true,"scene":true,"switch":true,"script":true,"camera":true,"climate":true,"automation":true,"input_boolean":true,"media_player":true},"debug":false,"dark_theme":false}';
 $options = json_decode($options_json);
 $translations = $options->translations;
 $components = (array) $options->components;
@@ -205,8 +205,6 @@ function create_file(string $eid) {
 	$off_dow="";
 	$id = ($eid!="") ? $eid : uniqid();
 	$filename = $json_folder.$id.".json";
-	if (isset($_POST['on_dow']))  if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
-	if (isset($_POST['off_dow'])) if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
 	foreach($_POST['entity_id'] as $e) $entity_id_array[]=$e;
 	$enabled = (isset($_POST["enabled"])) ? 1 : 0;
 	$item = new stdClass();	
@@ -214,10 +212,31 @@ function create_file(string $eid) {
 	$item->name      = $_POST["name"];
 	$item->enabled   = $enabled;
 	$item->entity_id = $entity_id_array; 
-	$item->on_tod 	 = $_POST["on_tod"];
-	$item->on_dow    = $on_dow;
-	$item->off_tod 	 = $_POST["off_tod"];
-	$item->off_dow 	 = $off_dow;
+	
+	if ($_POST['type'] == "daily" ):
+		if (isset($_POST['off_dow'])) if ($_POST['off_dow']) foreach($_POST['off_dow'] as $v) $off_dow.= $v;
+		if (isset($_POST['on_dow']))  if ($_POST['on_dow']) foreach($_POST['on_dow'] as $v) $on_dow.= $v;
+		$item->on_tod 	 = $_POST["on_tod"];
+		$item->on_dow    = $on_dow;
+		$item->off_tod 	 = $_POST["off_tod"];
+		$item->off_dow 	 = $off_dow;
+	elseif ($_POST['type'] == "weekly" ):
+		$item->weekly->on_1   = $_POST["on_1"];	
+		$item->weekly->on_2   = $_POST["on_2"];	
+		$item->weekly->on_3   = $_POST["on_3"];	
+		$item->weekly->on_4   = $_POST["on_4"];	
+		$item->weekly->on_5   = $_POST["on_5"];	
+		$item->weekly->on_6   = $_POST["on_6"];	
+		$item->weekly->on_7   = $_POST["on_7"];	
+		$item->weekly->off_1   = $_POST["off_1"];	
+		$item->weekly->off_2   = $_POST["off_2"];	
+		$item->weekly->off_3   = $_POST["off_3"];	
+		$item->weekly->off_4   = $_POST["off_4"];	
+		$item->weekly->off_5   = $_POST["off_5"];	
+		$item->weekly->off_6   = $_POST["off_6"];	
+		$item->weekly->off_7   = $_POST["off_7"];			
+	endif;
+	
 	file_put_contents($filename, json_encode($item));
 	
 	return $filename;

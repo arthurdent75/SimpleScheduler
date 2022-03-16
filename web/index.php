@@ -58,186 +58,9 @@
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 <style>
-
-	#sidebar {
-		display:none;
-		min-width: 250px;
-		max-width: 25%;
-		height: 100%;
-		position: fixed;
-		top: 0;
-		right: 0;
-		padding: 1em;
-		z-index: 9999;
-		background-color: rgba(255,255,255,0.98);
-		box-shadow: 5px 5px 18px 0px #000;	
-	}
-
-	.edit-form > div {
-		margin: 1em 0;
-	}
-
-	.btn-default { color: white;}
-
-	.dowIcon  {
-		border: 0px solid ;
-		border-radius: 20px;
-		background: grey;
-		color: white;
-		font-size: 1rem;
-		width: 2rem;
-		height: 2rem;
-		line-height: 2rem;
-		text-align: center;
-		margin-right: 0.1em;
-		display: inline-block
-	}
-
-	.dowHiglightR { 	background: red ; }
-	.dowHiglightG { 	background: green ; }
-
-	.icon-space {width: 32px;}
-
-	.text-green {color:green;}
-	.text-red   {color:red;}
-	.text-white   {color:white;}
-
-	.bg-primary  {color:white;}
-
-
-
-	div.edit-section-label {
-		width: 100%;
-		border-bottom: 1px solid #777;
-		margin-top: 1em;
-	}
-	div.edit-section-label label{
-		line-height: 1em;
-		font-weight: bold;
-	}
-
-	.btn-circle.btn-xl {
-		width: 70px;
-		height: 70px;
-		padding: 10px 16px;
-		border-radius: 35px;
-		font-size: 24px;
-		line-height: 1.33;
-	}
-
-	.btn-circle {
-		width: 30px;
-		height: 30px;
-		padding: 6px 0px;
-		border-radius: 15px;
-		text-align: center;
-		font-size: 12px;
-		line-height: 1.42857;
-		background: navy;
-		color: white;
-		box-shadow: 2px 2px 10px 0px #777;
-	}
-
-	.floating-bottom-right {
-		position: fixed;
-		bottom: 5%;
-		right: 5%;
-	}
-
-	.table td, .table th {
-		vertical-align: middle;
-		
-	}
-
-	.event-list > span {
-		font-weight: bold;
-		font-size: 1.25rem;
-		margin-right: 1rem;
-		line-height: 2rem;
-		float:left;
-	}
-
-	span.event-type-b {
-		font-size: 1rem;
-		color: #d39e00;
-		margin-left: 0.2rem;
-		font-weight: bold;
-	}
-
-	span.event-type-t {
-		font-size: 1rem;
-		color: #8b442b;
-		margin-left: 0.1rem;
-		font-weight: bold;
-	}
-
-	span.event-type-to {
-		font-size: 1rem;
-		color: #9c27b0;
-		margin-left: 0.1rem;
-		font-weight: bold;
-	}	
-
-	span.event-type-p {
-		font-size: 1rem;
-		color: #2196f3;
-		margin-left: 0.1rem;
-		font-weight: bold;
-	}
-
-	footer {
-		position: fixed;
-		bottom: 0;
-		right: 0;
-		margin:0;
-		padding: 0;
-		width: 100%;
-		height: 2em;
-		line-height: 2em;
-		font-size: 0.8em;
-		background-color: grey;
-		color: white;
-	}
-
-	footer .statusbar {
-		margin-left: 1em;
-	}
-
-	.statusbar_span {margin-right: 2em;}
-
-	@media screen and (min-width: 1281px) {
-		html {	font-size: 10pt; }
-	}
-
-	@media screen and (max-width: 1280px) {
-		html {	font-size: 9pt; }
-	}
-
-	@media screen and (max-width: 800px) {
-		
-	html {	font-size: 8pt; }
-
-	TABLE TD {
-		display: block;
-		text-align: center;
-		border: none !important;
-	}
-
-	TABLE TD:first-child {display:none;}
-	TABLE TD:nth-child(2) {
-
-	}
-
-	TABLE TR {
-		box-shadow: 0px -10px 20px -10px #777;
-	}
-
-	TABLE THEAD {
-		display: none;
-	}
-
-	}
-
+<?php include_once("light.css"); ?>
+<?php if ($options->dark_theme) include_once("dark.css"); ?>
+<?php if ($options->details_uncovered) echo "	.week_table{ display: table;}"; ?>
 </style>
 </head>
 <body>
@@ -252,62 +75,122 @@
         </div>		
     </nav>		
 	
-          <div class="content">
-			
-							<div >
-								<table class="table table-hover" id="dtable">
-									<thead class="bg-primary">
-									<tr>
-									  <th scope="col">&nbsp;</th>
-									  <th scope="col"><?php echo $translations->text_device; ?></th>
-									  <th scope="col"><?php echo $translations->text_ON; ?></th>
-									  <th scope="col"><?php echo $translations->text_OFF; ?></th>
-									  <th scope="col"></th>
-									</tr>
-									</thead>
-									<tbody>	
-																				
-										<?php foreach ($sched as $s) :  ?>
-										<?php if ( !is_array($s->entity_id) ) {	$tmp = $s->entity_id; $s->entity_id = Array($tmp);	}	?>
-										  <?php if ($s->id) :  ?>
-											<?php $order= (isset($order_array[$s->id])) ? $order_array[$s->id] : 0 ;  ?>
-											  <tr data-value="<?php echo $s->id ?>" data-order="<?php echo $order ?>" style="opacity: <?php echo ($s->enabled) ? "1" : ".3" ?>">
-												  <td class="text-center"></td>
-												  <td>
-													<?php if (!isset($s->name) || $s->name =="" ) $s->name=$s->id; ?>
-													<div class="row-title"><h5><?php echo $s->name ?></h5></div>
-													
-													<div>
-													<?php foreach ( $s->entity_id as $e ) : ?>
-														<span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-html="true"  title="<?php echo $e ?>" ><?php echo ($switch_friendly_name[$e]=="") ?  $e : $switch_friendly_name[$e] ; ?></span>
-													<?php endforeach; ?>
-													</div>
-												  </td>
-												  <td class="text-green event-cell">
-														<div class="event-list"><?php echo get_html_events_list($s->on_tod); ?></div>
-														<div style="clear:both;"></div>
-														<?php if ($s->on_dow!="") echo get_friendly_html_dow($s->on_dow,true);  ?>
-												  </td>
-												  <td class="text-red event-cell">
-														<div class="event-list"><?php echo get_html_events_list($s->off_tod,false); ?></div>
-														<div style="clear:both;"></div>
-														<?php if ($s->off_dow!="") echo get_friendly_html_dow($s->off_dow,false);  ?>
-												  </td>
-												  <td><button type="button" class="btn btn-default bg-primary edit-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-pencil" ></span></button></td>
-											  </tr>
-										  <?php endif;  ?>
-										<?php endforeach;  ?>
-									</tbody>
-								</table>
-							</div>
-							
+	<div class="content">
+		<div>
+			<table class="table table-hover" id="dtable">
+				<thead class="bg-primary">
+				<tr>
+				  <th scope="col" colspan="4" ><h5>SimpleScheduler<H5></th>
+				</tr>
+				</thead>
+				<tbody>	
+					<?php foreach ($sched as $s) :  ?>
+					<?php if ( !is_array($s->entity_id) ) {	$tmp = $s->entity_id; $s->entity_id = Array($tmp);	}	?>
+						<?php if ($s->id) :  ?>
+						  <?php $order= (isset($order_array[$s->id])) ? $order_array[$s->id] : 0 ;  ?>
+							<?php if (isset($s->weekly)) :  ?>
+								<?php $week_onoff = (array) $s->weekly; ?>
+								<tr data-value="<?php echo $s->id ?>" data-order="<?php echo $order ?>" style="opacity: <?php echo ($s->enabled) ? "1" : ".3" ?>">
 
+								  <td class="text-center drag_icon fit"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
+
+								  <td class="text-center fit" >
+									<button type="button" class="btn btn-default bg-primary edit-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-pencil" ></span></button>
+									&nbsp;
+									<button type="button" class="btn btn-default bg-primary view-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-eye" ></span></button>
+								  </td>
+
+								  <td  class="name_col" >
+									<?php if (!isset($s->name) || $s->name =="" ) $s->name=$s->id; ?>
+									<div class="row-title"><h5><?php echo $s->name ?></h5></div>
 							
-            </div>
+									<div class="entities_list">
+									<?php foreach ( $s->entity_id as $e ) : ?>
+										<span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-html="true"  title="<?php echo $e ?>" ><?php echo ($switch_friendly_name[$e]=="") ?  $e : $switch_friendly_name[$e] ; ?></span>
+									<?php endforeach; ?>
+									</div>
+								  </td>
+
+								  <td>
+										<div class="week_table w_mode" id="detail_<?php echo $s->id ?>">
+											<div class="week_table_row week_table_header">
+												<div class="week_table_cell"></div>
+												<?php for($i=1; $i<=7; $i++) {
+													   echo "<div class=\"week_table_cell\" style=\"width: 13.5%;\" >";																	   
+													   echo	mb_substr($weekdays[$i],0,2); 
+													   echo "</div>";
+												} ?>
+											</div>
+											<div class="week_table_row text-green week_table_row_bottom_line">
+												<div class="week_table_cell "><span class="badge  dowHiglightG ">ON</span></div>
+												<?php for($i=1; $i<=7; $i++) {
+													   echo "<div class=\"week_table_cell\">";																		   
+													   echo get_html_events_list($week_onoff["on_$i"],true); 
+													   echo "</div>";
+												} ?>
+											</div>
+											<div class="week_table_row text-red week_table_row_bottom_line">
+												<div class="week_table_cell "><span class="badge  dowHiglightR ">OFF</span></div>
+												<?php for($i=1; $i<=7; $i++) {
+													   echo "<div class=\"week_table_cell\">";
+													   echo get_html_events_list($week_onoff["off_$i"],false);																		   
+													   echo "</div>";
+												} ?>
+											</div>																
+										</div>	
+								  </td>
+							  </tr>
+							<?php else:  ?>
+							  <tr data-value="<?php echo $s->id ?>" data-order="<?php echo $order ?>" style="opacity: <?php echo ($s->enabled) ? "1" : ".3" ?>">
+
+								  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-week mdi-24px" ></span></td>
+
+								  <td class="text-center fit" >
+									<button type="button" class="btn btn-default bg-primary edit-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-pencil" ></span></button>
+									&nbsp;
+									<button type="button" class="btn btn-default bg-primary view-button" aria-id="<?php echo $s->id ?>" ><span class="mdi mdi-eye" ></span></button>
+								  </td>
+
+								  <td  class="name_col" >
+									<?php if (!isset($s->name) || $s->name =="" ) $s->name=$s->id; ?>
+									<div class="row-title"><h5><?php echo $s->name ?></h5></div>
+									
+									<div class="entities_list">
+									<?php foreach ( $s->entity_id as $e ) : ?>
+										<span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-html="true"  title="<?php echo $e ?>" ><?php echo ($switch_friendly_name[$e]=="") ?  $e : $switch_friendly_name[$e] ; ?></span>
+									<?php endforeach; ?>
+									</div>
+								  </td>
+
+								  <td class="event-cell">
+										<div class="week_table d_mode"  id="detail_<?php echo $s->id ?>">
+											<div class="week_table_row ">
+												<div class="week_table_cell ">
+													<div class="event-list text-green"><?php echo get_html_events_list($s->on_tod); ?></div>
+													<div style="clear:both;"></div>
+													<?php if ($s->on_dow!="") echo get_friendly_html_dow($s->on_dow,true);  ?>
+												</div>									
+												<div class="week_table_cell ">
+													<div class="event-list text-red"><?php echo get_html_events_list($s->off_tod,false); ?></div>
+													<div style="clear:both;"></div>
+													<?php if ($s->off_dow!="") echo get_friendly_html_dow($s->off_dow,false);  ?>
+												</div>									
+											</div>									
+										</div>									
+								  </td>
+							  </tr>
+							<?php endif;  ?>
+						<?php endif;  ?>		
+					<?php endforeach;  ?>
+				</tbody>
+			</table>
+		</div>
+						
+	</div>
  
 	 
 	<button type="button" class="btn btn-default btn-circle btn-xl bg-primary floating-bottom-right add-button"><span class="mdi mdi-plus"></span> </button>  
-    
+   
 	<div class="overlay"></div>		  
 	
 	<footer class="footer">
@@ -367,12 +250,29 @@
 					});
 				});
     });  
+	
+	$(document).on('click', '.view-button', function () {
+			var v=$(this).attr('aria-id');
+			var t="#detail_"+v;
+			if ($(t).css('display')=="table") {
+				$(t).css('display','none');
+			}else{
+				$(t).css('display','table');
+			}
+    });  	
 
 	$(document).on('click', '.add-button', function () {
 			$("#sidebar-wrapper").html('');
 			$("#sidebar").show();
-            $("#sidebar-wrapper").load("edit.php?id="+0);
+            $("#sidebar-wrapper").load("new.php");
     }); 
+	
+	$(document).on('click', '.img-add-new', function () {
+			v=$(this).attr('aria-id');
+			$("#sidebar-wrapper").html('');
+			$("#sidebar").show();
+            $("#sidebar-wrapper").load("edit.php?id="+0+"&type="+v);
+    }); 	
 	
 	$(document).on('click', '.delete-button', function () {
 			var f = document.getElementById("edit-form");

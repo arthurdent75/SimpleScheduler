@@ -1,3 +1,10 @@
+**Version 0.40**
+- New feature: week-based scheduler
+- Improvement: added dark theme
+- Improvement: added Fan
+- Updated UI
+- Several bugfixes
+
 **Version 0.35**
 - Fix Temperature Only on multiple climate issue (#53)
 
@@ -7,7 +14,7 @@
 
 **Version 0.33**
 - Improvement: manage commas as separator in time list (#46)
-- Improvement: Added cover (with position) (#49)
+- Improvement: Added Cover (with position) (#49)
 
 **Version 0.32**
 - Fix "too many time" visualization issue (#48)
