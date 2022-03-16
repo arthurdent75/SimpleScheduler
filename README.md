@@ -15,7 +15,7 @@ Click refresh and you will find the add-on "Simple Scheduler" listed.
 ### Type of scheduler
 
 There are two kind of scheduler:
-- **Daily**: you can set the a ON/OFF time (or a list of them) and than you choose on which weekdays you want to enable them.
+- **Daily**: you can set a ON/OFF time (or a list of them) and than you choose on which weekdays you want to enable them.
 - **Weekly**: you can set a different ON/OFF time (or list of them) for every single day of the week.\
 
 "*A picture is worth a thousand words*", so if you take a look at the screenshot it will be even more clear.
