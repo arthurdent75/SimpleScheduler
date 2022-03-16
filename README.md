@@ -9,7 +9,7 @@ You can keep all the schedules in one place and add/change in a few clicks, even
 
 ### Installation
 You can add the URL of this page in your "add-on store" as a new repository:\
-Supervisor > Add-on store > three dots in top right corner > Repository\
+*Supervisor > Add-on store > three dots in top right corner > Repository*\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
 
 ### Type of scheduler
