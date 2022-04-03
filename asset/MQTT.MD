@@ -58,4 +58,4 @@ Set *enabled* to *true* and add the username and the password that you use to lo
 After that, restart the addon. 
 
 If, for some reason, you don't want to write your HA credentials in the addon, you can use the credential that the MQTT integration use to talk to the MOSQUITTO addon.
-The username is always *homeassistant* while the password is randomly generated during the addon installation. You can retrieve it in the MQTT integration by clicking on "RE-CONFIGURE MQTT", unhide the password field with the eye icon and then copy the password.
+The username is always *homeassistant* while the password is randomly generated during the addon installation. You can retrieve it in the MQTT integration by clicking on "RE-CONFIGURE MQTT", reveal the password with the eye icon and then copy the password.
