@@ -29,13 +29,18 @@ You have to follow three simple steps:
 #### 1. Install the addon "Mosquitto broker"
 Install the addon "Mosquitto broker", start it and enable "Start on boot". 
 No configuration needed.
+
 ![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_addon.png)
 #### 2. Install the MQTT integration
 In ***Configuration > Device & Services*** add the MQTT integration.
 If you succesfully complete the prevous task, Home Assistant should automatically discover the integration and notify you to add it.
+
 ![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_integration.png)
+
 Click on CONFIGURE and leave all the default, but be sure to enable auto discovery
+
 ![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_discovery.png)
+
 
 
 
