@@ -45,7 +45,7 @@ Look at the picture above to see all this things in actions (and combined!).
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
 This feature is disabled by default, because it require a working MQTT server (broker) and Home Assistant MQTT integration.
-Take a look at the MQTT.MD file to know more. 
+Take a look at the [Links with title](asset/MQTT.MD "MQTT.MD")  file to know more. 
 
 ### Retry on unavailable
 By default, SimpleScheduler will retry 3 times if an entity is unavailable. The first retry happens after 5 second, the other ones every minutes. You can change the numbers of retry in the addon options.
