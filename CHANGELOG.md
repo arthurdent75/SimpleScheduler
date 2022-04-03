@@ -1,3 +1,10 @@
+**Version 0.50**
+- New feature: Retry unavailable entities
+- New feature: enable/disable schedulers in frontend (through MQTT)
+- Set fan percent speed
+- Log improvement
+- Several bugfixes
+
 **Version 0.40**
 - New feature: week-based scheduler
 - Improvement: added dark theme

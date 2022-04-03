@@ -32,6 +32,9 @@
 			case "sort":
 					save_sort();
 					die;						
+			case "dirt":
+					get_dirt();
+					die;						
 		}
 	}					
 	
@@ -196,10 +199,10 @@
 	<footer class="footer">
       <div class="statusbar">
         <p>
-			<span>Scheduler:</span> <span class="statusbar_span" id="schedulerstatus"><?php echo (is_scheduler_running()) ? "" : "NOT " ?>RUNNING</span>
 			<span class="statusbar_span"><?php echo "Sunrise ".$sun["sunrise"] ?></span>
 			<span class="statusbar_span"><?php echo "Sunset ".$sun["sunset"] ?></span>
 			<span class="statusbar_span"><?php echo "TZ: ".get_ha_timezone(); ?></span>
+			<span>Scheduler:</span> <span class="statusbar_span" id="schedulerstatus"><?php echo (is_scheduler_running()) ? "" : "NOT " ?>RUNNING</span>
 		</p>
       </div>
     </footer>
@@ -296,6 +299,13 @@
 </script>
 
 <script>
+
+	var intervalcheck = window.setInterval(function(){
+		$.get("?action=dirt", function( r ) {
+			if (r=="1") location.reload();
+		});
+	}, 5000);
+
 	$(document).on('click', '#addRow', function () {		
 			var html = '';
 			html += '<div id="inputFormRow">';

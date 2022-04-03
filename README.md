@@ -34,12 +34,21 @@ If you need more advanced feature:
 - You can set the temperature of a climate. Write **16:30>T22.5** to turn on the climate and set the temperature to 22.5° 
 - You can set the temperature of a climate without turning it on. Write **16:30>TO22.5** to set the temperature to 22.5° 
 - You can set the position of a cover. Write **16:30>P25** will set the cover at 25%  
+- You can set the fan speed. Write **16:30>F25** will turn on the fan at 25%  
 - Brightess/Temperature/Position only work in the "TURN ON" section (obviously)! 
 - It's not mandatory to add both ON and OFF time. You can leave one of them empty if you don't need it. For example, you want to turn off a light every day at 22:00, but you don't need to turn it on.
 - You can also choose to disable a schedule: the schedule will stay there, but it will not be executed until you will enable it back
 - You can **drag the rows to sort them**, so you can keep them organized as you like!
 
 Look at the picture above to see all this things in actions (and combined!).
+
+### Frontend switch to enable/disable (with MQTT)
+If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
+This feature is disabled by default, because it require a working MQTT server (broker) and Home Assistant MQTT integration.
+Take a look at the MQTT.MD file to know more. 
+
+### Retry on unavailable
+By default, SimpleScheduler will retry 3 times if an entity is unavailable. The first retry happens after 5 second, the other ones every minutes. You can change the numbers of retry in the addon options.
 
 ### Hidden scheduler details
 When you have a lot of schedulers the view can become messy. As a default, all the scheduler details are hidden, so you can have a clear look. 
