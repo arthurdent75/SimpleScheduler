@@ -14,11 +14,11 @@ It's less complicated than it seems!
 Set up Simplescheduler to point to your MQTT broker and set *Enabled* to *true*
 
     MQTT:
-      	enabled: true
-      	server: your_mqtt_server_address
-      	port: '1883'
-      	username: your_mqtt_user
-      	password: your_mqtt_password
+      enabled: true
+      server: your_mqtt_server_address
+      port: '1883'
+      username: your_mqtt_user
+      password: your_mqtt_password
 
 If auth is not used, leave the *username* and *password* fields empty.
 You also need the MQTT Integration in your Home Assistant with discovery enabled. If you use MQTT you should already have it, but if you don't take a look at step 2 in the next section.
@@ -49,11 +49,11 @@ Simplescheduler is already pre-configured to use the Mosquitto Addon, so leave t
 Set *enabled* to *true* and add the username and the password that you use to login in Home Assistant. 
 
     MQTT:
-      	enabled: true
-      	server: core-mosquitto
-      	port: '1883'
-      	username: your_homeassistant_user
-      	password: your_homeassistant_password
+      enabled: true
+      server: core-mosquitto
+      port: '1883'
+      username: your_homeassistant_user
+      password: your_homeassistant_password
 
 After that, restart the addon. 
 
