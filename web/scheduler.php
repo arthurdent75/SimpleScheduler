@@ -1,24 +1,20 @@
 <?php
 
-	echo "\n\nStarting scheduler...\n";
+	echo "Starting scheduler...\n";
 	
 	include_once("lib.php");
 
 	$max_retry = $options->max_retry;
 	
-	
 	$command_queue[] = Array();
 			
 	while(true) :
-	
 		
 		$seconds = date("s");
 		//echo "\n\r$seconds   \033[1A ";
 		
 		if ($seconds=="00") :
 	
-			//$workday = get_workday();
-			
 			$current_time = date("H:i");
 			$current_dow = date("N");
 			
@@ -29,7 +25,6 @@
 			foreach ($sched as $s) :
 		
 				if ($s->enabled):
-				
 					
 					if ( !is_array($s->entity_id) ) { $tmp = $s->entity_id; $s->entity_id = Array($tmp); }
 					
@@ -94,7 +89,6 @@
 
 			foreach ($command_queue as $key=>$value) :
 				$entity_status = get_entity_status($value->entity_id);
-				//echo "$key \t {$value->countdown} \t {$value->sched_id} \t {$value->entity_id}  \t {$value->state} \t $entity_status \t {$value->value}  \n";
 				if ($entity_status!='unavailable') {
 						unset($command_queue[$key]);
 						if ($entity_status!=$value->state & $value->countdown <5 ) {
@@ -113,7 +107,5 @@
 		endif;
 		
 		sleep(1);
-		
-		
 		
 	endwhile;

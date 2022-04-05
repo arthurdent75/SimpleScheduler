@@ -232,8 +232,8 @@
 			
 			
 			$tbody.find('tr.ui-sortable-handle').sort(function (a, b) {
-				var tda = $(a).attr('data-order'); 
-				var tdb = $(b).attr('data-order'); 
+				var tda = parseInt($(a).attr('data-order')); 
+				var tdb = parseInt($(b).attr('data-order')); 
 				return tda > tdb ? 1
 					   : tda < tdb ? -1
 					   : 0;

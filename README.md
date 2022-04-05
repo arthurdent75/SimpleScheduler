@@ -45,7 +45,7 @@ Look at the picture above to see all this things in actions (and combined!).
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
 This feature is disabled by default, because it require a working MQTT server (broker) and Home Assistant MQTT integration.
-Take a look at the [MQTT.MD](asset/MQTT.MD "MQTT.MD") file to know more. 
+Take a look at the [MQTT.MD](https://github.com/arthurdent75/SimpleScheduler/blob/master/asset/MQTT.MD "MQTT.MD") file to know more. 
 
 ### Retry on unavailable
 By default, SimpleScheduler will retry 3 times if an entity is unavailable. The first retry happens after 5 second, the other ones every minutes. You can change the numbers of retry in the addon options.
@@ -81,15 +81,15 @@ You may say that regular people need coffee to do that. Well, I'm not a regular 
 
 **I set a timer but it doesn't switch on/off**\
 *The time MUST be set in HH:MM format*\
-*Be sure to input time with leading zeros (e.g:  08:30)*\
+*Be sure to input time with leading zeros, e.g: 08:30*\
 *Seconds are not allowed*\
 *Also check the previous point (timezone). Maybe it works but at the wrong time!*
 
 **After update the addon doesn't seem to work**\
-*It seems that sometimes the update process fails.*\
+*It seems that sometimes the update process fails*\
 *Try to uninstall the addon and install it again.*
 
-**It is possible to add a condition?**\
-*Probably this will never happen.*\
+**I would like to add a condition**\
+*Probably this will never happen*\
 *It's tricky and I should remove the word "simple" from the addon name*\
 *By the way, you can easily solve this by creating a script that check the condition and then call the script from the scheduler*

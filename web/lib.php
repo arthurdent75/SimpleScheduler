@@ -156,7 +156,6 @@ function call_HA_API (string $command_url , string $postdata ) {
 			));
 			
 			$foo = curl_exec($curlSES);
-			//print_r(curl_getinfo($curlSES));
 			$curl_info=curl_getinfo($curlSES);
 			$http_code=$curl_info['http_code'];
 			curl_close($curlSES);	
@@ -179,7 +178,6 @@ function get_entity_status (string $entity  ) {
 		"Authorization: Bearer $SUPERVISOR_TOKEN"
 	));
 	$result = json_decode( curl_exec($curlSES) );
-	//print_r($result);
 	curl_close($curlSES);
 	return strtolower($result->state) ;
 }
@@ -526,3 +524,11 @@ function get_sunset_sunrise() {
 		echo $response;
 		return  ;
  }
+ 
+  function slugify( string $text ) {
+		$divider = '_' ;
+		$text = iconv('utf-8', "ASCII//TRANSLIT", $text);
+		$text = strtolower(trim($text));
+		$text = preg_replace('~[^a-z0-9]+~u', $divider, $text);
+		return $text;
+  }
