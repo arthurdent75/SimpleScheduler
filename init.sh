@@ -9,7 +9,9 @@ if [ -f $FOLDER/options.json ]; then
 fi
 
 chmod -R 777 $FOLDER
+chown -R www-data:www-data $FOLDER
 
-php /var/www/html/scheduler.php >> $FOLDER/scheduler.log &
+php /var/www/html/scheduler.php | tee -a $FOLDER/simplescheduler.log &
+sudo -E -u www-data php /var/www/html/mqttlistner.php | tee -a $FOLDER/simplescheduler.log &
 
-apache2-foreground
+apache2-foreground > /dev/null 2>&1

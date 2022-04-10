@@ -3,8 +3,11 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
 include_once("conf.php");
+include_once("phpMQTT.php");
 
 date_default_timezone_set(get_ha_timezone());
+
+$WORKDAY_SENSOR_ENABLED=false;
 
 $logfile="/share/simplescheduler/scheduler.log";
 $sun_file_age = 3600 * 6;
@@ -79,8 +82,7 @@ function get_switch_list() {
 function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 
 	global $HASSIO_URL;
-	$result ="";
-	
+		
 	foreach ($eid_list as $eid):
 	
 			$value=$passedvalue;
@@ -93,6 +95,11 @@ function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 				$v = (int)((int)$value * 2.55);
 				$postdata = "{\"entity_id\":\"$eid\",\"brightness\":\"$v\"}" ;
 			}
+			
+			if ($domain[0]=="fan" && $value!="" ) {
+				$v = (int)$value ;
+				$postdata = "{\"entity_id\":\"$eid\",\"percentage\":\"$v\"}" ;
+			}			
 			
 			if ($domain[0]=="cover"  ) {
 				if ( $value!=""  ) {
@@ -120,26 +127,21 @@ function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 			
 			call_HA_API($command_url,$postdata);
 
-			if ($domain[0]=="climate" && $value!="" ) {
+			if ($domain[0]=="climate" && $value[0]!="O" && $value!="" ) {
 				$command_url = $HASSIO_URL . "/services/climate/set_temperature";
 				$postdata = "{\"entity_id\":\"$eid\",\"temperature\":$value}" ;
 				call_HA_API($command_url,$postdata);
 			}			
 
-			$ts = date("Y-m-d H:i");
-			echo "\n$ts --> Turning $action $eid";
-			if ($domain[0]=="light" && $value!="" ) echo " at ${value}%";
-			if ($domain[0]=="climate" && $value!="" ) echo " at ${value}°";
-			if ($domain[0]=="cover" && $value!="" ) echo " at ${value}%";
-			
 	endforeach;
 	
-	return $result;
+	return ;
 }
 
 function call_HA_API (string $command_url , string $postdata ) {
 			
 			global $SUPERVISOR_TOKEN;
+			global $HASSIO_URL;
 			
 			$curlSES=curl_init(); 
 			curl_setopt($curlSES,CURLOPT_RETURNTRANSFER, 1);
@@ -153,13 +155,31 @@ function call_HA_API (string $command_url , string $postdata ) {
 				"Authorization: Bearer $SUPERVISOR_TOKEN"
 			));
 			
-			//$result += curl_exec($curlSES);
 			$foo = curl_exec($curlSES);
+			$curl_info=curl_getinfo($curlSES);
+			$http_code=$curl_info['http_code'];
 			curl_close($curlSES);	
-			//echo "\x1B[0;31m"; // red
-			echo "\n\t  $command_url $postdata ";
-			//echo "\x1B[0m"; //No color
+			$command = str_replace($HASSIO_URL . "/services/","",$command_url);
+			echo '[' . date('r') . "] SCHED:  $command $postdata \n";
+			if ($http_code!=200) echo '[' . date('r') . "] SCHED:  Error $http_code \n";
 			return $foo;
+}
+
+function get_entity_status (string $entity  ) {
+	global $SUPERVISOR_TOKEN;
+	global $HASSIO_URL;
+	$response = false;
+	
+	$curlSES=curl_init(); 
+	curl_setopt($curlSES,CURLOPT_URL,"$HASSIO_URL/states/$entity");
+	curl_setopt($curlSES,CURLOPT_RETURNTRANSFER,true);
+	curl_setopt($curlSES, CURLOPT_HTTPHEADER, array(
+		'content-type: application/json',
+		"Authorization: Bearer $SUPERVISOR_TOKEN"
+	));
+	$result = json_decode( curl_exec($curlSES) );
+	curl_close($curlSES);
+	return strtolower($result->state) ;
 }
 
 function get_ha_timezone() {
@@ -179,6 +199,31 @@ function get_ha_timezone() {
 	return $result->time_zone;
 }
 
+function get_workday() {
+	global $SUPERVISOR_TOKEN;
+	global $HASSIO_URL;
+	global $WORKDAY_SENSOR_ENABLED;
+	$response = false;
+	
+	$curlSES=curl_init(); 
+	curl_setopt($curlSES,CURLOPT_URL,"$HASSIO_URL/states/binary_sensor.workday_sensor");
+	curl_setopt($curlSES,CURLOPT_RETURNTRANSFER,true);
+	curl_setopt($curlSES, CURLOPT_HTTPHEADER, array(
+		'content-type: application/json',
+		"Authorization: Bearer $SUPERVISOR_TOKEN"
+	));
+	
+	$result = json_decode( curl_exec($curlSES) );
+	curl_close($curlSES);
+	if (isset($result->state)) {
+		$response = (strtolower($result->state)=="on");
+		$WORKDAY_SENSOR_ENABLED =  true; 
+	} else {
+		$WORKDAY_SENSOR_ENABLED =  false; 
+	}
+	return $response ;
+}
+
 function load_data() {
 	global $json_folder;
 	$sched = array();
@@ -194,13 +239,25 @@ function load_data() {
 
 function delete_file(string $id) {
 	global $json_folder;
+	global $options;
 	$filename = $json_folder.$id.".json";	
 	unlink ($filename);
+	if ($options->MQTT->enabled) mqtt_delete_switch( $id );
 	return $filename;
 }
 
+function change_state_in_json_file(string $id,bool $state) {
+	global $json_folder;
+	$filename = $json_folder.$id.".json";
+	$content = file_get_contents($filename);
+	$sched = json_decode($content);
+	$sched->enabled= ($state) ? 1 : 0 ;
+	file_put_contents($filename, json_encode($sched));	
+}
+		
 function create_file(string $eid) {
 	global $json_folder;
+	global $options;
 	$on_dow="";
 	$off_dow="";
 	$id = ($eid!="") ? $eid : uniqid();
@@ -239,6 +296,8 @@ function create_file(string $eid) {
 	
 	file_put_contents($filename, json_encode($item));
 	
+	if ($options->MQTT->enabled) mqtt_publish_state($id,$enabled);
+	
 	return $filename;
 }
 
@@ -259,6 +318,7 @@ function get_html_events_list(string $s,bool $showvalue=true) {
 		$piece=explode(">",$e);
 		if (isset($piece[1]) && $showvalue) {
 			$v = substr(trim($piece[1]), 1);
+			if(strtoupper($piece[1][0])=="F") $extra="<span class=\"event-type-f\"><i class=\"mdi mdi-fan\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="B") $extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="P") $extra="<span class=\"event-type-p\"><i class=\"mdi mdi-arrow-up-down\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="T") {
@@ -316,7 +376,6 @@ function save_sort() {
 	$item = new stdClass();	
 	$item->id_order = $_GET['list'];
 	file_put_contents($filename, json_encode($item));
-	
 	return $filename;
 }
 
@@ -422,3 +481,54 @@ function get_sunset_sunrise() {
 	}		
 	return $response ;
  }
+ 
+ function mqtt_publish_state(String $id , bool $state , bool $echo = false ) {
+		global $options;
+		$client_id = 'simplescheduler-'.uniqid() ; 
+		$mqtt = new phpMQTT($options->MQTT->server, $options->MQTT->port, $client_id);
+		$v = ($state) ? "ON" : "OFF";
+		if ($mqtt->connect(true, NULL, $options->MQTT->username, $options->MQTT->password)) {
+			$topic="homeassistant/switch/simplescheduler/$id/state";
+			$mqtt->publish($topic, $v, 0, true );
+			$mqtt->close();
+			if ($echo) echo '[' . date('r') . "] PUB: {$topic} --> $v \n";
+			}
+ }  
+ 	  
+ function mqtt_delete_switch(String $id ) {
+		global $options;
+		$client_id = 'simplescheduler-'.uniqid() ; 
+		$mqtt = new phpMQTT($options->MQTT->server, $options->MQTT->port, $client_id);
+		if ($mqtt->connect(true, NULL, $options->MQTT->username, $options->MQTT->password)) {
+			$topic="homeassistant/switch/simplescheduler/$id/config";
+			$mqtt->publish($topic, null, 0, true);
+			$mqtt->close();
+		} 
+ }	  
+
+  function set_dirt() {
+		global $json_folder;
+		$filename = $json_folder."dirt.dat";
+		file_put_contents($filename,"1");	
+		return  ;
+ }
+ 
+  function get_dirt() {
+		global $json_folder;
+		$response="";
+		$filename = $json_folder."dirt.dat";
+		if (file_exists($filename)) {
+				$response = file_get_contents($filename);	
+				file_put_contents($filename,"");
+		}
+		echo $response;
+		return  ;
+ }
+ 
+  function slugify( string $text ) {
+		$divider = '_' ;
+		$text = iconv('utf-8', "ASCII//TRANSLIT", $text);
+		$text = strtolower(trim($text));
+		$text = preg_replace('~[^a-z0-9]+~u', $divider, $text);
+		return $text;
+  }
