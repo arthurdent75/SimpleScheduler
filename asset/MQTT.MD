@@ -1,8 +1,8 @@
 # MQTT Configuration
-To enble/disable schedulers in the frontend and/or in an automation, you can use this feature. This allow to create dynamic switches entities in Home Assistant for each scheduler. \
+To enble/disable schedulers in the frontend and/or in an automation, you can use this feature. This allow to create dynamic switches entities in Home Assistant for each scheduler. 
 The switch is in this form:
-`switch.simplescheduler_id_scheduler_name` \
-Switch is created within a minute of the creation of a new scheduler, and removed as you delete a scheduler. \
+`switch.simplescheduler_id_scheduler_name`
+Switch is created within a minute of the creation of a new scheduler, and removed as you delete a scheduler. 
 To use the feature you need three things:
 1.  a MQTT server (also named *broker*)
 2. enable the MQTT integration in Home Assistant

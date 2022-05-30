@@ -145,8 +145,10 @@ class phpMQTT
                     ]
                 ]
             );
+			// SIMPLESCHEDULER: Setting timeout to 5 instead of 60
             $this->socket = stream_socket_client('tls://' . $this->address . ':' . $this->port, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $socketContext);
         } else {
+			// SIMPLESCHEDULER: Setting timeout to 5 instead of 60
             $this->socket = stream_socket_client('tcp://' . $this->address . ':' . $this->port, $errno, $errstr, 5, STREAM_CLIENT_CONNECT);
         }
 
@@ -274,12 +276,25 @@ class phpMQTT
             return fread($this->socket, $togo);
         }
 
-        while (!feof($this->socket) && $togo > 0) {
+/*    
+	// SIMPLESCHEDULER:  AS PER ISSUE #136 
+	
+    while (!feof($this->socket) && $togo > 0) {
             $fread = fread($this->socket, $togo);
             $string .= $fread;
             $togo = $int - strlen($string);
         }
-
+*/
+	$loops = 20;
+    while (!feof($this->socket) && $togo > 0) {
+		usleep(500);
+        $fread = fread($this->socket, $togo);
+		$loops--;
+		if(!$loops){return $string;}
+        $string .= $fread;
+        $togo = $int - strlen($string);
+    }
+	
         return $string;
     }
 

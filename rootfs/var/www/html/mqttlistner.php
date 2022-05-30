@@ -1,6 +1,6 @@
 <?php
 	
-echo '[' . date('r') . "] Starting MQTT Listner...\n";
+echo '[' . date('r') . "] Starting MQTT Listner \n";
 	
 include_once("lib.php");
 
@@ -22,14 +22,14 @@ if ($mqtt->connect(true, NULL,  $options->MQTT->username, $options->MQTT->passwo
 	}	
 	
 	$mqtt->close();
-} 
+} else {
+	echo '[' . date('r') . "] Unable to connecto to MQTT broker! \n";
+}
 
 
 function refresh_switches($mqtt_obj, bool $clear = false ) {
 
-	// echo "Refreshing switches \n";
 	$sched = load_data();
-
 	$config_topic_template="homeassistant/switch/simplescheduler/###/config";
 	$payload_template='{"name": "simplescheduler_###_@@@" , "unique_id": "simplescheduler_###_@@@", "icon":"mdi:calendar-clock" , "command_topic": "homeassistant/switch/simplescheduler/###/set", "state_topic": "homeassistant/switch/simplescheduler/###/state"}';
 
@@ -46,11 +46,11 @@ function refresh_switches($mqtt_obj, bool $clear = false ) {
 
 function procMsg($topic, $msg){
 		$pieces = explode('/', $topic);
-		$v = ($msg=="ON") ? true : false ;
+		$v = ($msg=="ON") ? 1 : 0 ;
 		if (strtolower($pieces[4])=="set") {
 			$id=$pieces[3];
-			change_state_in_json_file($id,$v);	
-			set_dirt();
+			file_get_contents( "http://localhost?action=setstate&id=$id&v=$v" );
+			file_get_contents( 'http://localhost?action=setdirt' );
 			echo '[' . date('r') . "] RCV: {$topic} --> $msg \n";
 			mqtt_publish_state($pieces[3],$v,true);
 		}

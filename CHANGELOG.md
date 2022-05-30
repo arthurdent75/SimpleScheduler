@@ -1,3 +1,9 @@
+**Version 0.60**
+- Switch Docker image to HA Debian base
+- Complete reengineering of the docker structure
+- Fix "returned a non-zero code" issue in supervised installation (#65)
+- Added support for VACUUM
+
 **Version 0.50**
 - New feature: Retry unavailable entities
 - New feature: enable/disable schedulers in frontend (through MQTT)

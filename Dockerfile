@@ -1,16 +1,16 @@
-FROM php:7.3-apache 
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base/amd64:5.3.0
+# hadolint ignore=DL3006
+FROM ${BUILD_FROM}
 
-RUN apt update && apt -y install sudo
-
-COPY 000-default.conf /etc/apache2/sites-enabled
-COPY /web /var/www/html
-RUN chown -R  www-data:www-data /var/www/html
-RUN chmod -R  775 /var/www/html
-
-COPY init.sh /home
-RUN chmod a+x /home/init.sh
-
-EXPOSE 7777
-
-CMD /home/init.sh
-
+RUN \
+    apt-get update \
+    && apt-get install -y --no-install-recommends\
+		apache2 \
+		php7.4 \
+		php7.4-curl \
+		php7.4-intl \
+		php7.4-mbstring \
+		php7.4-json
+		
+		
+COPY rootfs /

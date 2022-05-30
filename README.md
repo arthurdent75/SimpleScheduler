@@ -8,9 +8,14 @@ You can keep all the schedules in one place and add/change in a few clicks, even
 
 
 ### Installation
+Add the repository and then the addon by clickin on the badges:\
+[<img src="https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg">](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Farthurdent75%2FSimpleScheduler) \
+[<img src="https://my.home-assistant.io/badges/supervisor_addon.svg">](https://my.home-assistant.io/redirect/supervisor_addon/?addon=00185a40_simplescheduler) \
+If someting goes wrong, you can install it manually.\
 You can add the URL of this page in your "add-on store" as a new repository:\
 *Configuration > Add-ons, Backups & Supervisor > ADD-ON STORE button in bottom right corner >  three dots in top right corner > Repositories*\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
+
 
 ### Type of scheduler
 
