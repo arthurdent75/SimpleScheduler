@@ -98,3 +98,7 @@ You may say that regular people need coffee to do that. Well, I'm not a regular 
 *Probably this will never happen*\
 *It's tricky and I should remove the word "simple" from the addon name*\
 *By the way, you can easily solve this by creating a script that check the condition and then call the script from the scheduler*
+
+**I get a "returned a non-zero code" error durig update/install**\
+*Take a look here:* https://github.com/arthurdent75/SimpleScheduler/issues/65#issuecomment-1141869405
+
