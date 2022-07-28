@@ -1,6 +1,6 @@
 <?php
 	
-echo '[' . date('r') . "] Starting MQTT Listner \n";
+echo '[' . date('r') . "] Starting MQTT Listner...\n";
 	
 include_once("lib.php");
 

@@ -1,3 +1,7 @@
+**Version 0.61**
+- Allow non admin users to view panel (#74)
+- Fix "Missing translations" (#69)
+
 **Version 0.60**
 - Switch Docker image to HA Debian base
 - Complete reengineering of the docker structure

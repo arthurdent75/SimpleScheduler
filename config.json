@@ -1,6 +1,6 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.60",
+  "version": "0.61",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
@@ -8,7 +8,7 @@
   "startup": "system",
   "panel_icon": "mdi:calendar-clock",
   "panel_title": "Scheduler",
-  "panel_admin": true,
+  "panel_admin": false,
   "boot": "auto",
   "hassio_api": true,
   "homeassistant_api": true,
@@ -51,8 +51,8 @@
 		"username": "",
 		"password": ""
 	},	
-    "max_retry": "3",
-    "details_uncovered": false,
+	"max_retry": "3",
+	"details_uncovered": false,
 	"dark_theme" : false,
 	"debug" : false
   },
@@ -93,8 +93,8 @@
 		"username": "str",
 		"password": "str"
 	},		
-    "max_retry": "str",
-    "details_uncovered": "bool",
+	"max_retry": "str",
+	"details_uncovered": "bool",
 	"dark_theme" : "bool",
 	"debug" : "bool"
   },

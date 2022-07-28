@@ -276,25 +276,12 @@ class phpMQTT
             return fread($this->socket, $togo);
         }
 
-/*    
-	// SIMPLESCHEDULER:  AS PER ISSUE #136 
-	
-    while (!feof($this->socket) && $togo > 0) {
+        while (!feof($this->socket) && $togo > 0) {
             $fread = fread($this->socket, $togo);
             $string .= $fread;
             $togo = $int - strlen($string);
         }
-*/
-	$loops = 20;
-    while (!feof($this->socket) && $togo > 0) {
-		usleep(500);
-        $fread = fread($this->socket, $togo);
-		$loops--;
-		if(!$loops){return $string;}
-        $string .= $fread;
-        $togo = $int - strlen($string);
-    }
-	
+
         return $string;
     }
 
