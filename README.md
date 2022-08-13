@@ -16,6 +16,9 @@ You can add the URL of this page in your "add-on store" as a new repository:\
 *Configuration > Add-ons, Backups & Supervisor > ADD-ON STORE button in bottom right corner >  three dots in top right corner > Repositories*\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
 
+### Installation on homeassistant (without hass.io)
+
+See [docs/install_ha.md](docs/install_ha.md).
 
 ### Type of scheduler
 
