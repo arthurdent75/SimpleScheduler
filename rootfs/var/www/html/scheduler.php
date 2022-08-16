@@ -39,17 +39,19 @@
 					if (strpos($s->on_dow,  $current_dow)!== false) :
 						$elist = get_events_array($s->on_tod);
 						foreach($elist as  $e) :
-							$extra = ""; $value = "";
+							$type = ""; $extra = ""; $value = "";
 							$event_time = evaluate_event_time($e,$sun);
 							if ( $event_time==$current_time ) :
 								$extra = get_event_extra_info($e);
+								$type=$extra[0] ;
 								$value=$extra[1] ;
-								call_HA($s->entity_id,"on",$value);
+								call_HA($s->entity_id,"on",$type,$value);
 								foreach ($s->entity_id as $ent_id):
 										$cmd = new stdClass();
 										$cmd->entity_id = $ent_id;
 										$cmd->sched_id = $s->id;
 										$cmd->state = 'on';
+										$cmd->type = $type;
 										$cmd->value = $value;
 										$cmd->countdown = $max_retry;
 										$command_queue[ uniqid()] = $cmd;
@@ -70,6 +72,7 @@
 										$cmd->entity_id = $ent_id;
 										$cmd->sched_id = $s->id;
 										$cmd->state = 'off';
+										$cmd->type = "";
 										$cmd->value = "";
 										$cmd->countdown = $max_retry;
 										$command_queue[ uniqid()] = $cmd;
@@ -93,12 +96,12 @@
 						unset($command_queue[$key]);
 						if ($entity_status!=$value->state & $value->countdown < $max_retry ) {
 								echo '[' . date('r') . "] SCHED:  {$value->entity_id} is available. \n";
-								call_HA(array($value->entity_id),$value->state,$value->value);
+								call_HA(array($value->entity_id),$value->state,$value->type,$value->value);
 						}
 					} else {
 						$attempt = 1 + (int)$max_retry - (int)$value->countdown ;
 						echo '[' . date('r') . "] SCHED:  {$value->entity_id} is unavailable! Attempt $attempt of $max_retry \n";
-						call_HA(array($value->entity_id),$value->state,$value->value);
+						call_HA(array($value->entity_id),$value->state,$value->type,$value->value);
 						$command_queue[$key]->countdown--;
 						if ($command_queue[$key]->countdown <=0) unset($command_queue[$key]);
 				}

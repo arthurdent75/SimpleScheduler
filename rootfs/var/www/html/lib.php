@@ -79,7 +79,7 @@ function get_switch_list() {
 }	
 
 
-function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
+function call_HA (Array $eid_list, string $action , string $type = "", string $passedvalue="" ) {
 
 	global $HASSIO_URL;
 		
@@ -92,7 +92,11 @@ function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 			$postdata = "{\"entity_id\":\"$eid\"}" ;
 			
 			if ($domain[0]=="light" && $value!="" ) {
-				$v = (int)((int)$value * 2.55);
+				if ($type == "A") {
+					$v = (int) $value; // absolute
+				} else {
+					$v = (int)((int)$value * 2.55); // relative
+				}
 				$postdata = "{\"entity_id\":\"$eid\",\"brightness\":\"$v\"}" ;
 			}
 			
@@ -319,6 +323,11 @@ function get_html_events_list(string $s,bool $showvalue=true) {
 		if (isset($piece[1]) && $showvalue) {
 			$v = substr(trim($piece[1]), 1);
 			if(strtoupper($piece[1][0])=="F") $extra="<span class=\"event-type-f\"><i class=\"mdi mdi-fan\" aria-hidden=\"true\"></i>$v%</span>";
+			if(strtoupper($piece[1][0])=="A") { // absolute value with custom unit
+				$u=preg_split('/\d+/',$v,2)[1]; // unit is everything after the last digit
+				$v=(int) $v; // remove unit from value
+				$extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v $u</span>";
+			}
 			if(strtoupper($piece[1][0])=="B") $extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="P") $extra="<span class=\"event-type-p\"><i class=\"mdi mdi-arrow-up-down\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="T") {

@@ -36,6 +36,7 @@ If you need more advanced feature:
 - You can set multiple time in the same scheduler: just write them in the field separated by spaces.  
 - You can use the words **sunrise** and **sunset** and also add an offset (in minutes) to it if you need (e.g: **sunrise+30** or **sunset-60** )
 - You can set the brightness of a light. Write **16:30>B30** turn on the light at 30%. 
+- You can set the absolute brightness of a light with an optional unit. Write **16:30>A30xyz** turn on the light at 30 (absolute) and display xyz as unit.
 - You can set the temperature of a climate. Write **16:30>T22.5** to turn on the climate and set the temperature to 22.5° 
 - You can set the temperature of a climate without turning it on. Write **16:30>TO22.5** to set the temperature to 22.5° 
 - You can set the position of a cover. Write **16:30>P25** will set the cover at 25%  
