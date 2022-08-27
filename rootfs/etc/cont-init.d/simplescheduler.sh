@@ -10,7 +10,9 @@ FOLDER=/share/simplescheduler
 
 mkdir -p $FOLDER
 
-cp /data/options.json $FOLDER/options.dat
+if [ -f /data/options.json ]; then
+	cp /data/options.json $FOLDER/options.dat
+fi
 
 # In older version the option file was named option.json
 # If such file exists, delete it

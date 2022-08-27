@@ -16,6 +16,8 @@ You can add the URL of this page in your "add-on store" as a new repository:\
 *Configuration > Add-ons, Backups & Supervisor > ADD-ON STORE button in bottom right corner >  three dots in top right corner > Repositories*\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
 
+If you are not using a supervised installation, you can run the addon as a docker container.
+Take a look here: [docker_install.MD](asset/docker_install.MD "docker_install.MD")
 
 ### Type of scheduler
 

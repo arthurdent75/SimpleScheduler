@@ -1,11 +1,11 @@
 {
   "name": "Simple Scheduler",
-  "version": "0.61",
+  "version": "0.62",
   "slug": "simplescheduler",
   "description": "Simple timer on weekly base",
   "url": "https://github.com/arthurdent75/SimpleScheduler",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
-  "startup": "system",
+  "startup": "application",
   "panel_icon": "mdi:calendar-clock",
   "panel_title": "Scheduler",
   "panel_admin": false,

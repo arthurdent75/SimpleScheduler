@@ -1,3 +1,7 @@
+**Version 0.62**
+- Timezone issue (#75)
+- Added some fixes to allow installation on not-supervised env (thanks to @micw)
+
 **Version 0.61**
 - Allow non admin users to view panel (#74)
 - Fix "Missing translations" (#69)

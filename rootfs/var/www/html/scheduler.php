@@ -3,7 +3,14 @@
 	echo '[' . date('r') . "] Starting scheduler...\n";
 	
 	include_once("lib.php");
-
+	
+	$tz = get_ha_timezone();
+	if ($tz) date_default_timezone_set($tz);
+	echo '[' . date('r') . "] Home Assistant TimeZone: {$tz} \n";	
+	
+	$rtz = date_default_timezone_get();
+	echo '[' . date('r') . "] Addon TimeZone: {$tz} \n";	
+	
 	$max_retry = $options->max_retry;
 	
 	$command_queue[] = Array();
