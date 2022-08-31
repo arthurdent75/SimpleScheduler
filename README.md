@@ -37,12 +37,13 @@ That's it!
 If you need more advanced feature:
 - You can set multiple time in the same scheduler: just write them in the field separated by spaces.  
 - You can use the words **sunrise** and **sunset** and also add an offset (in minutes) to it if you need (e.g: **sunrise+30** or **sunset-60** )
-- You can set the brightness of a light. Write **16:30>B30** turn on the light at 30%. 
+- You can set the percent brightness of a light. Write **16:30>B30** turn on the light at 30% 
+- You can set the absolute brightness of a light. Write **16:30>BA30** turn on the light at 30
 - You can set the temperature of a climate. Write **16:30>T22.5** to turn on the climate and set the temperature to 22.5° 
 - You can set the temperature of a climate without turning it on. Write **16:30>TO22.5** to set the temperature to 22.5° 
 - You can set the position of a cover. Write **16:30>P25** will set the cover at 25%  
 - You can set the fan speed. Write **16:30>F25** will turn on the fan at 25%  
-- Brightess/Temperature/Position only work in the "TURN ON" section (obviously)! 
+- Brightess/Temperature/Position/Speed only work in the "TURN ON" section (obviously)! 
 - It's not mandatory to add both ON and OFF time. You can leave one of them empty if you don't need it. For example, you want to turn off a light every day at 22:00, but you don't need to turn it on.
 - You can also choose to disable a schedule: the schedule will stay there, but it will not be executed until you will enable it back
 - You can **drag the rows to sort them**, so you can keep them organized as you like!

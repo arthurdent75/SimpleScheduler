@@ -93,7 +93,11 @@ function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 			$postdata = "{\"entity_id\":\"$eid\"}" ;
 			
 			if ($domain[0]=="light" && $value!="" ) {
-				$v = (int)((int)$value * 2.55);
+				if ($domain[0]=="light" && $value[0]=="A" ) {
+					$v = (int) substr($value, 1);
+				} else {
+					$v = (int)((int)$value * 2.55);
+				}					
 				$postdata = "{\"entity_id\":\"$eid\",\"brightness\":\"$v\"}" ;
 			}
 			
@@ -120,9 +124,9 @@ function call_HA (Array $eid_list, string $action , string $passedvalue="" ) {
 			
 			if ($domain[0]=="climate" && $value!="" ) {
 				if ($domain[0]=="climate" && $value[0]=="O" ) {
-				$value=substr($value, 1);
-				$command_url = $HASSIO_URL . "/services/climate/set_temperature";
-				$postdata = "{\"entity_id\":\"$eid\",\"temperature\":$value}" ;
+					$value=substr($value, 1);
+					$command_url = $HASSIO_URL . "/services/climate/set_temperature";
+					$postdata = "{\"entity_id\":\"$eid\",\"temperature\":$value}" ;
 				}
 			}
 			
@@ -320,8 +324,15 @@ function get_html_events_list(string $s,bool $showvalue=true) {
 		if (isset($piece[1]) && $showvalue) {
 			$v = substr(trim($piece[1]), 1);
 			if(strtoupper($piece[1][0])=="F") $extra="<span class=\"event-type-f\"><i class=\"mdi mdi-fan\" aria-hidden=\"true\"></i>$v%</span>";
-			if(strtoupper($piece[1][0])=="B") $extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
 			if(strtoupper($piece[1][0])=="P") $extra="<span class=\"event-type-p\"><i class=\"mdi mdi-arrow-up-down\" aria-hidden=\"true\"></i>$v%</span>";
+			if(strtoupper($piece[1][0])=="B") {
+				if(strtoupper($piece[1][1])=="A") {
+					$v=substr($v, 1);
+					$extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v</span>";
+				} else {
+					$extra="<span class=\"event-type-b\"><i class=\"mdi mdi-lightbulb\" aria-hidden=\"true\"></i>$v%</span>";
+				}
+			}				
 			if(strtoupper($piece[1][0])=="T") {
 				if(strtoupper($piece[1][1])=="O") {
 					$v=substr($v, 1);
@@ -501,8 +512,10 @@ function get_sunset_sunrise() {
 		$client_id = 'simplescheduler-'.uniqid() ; 
 		$mqtt = new phpMQTT($options->MQTT->server, $options->MQTT->port, $client_id);
 		if ($mqtt->connect(true, NULL, $options->MQTT->username, $options->MQTT->password)) {
-			$topic="homeassistant/switch/simplescheduler/$id/config";
-			$mqtt->publish($topic, null, 0, true);
+			$topic="homeassistant/switch/simplescheduler/$id/";
+			$mqtt->publish($topic."config", null, 0, true);
+			$mqtt->publish($topic."state", null, 0, true);
+			$mqtt->publish($topic."set", null, 0, true);
 			$mqtt->close();
 		} 
  }	  

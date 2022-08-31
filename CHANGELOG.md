@@ -1,3 +1,8 @@
+**Version 0.64**
+- Improvement: Set absolute value for light (#76)
+- Improvement: MQTT Switches become unavailable if addon is not running
+- Fix MQTT Switches duplicate with an ending 2 (#80)
+
 **Version 0.62**
 - Timezone issue (#75)
 - Added some fixes to allow installation on not-supervised env (thanks to @micw)

@@ -21,7 +21,7 @@ Set up Simplescheduler to point to your MQTT broker and set *Enabled* to *true*
       password: your_mqtt_password
 
 If auth is not used, leave the *username* and *password* fields empty.
-You also need the MQTT Integration in your Home Assistant with discovery enabled. If you use MQTT you should already have it, but if you don't take a look at step 2 in the next section.
+You also need the MQTT Integration in your Home Assistant with discovery enabled. If you use MQTT you should already have it but if you don't, take a look at step 2 in the next section.
 
 ## If you don't have MQTT configured
 You have to follow three simple steps:
