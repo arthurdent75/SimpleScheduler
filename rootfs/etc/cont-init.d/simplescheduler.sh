@@ -4,7 +4,11 @@
 # Configures requirements
 # ==============================================================================
 
-rm /var/www/html/index.html
+file="/var/www/html/index.html"
+
+if [ -f "$file" ] ; then
+    rm "$file"
+fi
 
 FOLDER=/share/simplescheduler
 
