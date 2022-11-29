@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Home Assistant Simple Scheduler</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" >
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+
+
+<style>
+{{ css|safe }}
+
+{% if o.details_uncovered==True %}
+.week_table{ display: table;}
+{% endif %}
+
+</style>
+
+</head>
+<body>
+
+<div class="wrapper">
+
+    <nav id="sidebar">
+		<button type="button" aria-label="Close" class="btn btn-outline-secondary btn-sm" onclick="toggle_sidebar();">>>></button>
+
+        <div id="sidebar-wrapper">
+            ...
+        </div>
+    </nav>
+
+	<div class="content">
+		<div>
+			<table class="table table-hover" id="dtable">
+				<thead class="bg-primary">
+				<tr>
+				  <th scope="col" colspan="4" ><h5>SimpleScheduler</H5></th>
+				</tr>
+				</thead>
+				<tbody>
+
+				{% for s in data %}
+
+					  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] }}" style="opacity: {{ '1' if s.enabled else '0.3' }}">
+						  {% if s.weekly %}
+						  <td class="text-center drag_icon fit"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
+						  {% elif s.recurring %}
+						  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-refresh mdi-24px" ></span></td>
+						  {% else %}
+						  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-week mdi-24px" ></span></td>
+						  {% endif %}
+						  <td class="text-center fit" >
+							<button type="button" class="btn btn-default bg-primary edit-button" aria-id="{{ s.id }}" ><span class="mdi mdi-pencil" ></span></button>
+							&nbsp;
+							<button type="button" class="btn btn-default bg-primary view-button" aria-id="{{ s.id }}" ><span class="mdi mdi-eye" ></span></button>
+						  </td>
+						  <td  class="name_col" >
+							<div class="row-title"><p data-bs-toggle="tooltip" data-bs-html="true"  title="{{ s.id }}" >{{ s.name }}</p></div>
+							<div class="entities_list">
+							{% for e in s.entity_id %}
+								<span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-html="true"  title="{{ e }}" >{{ friendlynames[e] }}</span>
+							{% endfor %}
+							</div>
+						  </td>
+						  {% if s.weekly %}
+						  <td>
+							<div class="week_table w_mode" id="detail_{{ s.id }}">
+								<div class="week_table_row week_table_header">
+									<div class="week_table_cell"></div>
+									{% for wd in range(1, 8): %}
+										   <div class="week_table_cell" style="width: 13.5%;" >
+										   {{ weekday[wd] }}
+										   </div>
+									{% endfor%}
+								</div>
+								<div class="week_table_row text-green week_table_row_bottom_line">
+									<div class="week_table_cell "><span class="badge  dowHiglightG ">{{ o.translations.text_ON }}</span></div>
+									{% for wd in range(1, 8): %}
+										   <div class="week_table_cell">
+											{{ format_event(s.weekly['on_'+wd|string], True)|safe }}
+										   </div>
+									{% endfor%}
+								</div>
+								<div class="week_table_row text-red week_table_row_bottom_line">
+									<div class="week_table_cell "><span class="badge  dowHiglightR ">{{ o.translations.text_OFF }}</span></div>
+									{% for wd in range(1, 8): %}
+										   <div class="week_table_cell">
+											{{ format_event(s.weekly['off_'+wd|string], False)|safe }}
+										   </div>
+									{% endfor%}
+								</div>
+							</div>
+						  </td>
+						  {% elif s.recurring %}
+						  <td class="event-cell">
+								<div class="week_table d_mode"  id="detail_{{ s.id }}">
+									<div class="week_table_row ">
+										<div class="week_table_cell ">
+											{% if s.on_tod %}
+												<div class="event-list text-green">
+													<span>  {{ s.recurring.on_start }} <i class="mdi mdi-arrow-left-right-bold" ></i>{{ s.recurring.on_end }} </span>
+													<span class="mdi mdi-timer-sand" >{{ s.recurring.on_interval }}m</span>
+												</div>
+												<!-- <div style="clear:both;" class="event-list text-green">{{ format_event(s.on_tod, True)|safe }}</div> -->
+												<div style="clear:both;">{{ get_friendly_html_dow(s.on_dow,True)|safe }}</div>
+											{% endif %}
+										</div>
+										<div class="week_table_cell ">
+											{% if s.off_tod %}
+												<div class="event-list text-red">
+													<span>  {{ s.recurring.off_start }} <i class="mdi mdi-arrow-left-right-bold" ></i>{{ s.recurring.off_end }} </span>
+													<span class="mdi mdi-timer-sand" >{{ s.recurring.off_interval }}m</span>
+												</div>
+												<!-- <div style="clear:both;" class="event-list text-red">{{ format_event(s.off_tod, False)|safe }}</div> -->
+												<div style="clear:both;">{{ get_friendly_html_dow(s.off_dow,False)|safe }}</div>
+											{% endif %}
+										</div>
+									</div>
+								</div>
+						  </td>
+					  	 {% else %}
+						  <td class="event-cell">
+								<div class="week_table d_mode"  id="detail_{{ s.id }}">
+									<div class="week_table_row ">
+										<div class="week_table_cell ">
+											{% if s.on_tod %}
+												<div class="event-list text-green">{{ format_event(s.on_tod, True)|safe }}</div>
+												<div style="clear:both;">{{ get_friendly_html_dow(s.on_dow,True)|safe }}</div>
+											{% endif %}
+										</div>
+										<div class="week_table_cell ">
+											{% if s.off_tod %}
+												<div class="event-list text-red">{{ format_event(s.off_tod, False)|safe }}</div>
+												<div style="clear:both;">{{ get_friendly_html_dow(s.off_dow,False)|safe }}</div>
+											{% endif %}
+										</div>
+									</div>
+								</div>
+						  </td>
+						  {% endif %}
+					  </tr>
+
+				{% endfor %}
+
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+
+	<button type="button" class="btn btn-default btn-circle btn-xl bg-primary floating-bottom-right add-button"><span class="mdi mdi-plus"></span> </button>
+
+	<div class="overlay"></div>
+
+	<footer class="footer">
+      <div class="statusbar">
+        <p>
+			<span class="statusbar_span"><span class="mdi mdi-weather-sunset-up" ></span> {{ statusbarinfo.sunrise }}</span>
+			<span class="statusbar_span"><span class="mdi mdi-weather-sunset-down" ></span> {{ statusbarinfo.sunset }}</span>
+			<span class="statusbar_span"><span class="mdi mdi-map-clock-outline" ></span> {{ statusbarinfo.timezone }}</span>
+			<span class="statusbar_span"><span class="mdi mdi-calendar-clock" ></span> {{ statusbarinfo.scheduler }}</span>
+			<span class="statusbar_span">MQTT: {{ statusbarinfo.mqtt }}</span>
+		</p>
+      </div>
+    </footer>
+
+</div>
+
+<script>
+
+	$( document ).ready(function() {
+
+			var $tbody = $("#dtable tbody");
+
+			$tbody.sortable({
+				distance: 5,
+				delay: 100,
+				opacity: 0.6,
+				cursor: 'move',
+				update:  function(e, tr) {
+							var orderlist = '';
+							$('tr.ui-sortable-handle').each(function (i) {
+								$(this).attr('data-order',i);
+								orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
+							});
+							$("#sidebar-wrapper").load("sort?"+orderlist);
+						}
+			}).disableSelection();
+
+
+			$tbody.find('tr.ui-sortable-handle').sort(function (a, b) {
+				var tda = parseInt($(a).attr('data-order'));
+				var tdb = parseInt($(b).attr('data-order'));
+				return tda > tdb ? 1
+					   : tda < tdb ? -1
+					   : 0;
+			}).appendTo($tbody);
+	});
+
+
+	function toggle_sidebar(){
+		$("#sidebar").hide();
+		$("body").css('overflow','auto');
+	}
+
+	$(document).on('click', '.edit-button', function () {
+			v=$(this).attr('aria-id');
+			$("#sidebar-wrapper").html('');
+			$("#sidebar").show();
+			$("body").css('overflow','hidden');
+            $("#sidebar-wrapper").load("edit?id="+v, function() {
+				$(".entity-dropdown-fix").each(function( t ) {
+					  this.value = $(this).attr('aria-data');
+					});
+				});
+    });
+
+	$(document).on('click', '.view-button', function () {
+			var v=$(this).attr('aria-id');
+			var t="#detail_"+v;
+			if ($(t).css('display')=="table") {
+				$(t).css('display','none');
+			}else{
+				$(t).css('display','table');
+			}
+    });
+
+	$(document).on('click', '.add-button', function () {
+			$("#sidebar-wrapper").html('');
+			$("#sidebar").show();
+            $("#sidebar-wrapper").load("new");
+    });
+
+	$(document).on('click', '.delete-button', function () {
+			var id=$(this).attr('aria-id');
+			var f = document.getElementById("edit-form");
+			if (window.confirm("Are you sure?")) {
+				window.location.href ='delete?id='+id;
+			}
+    });
+
+	$(document).on('click', '.img-add-new', function () {
+			v=$(this).attr('aria-id');
+			$("#sidebar-wrapper").html('');
+			$("#sidebar").show();
+            $("#sidebar-wrapper").load("edit?id="+0+"&type="+v);
+    });
+
+	$(document).on('click', '.generate_button', function () {
+			action=$(this).attr('aria-valuetext');
+			r = document.getElementById('recurring_preview_'+action);
+			generate_recurrent(action);
+			if ($(r).css('display')=="none") {
+				$(r).css('display','block');
+			}else{
+				$(r).css('display','none');
+			}
+	});
+
+	$(document).on('submit', '.edit-form', function () {
+			var f = document.getElementById("edit-form");
+			var t = f.type.value;
+			if (t=="recurring") {
+				generate_recurrent("on");
+				generate_recurrent("off");
+			}
+	});
+
+	$(document).on('keyup', '.time_validate', function () {
+			obj=$(this);
+			field=obj[0];
+			var timeREGEX = /^[0-9]{2}:[0-9]{2}$/;
+			if (timeREGEX.test(field.value) || field.value=="") {
+				field.classList.remove("is-invalid");
+				document.getElementById("save-button").disabled=false;
+			} else {
+				field.classList.add("is-invalid");
+				document.getElementById("save-button").disabled=true;
+			}
+	});
+
+	$(document).on('keyup', '.interval_validate', function () {
+			obj=$(this);
+			field=obj[0];
+			var intervalREGEX = /^[0-9]{1,3}$/;
+			if (intervalREGEX.test(field.value) || field.value=="") {
+				document.getElementById("save-button").disabled=false;
+				field.classList.remove("is-invalid");
+			} else {
+				document.getElementById("save-button").disabled=true;
+				field.classList.add("is-invalid");
+			}
+	});
+
+
+	function generate_recurrent(action) {
+			r = document.getElementById('recurring_preview_'+action);
+			r.innerHTML = "";
+
+			start=document.getElementById(action+'_start').value;
+			end=document.getElementById(action+'_end').value;
+			interval=document.getElementById(action+'_interval').value;
+
+			var startDate= new Date("2022-01-01T" + start +":00Z");
+			var endDate = new Date("2022-01-01T" + end +":00Z");
+			s = startDate.getTime();
+			e = endDate.getTime();
+
+			if (s<e) {
+				while ( s<=e ) {
+				  out = new Date(s)
+				  t = out.toUTCString().substring(17, 22)
+				  if (t.length>0) r.innerHTML += t + " ";
+				  s = s + (interval * 60000);
+				}
+			} else {
+				r.innerHTML = ""
+			}
+			document.getElementById(action+'_tod').value=r.innerText;
+	}
+
+	var intervalcheck = window.setInterval(function(){
+		$.get("dirty", function( r ) {
+			if (r=="1") location.reload();
+		});
+	}, 3000);
+
+	$(document).on('click', '#addRow', function () {
+			var html = '';
+			html += '<div id="inputFormRow">';
+			html += '<div class="input-group mb-3">';
+			html += '<select name="entity_id[]" class="form-control">{{ switchlist|safe }}</select>';
+			html += '<div class="input-group-append"><button id="removeRow" type="button" class="btn btn-danger"><span class="mdi mdi-delete" ></span></button></div>';
+			html += '</div>';
+			html += '</div>';
+			$("#info").html('Clic ADD');
+			$('.indexInput').append(html);
+	});
+
+</script>
+
+
+</body>
+</html>

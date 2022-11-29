@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: SimpleScheduler
+# Runs the scheduler daemon
+# ==============================================================================
+
+bashio::log.info "Starting scheduler daemon"
+
+exec python3 /simplescheduler/scheduler.py
