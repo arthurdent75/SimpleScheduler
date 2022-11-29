@@ -17,7 +17,7 @@ You can add the URL of this page in your "add-on store" as a new repository:\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
 
 If you are not using a supervised installation, you can run the addon as a docker container.
-Take a look here: [docker_install.MD](asset/docker_install.MD "docker_install.MD")
+Take a look here: [docker_install.MD](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/simplescheduler/asset/docker_install.MD "docker_install.MD")
 
 ### Type of scheduler
 
@@ -54,7 +54,7 @@ Look at the picture above to see all this things in actions (and combined!).
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
 This feature is disabled by default, because it require a working MQTT server (broker) and Home Assistant MQTT integration.
-Take a look at the [MQTT.MD](asset/MQTT.MD "MQTT.MD") file to know more. 
+Take a look at the [MQTT.MD](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/simplescheduler/asset/MQTT.MD "MQTT.MD") file to know more. 
 
 ### Retry on unavailable
 By default, SimpleScheduler will retry 3 times if an entity is unavailable. The first retry happens after 5 second, the other ones every minutes. You can change the numbers of retry in the addon options.
