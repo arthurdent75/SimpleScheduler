@@ -35,11 +35,11 @@ No configuration needed.
 In ***Configuration > Device & Services*** add the MQTT integration.
 If you succesfully complete the prevous task, Home Assistant should automatically discover the integration and notify you to add it.
 
-![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_integration.png)
+![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/simplescheduler/asset/mqtt_integration.png)
 
 Click on CONFIGURE and leave all the default, but be sure to enable auto discovery
 
-![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_discovery.png)
+![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/simplescheduler/asset/mqtt_discovery.png)
 
 
 
