@@ -1,4 +1,4 @@
-# SimpleScheduler
+# SimpleScheduler (BETA)
 A Home Assistant AddOn to schedule switches and lights on a weekly base in a visual way without coding.\
 You can keep all the schedules in one place and add/change in a few clicks, even in your mobile app.
 
