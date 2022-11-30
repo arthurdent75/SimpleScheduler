@@ -1,14 +1,9 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/execlineb -S0
 # ==============================================================================
 # Home Assistant Add-on: SimpleScheduler
-# Configures requirements
+# Take down the S6 supervision tree when Apache fails
 # ==============================================================================
+if -n { s6-test $# -ne 0 }
+if -n { s6-test ${1} -eq 256 }
 
-FOLDER=/share/simplescheduler
-
-mkdir -p $FOLDER
-
-	
-
-
-
+s6-svscanctl -t /var/run/s6/services

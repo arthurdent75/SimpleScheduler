@@ -1,3 +1,10 @@
+**Version 2.0 (beta)**
+- Rewritten from scratch in Python
+- New feature: Recurring type scheduler (from - to - every)
+- New MQTT Engine
+- Log improvement
+- Massive bugfix
+
 **Version 0.64**
 - Improvement: Set absolute value for light (#76)
 - Improvement: MQTT Switches become unavailable if addon is not running
