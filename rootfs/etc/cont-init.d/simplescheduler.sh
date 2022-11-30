@@ -4,9 +4,9 @@
 # Configures requirements
 # ==============================================================================
 
-FOLDER=/share/simplescheduler
+#FOLDER=/share/simplescheduler
 
-mkdir -p $FOLDER
+#mkdir -p $FOLDER
 
 	
 
