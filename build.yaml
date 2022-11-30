@@ -1,8 +1,10 @@
+---
 build_from:
-  aarch64: "ghcr.io/hassio-addons/base-python/aarch64:9.0.1"
-  amd64: "ghcr.io/hassio-addons/base-python/amd64:9.0.1"
-  armhf: "ghcr.io/hassio-addons/base-python/armhf:9.0.1"
-  armv7: "ghcr.io/hassio-addons/base-python/armv7:9.0.1"
-  i386: "ghcr.io/hassio-addons/base-python/i386:9.0.1"
-
-  
+  aarch64: homeassistant/aarch64-base-python:latest
+  amd64: homeassistant/amd64-base-python:latest
+  armhf: homeassistant/armhf-base-python:latest
+  armv7: homeassistant/armv7-base-python:latest
+  i386: homeassistant/i386-base-python:latest
+codenotary:
+  base_image: codenotary@frenck.dev
+  signer: codenotary@frenck.dev
