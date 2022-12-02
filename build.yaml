@@ -1,8 +1,8 @@
 build_from:
-  aarch64: "aarch64/python:3.10-slim"
+  aarch64: "arm64v8/python:3.10-slim"
   amd64: "amd64/python:3.10-slim"
-  armhf: "armhf/python:3.10-slim"
-  armv7: "armv7/python:3.10-slim"
-  i386: "i386/python:3.10-slim"
+  armhf: "arm32v7/python:3.10-slim"
+  armv7: "arm32v7/python:3.10-slim"
+
 
   
