@@ -1,16 +1,10 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base/amd64:5.3.0
-# hadolint ignore=DL3006
+ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-RUN \
-    apt-get update \
-    && apt-get install -y --no-install-recommends\
-		apache2 \
-		php7.4 \
-		php7.4-curl \
-		php7.4-intl \
-		php7.4-mbstring \
-		php7.4-json
-		
-		
+RUN pip3 install Flask requests paho-mqtt pytz slugify psutil
+
 COPY rootfs /
+
+WORKDIR /simplescheduler
+
+CMD ["python3", "main.py" , "--host=0.0.0.0"]

@@ -1,0 +1,42 @@
+{
+  "translations": {
+    "text_monday": "Lunedì",
+    "text_tuesday": "Martedì",
+    "text_wednesday": "Me",
+    "text_thursday": "Gi",
+    "text_friday": "Ve",
+    "text_saturday": "Sa",
+    "text_sunday": "Do",
+    "text_ON": "ON",
+    "text_OFF": "OFF",
+    "text_save": "Salva",
+    "text_enabled": "Abilitato",
+    "text_device": "Dispositivo",
+    "text_name": "Name"
+  },
+  "components": {
+    "light": true,
+    "scene": true,
+    "switch": true,
+    "script": true,
+    "camera": true,
+    "climate": true,
+    "cover": true,
+    "vacuum": true,
+    "fan": true,
+    "automation": true,
+    "input_boolean": true,
+    "media_player": true
+  },
+  "MQTT": {
+    "enabled": false,
+    "server": "172.16.200.164",
+    "port": "1883",
+    "username": "test",
+    "password": "test"
+  },
+  "max_retry": "3",
+  "details_uncovered": true,
+  "dark_theme": false,
+  "debug": true
+}

@@ -1,0 +1,188 @@
+   <div>
+			<div>
+				<p class="scheduler_id">{{ p.id }}</p>
+				<form  id="edit-form" class="edit-form" action="update" method="post"  >
+				 <input type="hidden" name="id" value="{{ p.id }}" >
+
+					<div class="edit-section-label"><label>{{ o.translations.text_name }}</label></div>
+					<div>
+						<input type="text" name="name" class="form-control input-sm" placeholder="{{ o.translations.text_name }}" value="{{ p.name }}">
+					</div>
+					<div>
+						<label class="checkbox-inline"><input type="checkbox" name="enabled" value="1" {{ 'checked ' if p.enabled else ' ' }}  > {{ o.translations.text_enabled }}</label>
+					</div>
+
+					<div class="edit-section-label"><label>{{ o.translations.text_device }}</label></div>
+					<div class="indexInput">
+						{% for e in p.entity_id %}
+							<div id="inputFormRow">
+								<div class="input-group mb-3">
+									<select name="entity_id[]" aria-data="{{ e }}" class="form-control entity-dropdown-fix">{{ switchlist|safe }}</select>
+									<div class="input-group-append"><button id="removeRow" type="button" class="btn btn-danger"><span class="mdi mdi-delete" ></span></button></div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+
+					<div>
+						<button id="addRow" type="button" class="btn btn-info bg-primary addRow">+</button>
+					</div>
+
+					{% if p.weekly: %}
+					<input type="hidden" name="type" value="weekly" >
+					<div class="edit-section-label"><label>{{ o.translations.text_ON }} / {{ o.translations.text_OFF }}</label></div>
+							<table>
+								<tr>
+									<td></td>
+									<td><span class="badge  dowHiglightG ">{{ o.translations.text_ON }}</span></td>
+									<td><span class="badge  dowHiglightR ">{{ o.translations.text_OFF }}</span></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_monday[:2] }}</td>
+									<td><input type="text" name="on_1" class="form-control input-sm" value="{{ p.weekly.on_1 }}"></td>
+									<td><input type="text" name="off_1" class="form-control input-sm" value="{{ p.weekly.off_1 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_tuesday[:2] }}</td>
+									<td><input type="text" name="on_2" class="form-control input-sm" value="{{ p.weekly.on_2 }}"></td>
+									<td><input type="text" name="off_2" class="form-control input-sm" value="{{ p.weekly.off_2 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_wednesday[:2] }}</td>
+									<td><input type="text" name="on_3" class="form-control input-sm" value="{{ p.weekly.on_3 }}"></td>
+									<td><input type="text" name="off_3" class="form-control input-sm" value="{{ p.weekly.off_3 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_thursday[:2] }}</td>
+									<td><input type="text" name="on_4" class="form-control input-sm" value="{{ p.weekly.on_4 }}"></td>
+									<td><input type="text" name="off_4" class="form-control input-sm" value="{{ p.weekly.off_4 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_friday[:2] }}</td>
+									<td><input type="text" name="on_5" class="form-control input-sm" value="{{ p.weekly.on_5 }}"></td>
+									<td><input type="text" name="off_5" class="form-control input-sm" value="{{ p.weekly.off_5 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_saturday[:2] }}</td>
+									<td><input type="text" name="on_6" class="form-control input-sm" value="{{ p.weekly.on_6 }}"></td>
+									<td><input type="text" name="off_6" class="form-control input-sm" value="{{ p.weekly.off_6 }}"></td>
+								</tr>
+								<tr>
+									<td>{{ o.translations.text_sunday[:2] }}</td>
+									<td><input type="text" name="on_7" class="form-control input-sm" value="{{ p.weekly.on_7 }}"></td>
+									<td><input type="text" name="off_7" class="form-control input-sm" value="{{ p.weekly.off_7 }}"></td>
+								</tr>
+							</table>
+					{% elif p.recurring: %}
+						<input type="hidden" name="type" value="recurring" >
+						<input type="hidden" name="on_tod" id="on_tod" value="{{ p.on_tod }}">
+						<input type="hidden" name="off_tod" id="off_tod" value="{{ p.off_tod }}">
+
+							<div class="edit-section-label"><label>{{ o.translations.text_ON }}</label></div>
+
+							<div>
+								{% for wd in range(1, 8): %}
+								<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="{{ wd }}" {{ 'checked' if wd|string in p.on_dow else ' ' }}  > {{ weekday[wd] }}</label>
+								{% endfor%}
+							</div>
+
+							  <div class="form-row">
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-right" ></span></div></div>
+									<input type="text" value="{{ p.recurring.on_start }}" class="form-control form-control-sm time_validate" name="on_start" id="on_start" placeholder="start">
+								  </div>
+								</div>
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-left" ></span></div></div>
+									<input type="text" value="{{ p.recurring.on_end }}" class="form-control form-control-sm time_validate" name="on_end" id="on_end"  placeholder="end">
+								  </div>
+								</div>
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-horizontal" ></span></div></div>
+									<input type="text" value="{{ p.recurring.on_interval }}"class="form-control form-control-sm interval_validate" name="on_interval" id="on_interval"  placeholder="interval">
+								  </div>
+								</div>
+								<div class="col-auto">
+									<button type="button" class="btn btn-default bg-primary generate_button" aria-valuetext="on" ><span class="mdi mdi-eye" ></span></button>
+								</div>
+							  </div>
+
+							<div id="recurring_preview_on" class="text-green"  style="display:none;" ></div>
+
+
+							<div class="edit-section-label"><label>{{ o.translations.text_OFF }}</label></div>
+							<div>
+								{% for wd in range(1, 8): %}
+									<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="{{ wd }}" {{ 'checked' if wd|string in p.off_dow else ' ' }}  > {{ weekday[wd] }}</label>
+								{% endfor%}
+							</div>
+
+							  <div class="form-row">
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-right" ></span></div></div>
+									<input type="text" value="{{ p.recurring.off_start }}" class="form-control form-control-sm time_validate" name="off_start" id="off_start" placeholder="start">
+								  </div>
+								</div>
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-left" ></span></div></div>
+									<input type="text" value="{{ p.recurring.off_end }}" class="form-control form-control-sm time_validate" name="off_end" id="off_end"  placeholder="end">
+								  </div>
+								</div>
+								<div class="col-sm-3">
+								  <div class="input-group mb-2">
+									<div class="input-group-prepend"><div class="input-group-text"><span class="mdi mdi-arrow-expand-horizontal" ></span></div></div>
+									<input type="text" value="{{ p.recurring.off_interval }}"class="form-control form-control-sm interval_validate" name="off_interval" id="off_interval"  placeholder="interval">
+								  </div>
+								</div>
+								<div class="col-auto">
+   							  		<button type="button" class="btn btn-default bg-primary generate_button" aria-valuetext="off" ><span class="mdi mdi-eye" ></span></button>
+								</div>
+							  </div>
+
+
+
+							<div id="recurring_preview_off" class="text-red" style="display:none;" ></div>
+
+					{% else %}
+					<input type="hidden" name="type" value="daily" >
+							<div class="edit-section-label"><label>{{ o.translations.text_ON }}</label></div>
+							<div>
+								<input type="text" name="on_tod" class="form-control input-sm" value="{{ p.on_tod }}">
+							</div>
+
+							<div>
+								{% for wd in range(1, 8): %}
+									<label class="checkbox-inline"><input type="checkbox" name="on_dow[]" value="{{ wd }}" {{ 'checked' if wd|string in p.on_dow else ' ' }}  > {{ weekday[wd] }}</label>
+								{% endfor%}
+							</div>
+
+							<div class="edit-section-label"><label>{{ o.translations.text_OFF }}</label></div>
+							<div>
+								<input type="text" name="off_tod" class="form-control input-sm"  value="{{ p.off_tod }}">
+							</div>
+
+							<div>
+								{% for wd in range(1, 8): %}
+									<label class="checkbox-inline"><input type="checkbox" name="off_dow[]" value="{{ wd }}" {{ 'checked' if wd|string in p.off_dow else ' ' }}  > {{ weekday[wd] }}</label>
+								{% endfor%}
+							</div>
+					{% endif %}
+					<div style="clear:both;"></div>
+   					<br/>
+
+					<div>
+						<button type="submit" class="btn btn-default bg-success float-left" id="save-button"><span class="mdi mdi-content-save" ></span> {{ o.translations.text_save }} </button>
+						<button type="button" class="btn btn-default  bg-danger float-right delete-button" aria-id="{{ p.id }}"  ><span class="mdi mdi-delete" ></span> </button>
+					</div>
+
+				</form>
+			  </div>
+</div>
+   <div style="clear:both;"></div>
+   <br/>
+
