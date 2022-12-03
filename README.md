@@ -17,14 +17,13 @@ You can add the URL of this page in your "add-on store" as a new repository:\
 Click refresh and you will find the add-on "Simple Scheduler" listed.
 
 If you are not using a supervised installation, you can run the addon as a docker container.
-Take a look here: [docker_install.MD](https://github.com/arthurdent75/SimpleScheduler/blob/master/asset/docker_install.MD "docker_install.MD")
+Take a look here: [docker_install.MD](asset/docker_install.MD "docker_install.MD")
 
 ### Type of scheduler
 
-There are three kind of scheduler:
+There are two kind of scheduler:
 - **Daily**: you can set a ON/OFF time (or a list of them) and than you choose on which weekdays you want to enable them.
-- **Weekly**: you can set a different ON/OFF time (or list of them) for every single day of the week.
-- **Recurring**: you can set a recurring ON/OFF (FROM hh:mm TO hh:mm EVERY n MINUTES) and choose on which weekdays you want to enable them.
+- **Weekly**: you can set a different ON/OFF time (or list of them) for every single day of the week.\
 
 "*A picture is worth a thousand words*", so if you take a look at the screenshot it will be even more clear.
 
@@ -54,7 +53,7 @@ Look at the picture above to see all this things in actions (and combined!).
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
 This feature is disabled by default, because it require a working MQTT server (broker) and Home Assistant MQTT integration.
-Take a look at the [MQTT.MD](https://github.com/arthurdent75/SimpleScheduler/blob/master/asset/MQTT.MD "MQTT.MD") file to know more. 
+Take a look at the [MQTT.MD](asset/MQTT.MD "MQTT.MD") file to know more. 
 
 ### Retry on unavailable
 By default, SimpleScheduler will retry 3 times if an entity is unavailable. The first retry happens after 5 second, the other ones every minutes. You can change the numbers of retry in the addon options.
@@ -89,7 +88,7 @@ You may say that regular people need coffee to do that. Well, I'm not a regular 
 *You can read the TimeZone currently used by the addon in the bottom gray row* 
 
 **I set a timer but it doesn't switch on/off**\
-*The time must be set in HH:MM format*\
+*The time MUST be set in HH:MM format*\
 *Be sure to input time with leading zeros, e.g: 08:30*\
 *Seconds are not allowed*\
 *Also check the previous point (timezone). Maybe it works but at the wrong time!*
@@ -103,4 +102,6 @@ You may say that regular people need coffee to do that. Well, I'm not a regular 
 *It's tricky and I should remove the word "simple" from the addon name*\
 *By the way, you can easily solve this by creating a script that check the condition and then call the script from the scheduler*
 
+**I get a "returned a non-zero code" error during update/install**\
+*Take a look here:* https://github.com/arthurdent75/SimpleScheduler/issues/65#issuecomment-1141869405
 

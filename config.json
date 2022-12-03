@@ -1,0 +1,102 @@
+{
+  "name": "Simple Scheduler",
+  "version": "0.64",
+  "slug": "simplescheduler",
+  "description": "Simple timer on weekly base",
+  "url": "https://github.com/arthurdent75/SimpleScheduler",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "startup": "application",
+  "panel_icon": "mdi:calendar-clock",
+  "panel_title": "Scheduler",
+  "panel_admin": false,
+  "boot": "auto",
+  "hassio_api": true,
+  "homeassistant_api": true,
+  "ingress": true,
+  "map": [ "share:rw" ],  
+  "options": {
+	"translations": {
+		"text_monday": "Monday",
+		"text_tuesday": "Tuesday",
+		"text_wednesday": "Wednesday",
+		"text_thursday": "Thursday",
+		"text_friday": "Friday",
+		"text_saturday": "Saturday",
+		"text_sunday": "Sunday",
+		"text_ON": "Turn ON",
+		"text_OFF": "Turn OFF",
+		"text_save": "Save",
+		"text_enabled": "Enabled",
+		"text_device": "Device",
+		"text_name": "Name"
+	},
+	"components": {
+		"light": true,
+		"scene": true,
+		"switch": true,
+		"script": true,
+		"camera": true,
+		"climate": true,
+		"cover": true,
+		"vacuum": true,
+		"fan": true,
+		"automation": true,
+		"input_boolean": true,
+		"media_player": true
+	},
+	"MQTT": {
+		"enabled": false,
+		"server": "core-mosquitto",
+		"port": "1883",
+		"username": "",
+		"password": ""
+	},	
+	"max_retry": "3",
+	"details_uncovered": false,
+	"dark_theme" : false,
+	"debug" : false
+  },
+  "schema": {
+	"translations": {  
+		"text_monday": "str",
+		"text_tuesday": "str",
+		"text_wednesday": "str",
+		"text_thursday": "str",
+		"text_friday": "str",
+		"text_saturday": "str",
+		"text_sunday": "str",
+		"text_ON": "str",
+		"text_OFF": "str",
+		"text_save": "str",	
+		"text_enabled": "str",
+		"text_device": "str", 
+		"text_name": "str"  
+	},
+	"components": {
+		"light": "bool",
+		"scene": "bool",
+		"switch": "bool",
+		"script": "bool",	
+		"camera": "bool",
+		"climate": "bool",
+		"cover": "bool",
+		"vacuum": "bool",
+		"fan": "bool",
+		"automation": "bool",
+		"input_boolean": "bool",
+		"media_player": "bool"
+	},
+	"MQTT": {
+		"enabled": "bool",
+		"server": "str",
+		"port": "str",
+		"username": "str",
+		"password": "str"
+	},		
+	"max_retry": "str",
+	"details_uncovered": "bool",
+	"dark_theme" : "bool",
+	"debug" : "bool"
+  },
+  "webui": "http://[HOST]:[PORT:8099]"
+}
