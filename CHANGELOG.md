@@ -1,3 +1,6 @@
+**Version 0.65**
+- Nothing new. Just the beta adv! Please take a look!
+
 **Version 0.64**
 - Improvement: Set absolute value for light (#76)
 - Improvement: MQTT Switches become unavailable if addon is not running
