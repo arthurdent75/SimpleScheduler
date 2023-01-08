@@ -1,7 +1,10 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
+#  
 # Home Assistant Add-on: SimpleScheduler
-# Runs the Apache daemon
+#  
 # ==============================================================================
-bashio::log.info "Starting web server"
-exec /usr/sbin/apache2ctl -D FOREGROUND
+
+bashio::log.info "Running scheduler.sh"
+
+python3 /simplescheduler/scheduler.py

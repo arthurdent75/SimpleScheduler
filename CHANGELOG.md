@@ -1,3 +1,19 @@
+**Version 2.0 (beta)**
+- Rewritten from scratch in Python
+- Complete reengineering of the docker structure
+- New feature: Configuration moved to frontend (you need to set option again!)
+- New feature: Recurring type scheduler (from - to - every)
+- New feature: Added "Do not retry" flag
+- New feature: Added "Clone" button
+- New MQTT Engine
+- Auto respawn processes (frontend and scheduler) in case of crash
+- Full UTF-8 support in scheduler name (include regional, mathematical, symbols and emoji)
+- Log moved to frontend
+- Log improvement (more clear and more detalied)
+- Improvement of "Max Retry" option behavior
+- Avoid queuing of some domains (script, scene, ecc)
+- Massive bugfix
+
 **Version 0.64**
 - Improvement: Set absolute value for light (#76)
 - Improvement: MQTT Switches become unavailable if addon is not running

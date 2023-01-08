@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# 
+# Home Assistant Add-on: SimpleScheduler
+# 
+# ==============================================================================
+
+bashio::log.info "Starting service.d [Scheduler]"
+
+exec /simplescheduler/scheduler.sh
+

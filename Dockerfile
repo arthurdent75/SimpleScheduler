@@ -1,16 +1,21 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base/amd64:5.3.0
-# hadolint ignore=DL3006
+ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-RUN \
-    apt-get update \
-    && apt-get install -y --no-install-recommends\
-		apache2 \
-		php7.4 \
-		php7.4-curl \
-		php7.4-intl \
-		php7.4-mbstring \
-		php7.4-json
-		
-		
+# Update Packages
+RUN apt-get update -y && apt upgrade -y
+
+# Setup base
+RUN apt-get install -y \
+    coreutils \
+    wget \
+	curl \
+	python3 \
+	python3-dev \ 
+	python3-pip
+	
+# Install python modules	
+RUN pip3 install Flask requests paho-mqtt pytz psutil
+
+# Copy root filesystem
 COPY rootfs /
+

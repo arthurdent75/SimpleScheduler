@@ -1,9 +1,10 @@
-#!/usr/bin/execlineb -S0
+#!/usr/bin/with-contenv bashio
 # ==============================================================================
+#  
 # Home Assistant Add-on: SimpleScheduler
-# Take down the S6 supervision tree when Apache fails
+#  
 # ==============================================================================
-if -n { s6-test $# -ne 0 }
-if -n { s6-test ${1} -eq 256 }
 
-s6-svscanctl -t /var/run/s6/services
+bashio::log.info "Running interface.sh"
+
+python3 /simplescheduler/main.py
