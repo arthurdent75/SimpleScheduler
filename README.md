@@ -1,9 +1,3 @@
-# BE A BETA TESTER! 
-I need your help!\
-More details here:
-https://community.home-assistant.io/t/simple-scheduler-addon/174326/308
-
-
 # SimpleScheduler
 
 A Home Assistant AddOn to schedule switches,lights and other entities on a weekly base in a visual way without coding.\
