@@ -744,6 +744,10 @@ def printlog(message):
     t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     fullrow = "[%s] %s" % (t, message)
     print(fullrow)
+
+    if not os.path.exists(simpleschedulerconf.json_folder):
+        os.makedirs(simpleschedulerconf.json_folder)
+        
     logfilepath = os.path.join(simpleschedulerconf.json_folder, "simplescheduler.log")
     with open(logfilepath, "a", encoding='utf-8') as logfile:
         logfile.write(fullrow + "\n")
@@ -778,9 +782,6 @@ def init():
 
 
 if __name__ == '__main__':
-
-    if not os.path.exists(simpleschedulerconf.json_folder):
-        os.makedirs(simpleschedulerconf.json_folder)
 
     printlog('STATUS: Starting main program')
 
