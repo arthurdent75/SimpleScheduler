@@ -27,7 +27,6 @@ request_timeout = 5  # seconds
 
 app = Flask(__name__)
 
-
 @app.route("/")
 @app.route("/main")
 def webserver_home():
@@ -780,6 +779,9 @@ def init():
 
 if __name__ == '__main__':
 
+    if not os.path.exists(simpleschedulerconf.json_folder):
+        os.makedirs(simpleschedulerconf.json_folder)
+
     printlog('STATUS: Starting main program')
 
     init()
@@ -800,10 +802,10 @@ if __name__ == '__main__':
             mqtt_send_config(mqttclient)
 
     # Disable Flask Messages
-    app.logger.disabled = True
     log = logging.getLogger('werkzeug')
     log.disabled = True
     flask.cli.show_server_banner = lambda *args: None
+    # app.logger.disabled = True
 
     printlog('STATUS: Starting WebServer')
     app.run(host='0.0.0.0', port=8099, debug=False)
