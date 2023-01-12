@@ -1,3 +1,11 @@
+**Version 2.0.50 (beta)**
+- Fix MQTT Switches unavailable on restart (#111)
+- Fix error if entity is null (#110) 
+
+**Version 2.0.48 (beta)**
+- create json folder if missing
+- enable flask logs
+
 **Version 2.0 (beta)**
 - Rewritten from scratch in Python
 - Complete reengineering of the docker structure

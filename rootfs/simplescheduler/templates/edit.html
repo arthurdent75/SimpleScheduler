@@ -16,6 +16,7 @@
 
 					<div class="edit-section-label"><label>{{ o.translations.text_device }}</label></div>
 					<div class="indexInput">
+						{% if p.entity_id %}
 						{% for e in p.entity_id %}
 							<div id="inputFormRow">
 								<div class="input-group mb-3">
@@ -24,6 +25,7 @@
 								</div>
 							</div>
 						{% endfor %}
+						{% endif %}
 					</div>
 
 					<div>

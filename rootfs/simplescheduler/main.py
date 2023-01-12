@@ -432,7 +432,7 @@ def mqtt_send_config(client):
             payload = payload.replace('@@@', S['name'])
             # slug = slugify(S['name'], separator="_")
             # payload = payload.replace('&&&', slug)
-            client.publish(topic, payload, qos=0, retain=0)
+            client.publish(topic, payload, qos=0, retain=1)
             # time.sleep(.1)
             mqtt_publish_state(client, S['id'], S['enabled'], False)
             # time.sleep(.1)
@@ -747,7 +747,7 @@ def printlog(message):
 
     if not os.path.exists(simpleschedulerconf.json_folder):
         os.makedirs(simpleschedulerconf.json_folder)
-        
+
     logfilepath = os.path.join(simpleschedulerconf.json_folder, "simplescheduler.log")
     with open(logfilepath, "a", encoding='utf-8') as logfile:
         logfile.write(fullrow + "\n")

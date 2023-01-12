@@ -10,6 +10,7 @@ sunset = ""
 options = []
 
 if __name__ == '__main__':
+
     main.printlog('STATUS: Starting scheduler')
 
     while True:

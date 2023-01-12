@@ -68,9 +68,11 @@
 							  <td  class="name_col" >
 								<div class="row-title"><p data-bs-toggle="tooltip" data-bs-html="true"  title="{{ s.id }}" >{{ s.name }}</p></div>
 								<div class="entities_list">
+								{% if s.entity_id %}
 								{% for e in s.entity_id %}
 									<span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-html="true"  title="{{ e }}" >{{ friendlynames[e] }}</span>
 								{% endfor %}
+								{% endif %}
 								</div>
 							  </td>
 							  {% if s.weekly %}
