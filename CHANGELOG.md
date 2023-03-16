@@ -1,3 +1,7 @@
+**Version 2.1**
+- Fix "Corrupted JSON files crash the addon" (#123)
+- Fix "Setting hours to 24 crash the addon" (#124) 
+
 **Version 2.0.50 (beta)**
 - Fix MQTT Switches unavailable on restart (#111)
 - Fix error if entity is null (#110) 

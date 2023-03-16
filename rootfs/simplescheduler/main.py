@@ -400,7 +400,10 @@ def load_json_schedulers():
     os.chdir(simpleschedulerconf.json_folder)
     for file in glob.glob("*.json"):
         with open(file, "r") as read_file:
-            ss.append(json.load(read_file))
+            try:
+                ss.append(json.load(read_file))
+            except:
+                printlog("ERROR: scheduler file %s is corrupted" % file )
     return ss
 
 
@@ -687,7 +690,7 @@ def evaluate_event_time(s, sunrise, sunset):
                         minutes=int(eventime[1]))).strftime("%H:%M")
         if event:
             hm = event.split(":")
-            if 0 <= int(hm[0]) <= 24 and 0 <= int(hm[1]) <= 60:
+            if 0 <= int(hm[0]) < 24 and 0 <= int(hm[1]) < 60:
                 event = datetime(2022, 1, 1, int(hm[0]), int(hm[1])).strftime("%H:%M")  # fix missing leading zeroes
 
     return event
