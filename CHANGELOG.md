@@ -1,3 +1,6 @@
+**Version 2.11**
+- Fix "Allow non admin users to view panel" (#74)
+ 
 **Version 2.1**
 - Fix "Corrupted JSON files crash the addon" (#123)
 - Fix "Setting hours to 24 crash the addon" (#124) 
