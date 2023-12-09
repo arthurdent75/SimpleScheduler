@@ -38,6 +38,8 @@ If you need more advanced feature:
 - You can use the words **sunrise** and **sunset** and also add an offset (in minutes) to it if you need (e.g: **sunrise+30** or **sunset-60** )
 - You can set the percent brightness of a light. Write **16:30>B30** turn on the light at 30% 
 - You can set the absolute brightness of a light. Write **16:30>BA30** turn on the light at 30
+- You can set the color of a RGB light. Write **16:30>B30|FF0077** turn on the light at 30% and set the color to FF0077 (6 digits HEX)
+- You can set the temperature of a CCT light. Write **16:30>B30|K4700** turn on the light at 30% and set it to 4700°K
 - You can set the temperature of a climate. Write **16:30>T22.5** to turn on the climate and set the temperature to 22.5° 
 - You can set the temperature of a climate without turning it on. Write **16:30>TO22.5** to set the temperature to 22.5° 
 - You can set the position of a cover. Write **16:30>P25** will set the cover at 25%  

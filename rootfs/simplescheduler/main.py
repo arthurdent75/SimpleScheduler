@@ -14,6 +14,8 @@ import psutil
 
 import simpleschedulerconf
 
+valid_domains = ["light", "scene", "switch", "script", "camera", "climate", "cover", "vacuum", "fan", "humidifier",
+                 "automation", "input_boolean", "media_player"]
 lwt_topic = "homeassistant/switch/simplescheduler/availability"
 sun_data = ""
 schedulers_list = []
@@ -24,8 +26,10 @@ mqttclient = None
 ha_timezone = "utc"
 scheduler_pid = 0
 request_timeout = 5  # seconds
+domain_list = []
 
 app = Flask(__name__)
+
 
 @app.route("/")
 @app.route("/main")
@@ -86,7 +90,8 @@ def webserver_edit():
 @app.route('/config', methods=['GET'])
 def webserver_config():
     return render_template('config.html',
-                           o=get_options()
+                           o=get_options(),
+                           d=valid_domains
                            )
 
 
@@ -252,18 +257,32 @@ def utility_processor():
                     extra = '<span class="event-type-f"><i class="mdi mdi-fan" aria-hidden="true"></i>' + v + '%</span>'
                 if prefix == 'P':
                     extra = '<span class="event-type-p"><i class="mdi mdi-arrow-up-down" aria-hidden="true"></i>' + v + '%</span>'
-                if prefix == 'B':
-                    if v[0] == 'A':
-                        v = v[1:]
-                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + v + '</span>'
-                    else:
-                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + v + '%</span>'
                 if prefix == 'T':
                     if v[0] == 'O':
                         v = v[1:]
                         extra = '<span class="event-type-to"><i class="mdi mdi-thermometer" aria-hidden="true"></i>' + v + '&deg;</span>'
                     else:
                         extra = '<span class="event-type-t"><i class="mdi mdi-power" aria-hidden="true"></i>' + v + '&deg;</span>'
+                if prefix == 'H':
+                        extra = '<span class="event-type-h"><i class="mdi mdi-water-percent" aria-hidden="true"></i>' + v + '%</span>'
+                if prefix == 'B':
+                    vv = v.split('|')
+                    brightness = vv[0]
+                    extrainfo = ""
+                    if len(vv) > 1 :
+                        color = vv[1]
+                        colorValue = color[1:]
+                        if color[0] == 'K':
+                            extrainfo = ' <span class="colorkelvin">' + colorValue + '&deg;K</span>'
+                        else:
+                            extrainfo = ' <div class="colorsample" title="#' + color + '" style="background-color:#' + color + ';" ></div>'
+                    if brightness[0] == 'A':
+                        brightness = brightness[1:]
+                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness +  extrainfo +'</span>'
+                    else:
+                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness + '%' + extrainfo + '</span>'
+
+
             result += '<span>' + t + extra + '</span >'
         return result
 
@@ -364,6 +383,24 @@ def get_switch_list(domains):
     return full_switch_list
 
 
+def get_domains():
+    domain_list = []
+    url = simpleschedulerconf.HASSIO_URL + "/states"
+    headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
+    try:
+        r = requests.get(url=url, headers=headers, timeout=request_timeout)
+        for block in r.json():
+
+            pieces = block["entity_id"].split(".")
+            if pieces[0] not in domain_list:
+                domain_list.append(pieces[0])
+
+        domain_list.sort()
+    except:
+        printlog("ERROR: Unable to obtain domain list from Home Assistant")
+    return domain_list
+
+
 def get_switch_friendly_names():
     friendly_names = {}
     url = simpleschedulerconf.HASSIO_URL + "/states"
@@ -403,7 +440,7 @@ def load_json_schedulers():
             try:
                 ss.append(json.load(read_file))
             except:
-                printlog("ERROR: scheduler file %s is corrupted" % file )
+                printlog("ERROR: scheduler file %s is corrupted" % file)
     return ss
 
 
@@ -591,13 +628,26 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
 
         if action == 'on':
             if domain[0] == "light" and value != "":
-                if value[0] == "A":
-                    v = int(value[1:])
+                pieces = value.split("|")
+                part_one = pieces[0]
+                part_two = pieces[1]
+
+                if part_one[0] == "A":
+                    v = int(part_one[1:])
                     extra = "to %d" % v
-                elif value.isdigit():
-                    v = int(int(value) * 2.55)
-                    extra = "to " + value + '%'
+                elif part_one.isdigit():
+                    v = int(int(part_one) * 2.55)
+                    extra = "to " + part_one + '%'
                 postdata = '{"entity_id":"%s","brightness":"%d"}' % (eid, v)
+
+                if part_two:
+                    if part_two[0]=="K":
+                        kelvin = int(part_two[1:])
+                        postdata = '{"entity_id":"%s","brightness":"%d","color_temp_kelvin":"%d"}' % (eid, v, kelvin)
+                    else:
+                        HEX_color = part_two
+                        rgb = list(int(HEX_color[i:i + 2], 16) for i in (0, 2, 4))
+                        postdata = '{"entity_id":"%s","brightness":"%d","rgb_color":%s}' % (eid, v , rgb)
 
             if domain[0] == "fan" and value != "":
                 v = value
@@ -622,6 +672,7 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                     postdata = '{"entity_id":"%s","temperature":"%s"}' % (eid, v)
                     command = "Setting"
                     extra = "temperature to " + v + '°'
+
         else:
             if domain[0] == "cover":
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/cover/close_cover"
@@ -639,16 +690,26 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                 extra = "temperature to " + value + '°'
                 printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
 
+        if domain[0] == "humidifier" and value != "":
+            command_url = simpleschedulerconf.HASSIO_URL + "/services/humidifier/set_humidity"
+            postdata = '{"entity_id":"%s","humidity":"%s"}' % (eid, value)
+            call_ha_api(command_url, postdata)
+            command = "Setting"
+            extra = "humidity to " + value + '%'
+            printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
+
     return True
+
 
 def is_a_retry_domain(entity):
     response = True
-    if "scene." in entity : response = False
+    if "scene." in entity: response = False
     if "script." in entity: response = False
     if "automation." in entity: response = False
     if "media_player." in entity: response = False
     if "camera." in entity: response = False
     return response
+
 
 def get_events_array(s):
     s = s.upper().replace(',', ' ').replace(';', ' ').strip()
@@ -761,6 +822,7 @@ def init():
     global weekday
     global schedulers_list
     global ha_timezone
+    global domain_list
 
     options = get_options()
     weekday = \
@@ -779,6 +841,7 @@ def init():
         printlog("   QUESTION: What do you get if you multiply six by nine?")
         printlog("   ANSWER: 42")
 
+    # domain_list = get_domains()
     schedulers_list = load_json_schedulers()
 
     ha_timezone = get_ha_timezone()

@@ -33,3 +33,7 @@ div.row-title P {color: white;}
      }
 
 #logcontent {color: #000}
+
+    span.colorkelvin {
+        color: white;
+    }

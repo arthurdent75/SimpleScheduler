@@ -12,7 +12,7 @@
     {% endfor %}
 
 <tr class="config_section"><td colspan="4">DOMAINS</td></tr>
-    {% for t in o.components %}
+    {% for t in d %}
     <tr class="config_item">
         <td class="config_label">{{ t }}</td>
         <td class="config_input"><input type="checkbox" name="components.{{ t }}" value="1" {{ 'checked ' if o.components[t] else ' ' }}  ></td>

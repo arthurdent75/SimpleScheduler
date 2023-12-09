@@ -24,6 +24,7 @@
     "cover": true,
     "vacuum": true,
     "fan": true,
+    "humidifier": true,	
     "automation": true,
     "input_boolean": true,
     "media_player": true
