@@ -1,3 +1,7 @@
+**Version 2.2**
+- New feature: add parameters for RGB/CT lights (#138)
+- New feature: support humidifiers (#135) 
+
 **Version 2.11**
 - Fix "Allow non admin users to view panel" (#74)
  
