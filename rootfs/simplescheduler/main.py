@@ -630,7 +630,10 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
             if domain[0] == "light" and value != "":
                 pieces = value.split("|")
                 part_one = pieces[0]
-                part_two = pieces[1]
+                if len(pieces) > 1:
+                    part_two = pieces[1]
+                else:
+                    part_two = ''
 
                 if part_one[0] == "A":
                     v = int(part_one[1:])

@@ -1,3 +1,6 @@
+**Version 2.2.1**
+- Fix "Simple Scheduler no longer switching on lamps with brightness" (#142)
+
 **Version 2.2**
 - New feature: add parameters for RGB/CT lights (#138)
 - New feature: support humidifiers (#135) 
