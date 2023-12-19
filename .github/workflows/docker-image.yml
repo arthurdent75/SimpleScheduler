@@ -21,8 +21,8 @@ jobs:
     strategy:
       matrix:
         architecture:
-          - linux/amd64
-          - linux/armhf
+          - amd64
+          - armhf
           
     steps:
       - name: Checkout
