@@ -858,7 +858,7 @@ if __name__ == '__main__':
 
     if options['MQTT']['enabled']:
         printlog('STATUS: Starting MQTT')
-        mqttclient = mqtt.Client(client_id="SimpleScheduler", clean_session=False)
+        mqttclient = mqtt.Client(client_id="SimpleScheduler", clean_session=False, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
         mqttclient.on_connect = on_connect
         mqttclient.on_message = on_message
         mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
