@@ -14,7 +14,8 @@ RUN apt-get install -y \
 	python3-pip
 	
 # Install python modules	
-RUN pip3 install Flask requests paho-mqtt pytz psutil
+RUN pip3 install Flask requests pytz psutil 
+RUN pip3 install paho-mqtt==1.6.1
 
 # Copy root filesystem
 COPY rootfs /
