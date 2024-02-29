@@ -1,3 +1,9 @@
+**Version 2.5**
+- New feature: add template conditions
+- New feature: support valve (#146) 
+- Fix crash due to new mqtt library (#151)
+- Improved documentation (including #152)
+
 **Version 2.2.1**
 - Fix "Simple Scheduler no longer switching on lamps with brightness" (#142)
 

@@ -15,7 +15,7 @@ import psutil
 import simpleschedulerconf
 
 valid_domains = ["light", "scene", "switch", "script", "camera", "climate", "cover", "vacuum", "fan", "humidifier",
-                 "automation", "input_boolean", "media_player"]
+                 "valve","automation", "input_boolean", "media_player"]
 lwt_topic = "homeassistant/switch/simplescheduler/availability"
 sun_data = ""
 schedulers_list = []
@@ -152,12 +152,15 @@ def webserver_update():
     sid = request.form.get('id')
     enabled = request.form.get("enabled")
     dontretry = request.form.get("dontretry")
+    template = request.form.get("template")
     name = request.form.get("name")
     entity_id = request.form.getlist('entity_id[]')
     type = request.form.get('type')
     if type != 'weekly':
         on_tod = request.form.get('on_tod')
+        on_tod_false = request.form.get('on_tod_false')
         off_tod = request.form.get('off_tod')
+        off_tod_false = request.form.get('off_tod_false')
         on_dow = ""
         off_dow = ""
         for o in request.form.getlist('on_dow[]'):
@@ -170,6 +173,7 @@ def webserver_update():
     data['name'] = name if name else sid
     data['enabled'] = enabled if enabled else 0
     data['dontretry'] = dontretry if dontretry else 0
+    data['template'] = template.replace('"',"'") if template else ''
     data['entity_id'] = entity_id
     if type == 'weekly':
         data['weekly']['on_1'] = request.form.get('on_1')
@@ -202,6 +206,8 @@ def webserver_update():
         data['off_tod'] = off_tod
         data['on_dow'] = on_dow
         data['off_dow'] = off_dow
+        data['on_tod_false'] = on_tod_false
+        data['off_tod_false'] = off_tod_false
     file = simpleschedulerconf.json_folder + sid + '.json'
     with open(file, 'w') as jsonFile:
         json.dump(data, jsonFile)
@@ -237,6 +243,24 @@ def webserver_dirty():
         r = '0'
     return make_response(r, 200)
 
+@app.route("/validatetemplate", methods=['GET'])
+def webserver_validatetemplate():
+    response = ""
+    data = request.args
+    t = data["t"]
+    headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
+    command_url = simpleschedulerconf.HASSIO_URL + "/template"
+    post_data = '{"template":"' + t + '"}'
+    try:
+        r = requests.post(url=command_url, data=post_data, headers=headers, timeout=request_timeout)
+        if r.content:
+            response = r.content.decode().lower()
+        if r.status_code != 200:
+            if "message" in response:
+                json_response = json.loads(r.content)
+                response = json_response['message']
+    finally:
+        return make_response(response, 200)
 
 @app.context_processor
 def utility_processor():
@@ -244,7 +268,7 @@ def utility_processor():
         if not value: return ''
         result: str = ""
         extra: str = ""
-        events = value.upper().replace(',', ' ').replace(';', ' ').split(' ')
+        events = value.upper().replace(',', ' ').replace(';', ' ').split(" ")
 
         for e in events:
             p = e.split('>')  # separate time from extra commands
@@ -264,12 +288,12 @@ def utility_processor():
                     else:
                         extra = '<span class="event-type-t"><i class="mdi mdi-power" aria-hidden="true"></i>' + v + '&deg;</span>'
                 if prefix == 'H':
-                        extra = '<span class="event-type-h"><i class="mdi mdi-water-percent" aria-hidden="true"></i>' + v + '%</span>'
+                    extra = '<span class="event-type-h"><i class="mdi mdi-water-percent" aria-hidden="true"></i>' + v + '%</span>'
                 if prefix == 'B':
                     vv = v.split('|')
                     brightness = vv[0]
                     extrainfo = ""
-                    if len(vv) > 1 :
+                    if len(vv) > 1:
                         color = vv[1]
                         colorValue = color[1:]
                         if color[0] == 'K':
@@ -278,12 +302,12 @@ def utility_processor():
                             extrainfo = ' <div class="colorsample" title="#' + color + '" style="background-color:#' + color + ';" ></div>'
                     if brightness[0] == 'A':
                         brightness = brightness[1:]
-                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness +  extrainfo +'</span>'
+                        extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness + extrainfo + '</span>'
                     else:
                         extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness + '%' + extrainfo + '</span>'
 
+            if t: result += '<span>' + t + extra + '</span >'
 
-            result += '<span>' + t + extra + '</span >'
         return result
 
     return dict(format_event=format_event)
@@ -589,7 +613,7 @@ def get_entity_status(e, check):
         if check:
             altered_response = response
             domain = e.lower().split(".")
-            if domain[0] == 'cover':
+            if domain[0] == 'cover' or domain[0] == 'valve':
                 altered_response = 'on' if response == "open" else 'off'
             if domain[0] == 'climate' and response != 'off':
                 altered_response = 'on'
@@ -597,6 +621,33 @@ def get_entity_status(e, check):
             response = altered_response
     except:
         printlog("ERROR: Unable to obtain entity status from Home Assistant")
+    return response
+
+
+def evaluate_template(t: str):
+    opt = get_options()
+    response: bool = False
+    content = ""
+    headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
+    command_url = simpleschedulerconf.HASSIO_URL + "/template"
+    post_data = '{"template":"' + t + '"}'
+    try:
+        if opt['debug']: printlog("DEBUG: Evaluating template: %s" % (t))
+        r = requests.post(url=command_url, data=post_data, headers=headers, timeout=request_timeout)
+        if r.content:
+            content = r.content.decode()
+        if r.status_code != 200:
+            printlog("ERROR: Error calling HA API " + str(r.status_code))
+            if "message" in content.lower():
+                json_response = json.loads(r.content)
+                error= json_response['message']
+                printlog("ERROR: template error: %s" % (error))
+        else:
+            if content.lower() == 'true':
+                response = True
+
+    except:
+        printlog("ERROR: Unable to call Home Assistant template API")
     return response
 
 
@@ -644,13 +695,13 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                 postdata = '{"entity_id":"%s","brightness":"%d"}' % (eid, v)
 
                 if part_two:
-                    if part_two[0]=="K":
+                    if part_two[0] == "K":
                         kelvin = int(part_two[1:])
                         postdata = '{"entity_id":"%s","brightness":"%d","color_temp_kelvin":"%d"}' % (eid, v, kelvin)
                     else:
                         HEX_color = part_two
                         rgb = list(int(HEX_color[i:i + 2], 16) for i in (0, 2, 4))
-                        postdata = '{"entity_id":"%s","brightness":"%d","rgb_color":%s}' % (eid, v , rgb)
+                        postdata = '{"entity_id":"%s","brightness":"%d","rgb_color":%s}' % (eid, v, rgb)
 
             if domain[0] == "fan" and value != "":
                 v = value
@@ -668,6 +719,17 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                         command_url = simpleschedulerconf.HASSIO_URL + "/services/cover/open_cover"
                         command = "Opening"
 
+            if domain[0] == "valve":
+                if value != "":
+                    command_url = simpleschedulerconf.HASSIO_URL + "/services/valve/set_valve_position"
+                    postdata = '{"entity_id":"%s","position":"%s"}' % (eid, value)
+                    command = "Setting"
+                    extra = "position to " + value + '%'
+                else:
+                    if action == "on":
+                        command_url = simpleschedulerconf.HASSIO_URL + "/services/valve/open_valve"
+                        command = "Opening"
+
             if domain[0] == "climate" and value != "":
                 if value[0] == "O":
                     v = value[1:]
@@ -679,6 +741,10 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
         else:
             if domain[0] == "cover":
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/cover/close_cover"
+                command = "Closing"
+
+            if domain[0] == "valve":
+                command_url = simpleschedulerconf.HASSIO_URL + "/services/valve/close_valve"
                 command = "Closing"
 
         printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))

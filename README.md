@@ -44,13 +44,35 @@ If you need more advanced features:
 - You can set the temperature of a climate without turning it on. Write **16:30>TO22.5** to set the temperature to 22.5°
 - You can set the humidity of a (de)humidifier. Write **16:30>H65** to set the humidity to 65% 
 - You can set the position of a cover. Write **16:30>P25** will set the cover at 25%  
-- You can set the fan speed. Write **16:30>F25** will turn on the fan at 25%  
+- You can set the fan speed. Write **16:30>F25** will turn on the fan at 25%
+- You can set the valve position. Write **16:30>P25** will set the valve position at 25%  
 - Brightness/Temperature/Position/Speed only works in the "TURN ON" section (obviously)! 
 - It's not mandatory to add both ON and OFF time. You can leave one of them empty if you don't need it. For example, you want to turn off a light every day at 22:00, but you don't need to turn it on.
 - You can also choose to disable a schedule: the schedule will stay there, but it will not be executed until you will enable it back
 - You can **drag the rows to sort them**, so you can keep them organized as you like!
 
 Look at the picture above to see all these things in action (and combined!).
+
+### Conditions
+For each scheduler, you can add a condition that will be checked at the time of the execution.
+If the condition is 'true' the action will be performed and (obviously) it won't be executed if the condition is 'false'.
+The condition is a template expression that you can add in the "template" field. \
+The condition is evaluated at every triggering time written in the scheduler before the execution. \
+If the field is empty, no check will be performed and the action will always be executed. \
+If you fill the field, two additional time fields will apper. This allows you to set on/off times when condition result is true and different on/off times when condition result is false. \
+The template expression **must return a boolean** ('True' or 'False'). \
+So be sure to "convert" switches, lights, and any other entity states to boolean. A few examples:
+``` 
+{{  states('switch.my_switch') | bool }}
+{{  not states('light.my_light') | bool }}
+{{  states('binary_sensor.workday) | bool }}
+{{  states('sensor.room_temperature') | float > 23.5   }}
+{{  is_state('person.my_kid', 'not_home')  }}
+{{  states('sensor.room_temperature') | float > 23.5 and is_state('sun.sun', 'above_horizon')  }}
+``` 
+If the template returns 'on', 'open', 'home', 'armed', '1' and so on,  they all will all be treated as 'False'. \
+If the template expression has syntax errors it will be considered 'false', and it will be reported in the addon log.\
+Use the template render utility in Developer Tools to test the condition before putting it into the scheduler.
 
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
@@ -78,6 +100,12 @@ For the weekdays, as you can easily understand, only the first two chars are use
 Every schedule (or row, if you prefer) is a JSON file stored in the [share/simplescheduler] folder under the SAMBA share.
 This way the data can "survive" an addon upgrade or reinstallation.
 You can easily backup and restore them in case of failure. In the same way, you can (accidentally?) delete them. So be aware of that.
+
+### Log 
+The log file is stored in the same folder where the JSON files are stored [share/simplescheduler] 
+You can delete it if it become too large, but be sure to stop the addon first.
+You can enable a verbose log by checking the box **debug mode** in the addon configuration.
+When enabled, the log file can easily become very large, so be sure to keep the debug mode on only the required time.
 
 ### Last but not least
 If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=8FN58C8SM9LLW">buy me a beer 🍺</a> \

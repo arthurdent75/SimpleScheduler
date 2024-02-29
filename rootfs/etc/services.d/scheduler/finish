@@ -1,10 +1,10 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Home Assistant Community Add-on: Example
+# Home Assistant Community Add-on: Scheduler
 # ==============================================================================
 if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
-  bashio::log.warning "example 2 crashed, halting add-on"
-  /run/s6/basedir/bin/halt
+  bashio::log.warning "Scheduler process crashed..."
+  # /run/s6/basedir/bin/halt
 fi
 
-bashio::log.info "example 2 stoped, restarting..."
+bashio::log.info "Restarting..."

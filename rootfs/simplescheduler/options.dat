@@ -25,6 +25,7 @@
     "vacuum": true,
     "fan": true,
     "humidifier": true,	
+	"valve": true,	
     "automation": true,
     "input_boolean": true,
     "media_player": true

@@ -40,7 +40,7 @@
 				<table class="table table-hover" id="dtable">
 					<thead class="bg-primary">
 					<tr>
-					  <th scope="col" colspan="4" >
+					  <th scope="col" colspan="5" >
 						  <span class="titlebar_span" id="title">SimpleScheduler</span>
 						  <span class="titlebar_span" id="show-add"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-plus"></span></button></span>
 						  <span class="titlebar_span" id="show-log"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-file-document-outline" ></span></button></span>
@@ -60,9 +60,11 @@
 							  {% else %}
 							  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-week mdi-24px" ></span></td>
 							  {% endif %}
+
+							  <td class="text-center fit">{% if s.template %}<span class="mdi mdi-directions-fork mdi-24px" ></span>{% endif %}</span></td>
+
 							  <td class="text-center fit" >
 								<button type="button" class="btn btn-default bg-primary edit-button" aria-id="{{ s.id }}" ><span class="mdi mdi-pencil" ></span></button>
-								&nbsp;
 								<button type="button" class="btn btn-default bg-primary view-button" aria-id="{{ s.id }}" ><span class="mdi mdi-eye" ></span></button>
 							  </td>
 							  <td  class="name_col" >
@@ -109,20 +111,20 @@
 									<div class="week_table d_mode"  id="detail_{{ s.id }}">
 										<div class="week_table_row ">
 											<div class="week_table_cell ">
-												{% if s.on_tod %}
+												{% if s.on_dow and s.on_tod %}
 													<div class="event-list text-green">
-														<span>  {{ s.recurring.on_start }} <i class="mdi mdi-arrow-left-right-bold" ></i> {{ s.recurring.on_end }} </span>
-														<span class="mdi mdi-timer-sand" >{{ s.recurring.on_interval }}m</span>
+														<span>  {{ s.recurring.on_start }} <i class="mdi mdi-arrow-left-right-bold" ></i> {{ s.recurring.on_end }}
+														<span class="mdi mdi-timer-sand" >{{ s.recurring.on_interval }}m</span></span>
 													</div>
 													<!-- <div style="clear:both;" class="event-list text-green">{{ format_event(s.on_tod, True)|safe }}</div> -->
 													<div style="clear:both;">{{ get_friendly_html_dow(s.on_dow,True)|safe }}</div>
 												{% endif %}
 											</div>
 											<div class="week_table_cell ">
-												{% if s.off_tod %}
+												{% if s.off_dow and s.off_tod %}
 													<div class="event-list text-red">
-														<span>  {{ s.recurring.off_start }} <i class="mdi mdi-arrow-left-right-bold" ></i> {{ s.recurring.off_end }} </span>
-														<span class="mdi mdi-timer-sand" >{{ s.recurring.off_interval }}m</span>
+														<span>  {{ s.recurring.off_start }} <i class="mdi mdi-arrow-left-right-bold" ></i> {{ s.recurring.off_end }}
+														<span class="mdi mdi-timer-sand" >{{ s.recurring.off_interval }}m</span></span>
 													</div>
 													<!-- <div style="clear:both;" class="event-list text-red">{{ format_event(s.off_tod, False)|safe }}</div> -->
 													<div style="clear:both;">{{ get_friendly_html_dow(s.off_dow,False)|safe }}</div>
@@ -136,14 +138,39 @@
 									<div class="week_table d_mode"  id="detail_{{ s.id }}">
 										<div class="week_table_row ">
 											<div class="week_table_cell ">
-												{% if s.on_tod %}
-													<div class="event-list text-green">{{ format_event(s.on_tod, True)|safe }}</div>
+												{% if s.on_dow and ( s.on_tod or s.on_tod_false ) %}
+														<div class="event-list text-green">
+															{% if s.on_tod_false and s.on_tod %}
+															<span class="mdi mdi-thumb-up" style="margin-bottom:0;"></span>
+															{% endif %}
+															{{ format_event(s.on_tod, True)|safe }}
+														</div>
+													{% if s.on_tod_false %}
+													<div style="clear:both;">
+														<div class="event-list text-green">
+															<span class="mdi mdi-thumb-down" style="margin-bottom:0;"></span>
+															{{ format_event(s.on_tod_false, True)|safe }}
+														</div>
+													</div>
+													{% endif %}
 													<div style="clear:both;">{{ get_friendly_html_dow(s.on_dow,True)|safe }}</div>
 												{% endif %}
 											</div>
 											<div class="week_table_cell ">
-												{% if s.off_tod %}
-													<div class="event-list text-red">{{ format_event(s.off_tod, False)|safe }}</div>
+												{% if s.off_dow and ( s.off_tod or s.off_tod_false ) %}
+													<div class="event-list text-red">
+														{% if s.off_tod_false and s.off_tod %}
+														<span class="mdi mdi-thumb-up" style="margin-bottom:0;"></span>
+														{% endif %}
+														{{ format_event(s.off_tod, False)|safe }}</div>
+												    {% if s.off_tod_false %}
+													<div style="clear:both;">
+														<div class="event-list text-red">
+															<span class="mdi mdi-thumb-down" style="margin-bottom:0;"></span>
+															{{ format_event(s.off_tod_false, True)|safe }}
+														</div>
+													</div>
+													{% endif %}
 													<div style="clear:both;">{{ get_friendly_html_dow(s.off_dow,False)|safe }}</div>
 												{% endif %}
 											</div>
@@ -218,6 +245,14 @@
 			}).appendTo($tbody);
 	});
 
+	function toggle_false_condition_section() {
+			t = document.getElementById('template');
+			if (t.value=='') {
+				$('.false_condition_section').each(function() { this.style.display="none"; });
+			} else {
+				$('.false_condition_section').each(function() { this.style.display="block"; });
+			}
+	}
 
 	function toggle_sidebar(){
 		$("#sidebar").hide();
@@ -233,7 +268,9 @@
 				$(".entity-dropdown-fix").each(function( t ) {
 					  this.value = $(this).attr('aria-data');
 					});
-				});
+				toggle_false_condition_section();
+			});
+
     });
 
 	$(document).on('click', '.view-button', function () {
@@ -386,6 +423,36 @@
 			if (r=="1") location.reload();
 		});
 	}, 3000);
+
+
+	$(document).on('keyup', '#template', function () {
+		toggle_false_condition_section();
+	});
+
+	$(document).on('focusout', '#template', function () {
+			t = this.value;
+			if (t=='') return false;
+			$.get("validatetemplate?t="+t, function( r  ) {
+				ta = document.getElementById('template');
+				notice = document.getElementById('notice')
+				if (r=='true' || r=='false' )  {
+					notice.style.background = "green";
+					notice.innerHTML="Template is valid! Result: <b>"+r;
+				} else {
+					notice.style.background = "red";
+					notice.innerHTML=r;
+				}
+			   notice.style.opacity = "1";
+			   notice.style.height = "auto";
+			   notice.style.marginTop = "1em";
+			   setTimeout(function() {
+				   notice.style.opacity = "0";
+				   notice.style.height = "0";
+				   notice.style.marginTop = "0";
+				   notice.innerHTML='';
+			   }, 5000);
+			});
+	});
 
 	$(document).on('click', '#addRow', function () {
 			var html = '';

@@ -67,6 +67,7 @@
 	.text-green {color:green;}
 	.text-red   {color:red;}
 	.text-white   {color:white;}
+	.text-center {text-align:center;}
 
 	.bg-primary  {
 		color:white; 
@@ -137,11 +138,23 @@
 	}
 	
 	.event-list > span {
-		font-size: 1rem;
-		margin-right: 1rem;
-		line-height: 1.6 rem;
-		float:left;
+        margin-right: 0.5rem;
+        margin-bottom: 5px;
+        padding: 0 0.5rem;
+        font-size: 1rem;
+        line-height: 1.6rem;
+        float: left;
+        border: 1px solid black;
+        border-radius: 0.2em;
 	}
+
+	.event-list.text-green > span {
+        border-color:green;
+    }
+
+	.event-list.text-red > span {
+        border-color:red;
+    }
 
 	span.event-type-b {
 		font-size: 1rem;
@@ -379,6 +392,22 @@
         vertical-align: middle;
     }
 
+    #notice {
+        opacity: 0;
+        height: 0;
+        margin-top: 0;
+        color: white;
+        font-size: 0.8em;
+        padding: 0.2em;
+        text-align: center;
+        transition: all 1s;
+    }
+
+    .false_condition_section {
+        display: none;
+        margin-left: 0.5em;
+    }
+
 	@media screen and (min-width: 1281px) {
 		html {	font-size: 10pt; }
 
@@ -434,3 +463,4 @@
             margin: auto;
         }
 	}
+
