@@ -3,38 +3,44 @@ name: Build Docker Images
 on:
   push:
     branches:
-      - "*"
+    - "*"
     tags:
-      - "*"
+    - "*"
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
+  IMAGE_NAME: ${{ github.repository | replace('/', '_') | lower }}
+  
 jobs:
   build:
     runs-on: ubuntu-latest
-
+          
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4
+        
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+          
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
+        uses: docker/setup-qemu-action@v3
+        
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
+        uses: docker/setup-buildx-action@v3
+        
       - name: Build and push Docker images
         run: |
           for arch in $(yq e '.build_from | keys | .[]' build.yaml); do
             base_image=$(yq e ".build_from.$arch" build.yaml)
-            docker buildx build --platform $arch -t $REGISTRY/$IMAGE_NAME:$arch-latest --push --build-arg BUILD_FROM=$base_image .
+            docker buildx build --platform $arch -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$arch-latest --push --build-arg BUILD_FROM=$base_image .
           done
