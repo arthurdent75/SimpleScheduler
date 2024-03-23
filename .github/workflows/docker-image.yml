@@ -12,17 +12,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   
 jobs:
-  build-and-push-image:
-    name: Build ${{ matrix.architecture }}
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    strategy:
-      matrix:
-        architecture:
-          - amd64
-          - armhf
           
     steps:
       - name: Checkout
@@ -47,39 +38,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
-      - name: Compose build flags
-        id: flags
+      - name: Build and push Docker images
         run: |
-          echo "date=$(date +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_OUTPUT"
-          from=$(yq --no-colors eval ".build_from.${{ matrix.architecture }}")
-          echo "from=${from}" >> "$GITHUB_OUTPUT"
-
-          if [[ "${{ matrix.architecture}}" = "amd64" ]]; then
-            echo "platform=linux/amd64" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.architecture }}" = "i386" ]]; then
-            echo "platform=linux/386" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.architecture }}" = "armhf" ]]; then
-            echo "platform=linux/arm/v6" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.architecture }}" = "armv7" ]]; then
-            echo "platform=linux/arm/v7" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.architecture }}" = "aarch64" ]]; then
-            echo "platform=linux/arm64/v8" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error ::Could not determine platform for architecture ${{ matrix.architecture }}"
-            exit 1
-          fi        
-           
-      - name: Build and push by digest
-        id: build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          build-args: |
-            BUILD_ARCH=${{ matrix.architecture }}
-            BUILD_DATE=${{ steps.flags.outputs.date }}
-            BUILD_FROM=${{ steps.flags.outputs.from }}
-            BUILD_REF=${{ github.sha }}
-            BUILD_REPOSITORY=${{ github.repository }}
-          platforms: ${{ steps.flags.outputs.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
+          for arch in $(yq e '.build_from | keys | .[]' build.yaml); do
+            base_image=$(yq e ".build_from.$arch" build.yaml)
+            docker buildx build --platform $arch -t ghcr.io/arthurdent75/simplescheduler:$arch-latest --build-arg BUILD_FROM=$base_image .
+            docker push ghcr.io/arthurdent75/simplescheduler:$arch-latest
+          done
