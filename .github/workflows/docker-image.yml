@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository | replace('/', '_') | lower }}
+  IMAGE_NAME: arthurdent75/simplescheduler
   
 jobs:
   build:
@@ -42,5 +42,5 @@ jobs:
         run: |
           for arch in $(yq e '.build_from | keys | .[]' build.yaml); do
             base_image=$(yq e ".build_from.$arch" build.yaml)
-            docker buildx build --platform $arch -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$arch-latest --push --build-arg BUILD_FROM=$base_image .
+            docker buildx build --platform $arch -t ghcr.io/arthurdent75/simplescheduler:$arch-latest --push --build-arg BUILD_FROM=$base_image .
           done
