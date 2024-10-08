@@ -282,11 +282,46 @@ def utility_processor():
                 if prefix == 'P':
                     extra = '<span class="event-type-p"><i class="mdi mdi-arrow-up-down" aria-hidden="true"></i>' + v + '%</span>'
                 if prefix == 'T':
-                    if v[0] == 'O':
-                        v = v[1:]
-                        extra = '<span class="event-type-to"><i class="mdi mdi-thermometer" aria-hidden="true"></i>' + v + '&deg;</span>'
-                    else:
-                        extra = '<span class="event-type-t"><i class="mdi mdi-power" aria-hidden="true"></i>' + v + '&deg;</span>'
+                    map_icon = {
+                        "FA": '<span class="event-type-p"><i class="mdi mdi-fan-auto" aria-hidden="true"></i></span>',
+                        "F1": '<span class="event-type-p"><i class="mdi mdi-fan-speed-1" aria-hidden="true"></i></span>',
+                        "F2": '<span class="event-type-p"><i class="mdi mdi-fan-speed-2" aria-hidden="true"></i></span>',
+                        "F3": '<span class="event-type-p"><i class="mdi mdi-fan-speed-3" aria-hidden="true"></i></span>',
+
+                        "S0": '<span class="event-type-p"><i class="mdi mdi-arrow-horizontal-lock" aria-hidden="true"></i></span>',
+                        "S1": '<span class="event-type-p"><i class="mdi mdi-arrow-up-down" aria-hidden="true"></i></span>',
+                        "S2": '<span class="event-type-p"><i class="mdi mdi-arrow-left-right" aria-hidden="true"></i></span>',
+                        "S3": '<span class="event-type-p"><i class="mdi mdi-arrow-all" aria-hidden="true"></i></span>',
+
+                        "MO": '<span class="event-type-p"><i class="mdi mdi-power" aria-hidden="true"></i></span>',
+                        "MC": '<span class="event-type-p"><i class="mdi mdi-snowflake" aria-hidden="true"></i></span>',
+                        "MH": '<span class="event-type-p"><i class="mdi mdi-fire" aria-hidden="true"></i></span>',
+                        "MD": '<span class="event-type-p"><i class="mdi mdi-water-remove" aria-hidden="true"></i></span>',
+                        "MA": '<span class="event-type-p"><i class="mdi mdi-thermostat-auto" aria-hidden="true"></i></span>',
+                        "MR": '<span class="event-type-p"><i class="mdi mdi-fan" aria-hidden="true"></i></span>',
+
+                        "T": "",
+                    }
+
+                    v = v.replace("_", " ")
+                    for code in ["F", "S", "M"]:
+                        if code in v:
+                            d = v[v.find(code):v.find(code) + 2]
+                            v = v.replace(d, map_icon[d])
+                            extra = v
+
+
+                    if "T" in v:
+                        d = v.find("T")
+                        if len(v) > d + 3 and v[d + 3] == ".":
+                            tem = v[d + 1:d + 5]
+                        elif len(v) > d + 2:
+                            tem = v[d + 1:d + 3]
+                        v = v.replace(v[d], map_icon["T"])
+                        v = v.replace(tem, '<span style="color: #2DA9F2;"><i aria-hidden="true">%s&deg;</i></span>' % tem)
+                        extra = v
+
+
                 if prefix == 'H':
                     extra = '<span class="event-type-h"><i class="mdi mdi-water-percent" aria-hidden="true"></i>' + v + '%</span>'
                 if prefix == 'B':
@@ -731,12 +766,73 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                         command = "Opening"
 
             if domain[0] == "climate" and value != "":
-                if value[0] == "O":
-                    v = value[1:]
+                if "M" in value:
+                    d = value.find("M")
+                    mode = value[d+1]
+                    mode_mapping = {
+                        "C": "cool",
+                        "H": "heat",
+                        "D": "dry",
+                        "A": "auto",
+                        "R": "fan_only",
+                    }
+                    if value[d+1] == "O":
+                        command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/turn_on"
+                        postdata = '{"entity_id":"%s"}' % eid
+                        command = "Setting"
+                        extra = "turn_on"
+                        call_ha_api(command_url, postdata)
+                    else:
+                        command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_hvac_mode"
+                        postdata = '{"entity_id":"%s","hvac_mode":"%s"}' % (eid, mode_mapping[mode])
+                        command = "Setting"
+                        extra = "mode to " + mode_mapping[mode]
+                        call_ha_api(command_url, postdata)
+
+                if "T" in value:
+                    start = value.find("T")+1
+                    stop = start + 2
+                    if value[start+2] == ".":
+                        stop = start + 4
+                    tempe = value[start:stop]
                     command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_temperature"
-                    postdata = '{"entity_id":"%s","temperature":"%s"}' % (eid, v)
+                    postdata = '{"entity_id":"%s","temperature":"%s"}' % (eid, tempe)
                     command = "Setting"
-                    extra = "temperature to " + v + '°'
+                    extra = "temperature to " + tempe + '°'
+                    printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
+                    call_ha_api(command_url, postdata)
+
+                if "F" in value:
+                    d = value.find("F")
+                    fan = value[d + 1]
+                    fan_mapping = {
+                        "A": "auto",
+                        "1": "low",
+                        "2": "medium",
+                        "3": "high"
+                    }
+                    command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_fan_mode"
+                    postdata = '{"entity_id":"%s","fan_mode":"%s"}' % (eid, fan_mapping[fan])
+                    command = "Setting"
+                    extra = "fan to " + fan_mapping[fan]
+                    printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
+                    call_ha_api(command_url, postdata)
+
+                if "S" in value:
+                    d = value.find("S")
+                    swing = value[d+1]
+                    swing_mapping = {
+                        "0": "off",
+                        "1": "vertical",
+                        "2": "horizontal",
+                        "3": "both"
+                    }
+                    command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_swing_mode"
+                    postdata = '{"entity_id":"%s","swing_mode":"%s"}' % (eid, swing_mapping[swing])
+                    command = "Setting"
+                    extra = "swing to " + swing_mapping[swing]
+                    printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
+                    call_ha_api(command_url, postdata)
 
         else:
             if domain[0] == "cover":
@@ -750,14 +846,6 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
         printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
         call_ha_api(command_url, postdata)
 
-        if domain[0] == "climate" and value != "":
-            if value[0] != "O":
-                command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_temperature"
-                postdata = '{"entity_id":"%s","temperature":"%s"}' % (eid, value)
-                call_ha_api(command_url, postdata)
-                command = "Setting"
-                extra = "temperature to " + value + '°'
-                printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
 
         if domain[0] == "humidifier" and value != "":
             command_url = simpleschedulerconf.HASSIO_URL + "/services/humidifier/set_humidity"
