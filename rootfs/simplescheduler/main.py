@@ -284,10 +284,10 @@ def utility_processor():
                 if prefix == 'T':
 
                     map_icon = {
-                        "FA": '<span class="event-type-p"><i class="mdi mdi-fan-auto" aria-hidden="true"></i></span>',
-                        "F1": '<span class="event-type-p"><i class="mdi mdi-fan-speed-1" aria-hidden="true"></i></span>',
-                        "F2": '<span class="event-type-p"><i class="mdi mdi-fan-speed-2" aria-hidden="true"></i></span>',
-                        "F3": '<span class="event-type-p"><i class="mdi mdi-fan-speed-3" aria-hidden="true"></i></span>',
+                        "PA": '<span class="event-type-p"><i class="mdi mdi-fan-auto" aria-hidden="true"></i></span>',
+                        "P1": '<span class="event-type-p"><i class="mdi mdi-fan-speed-1" aria-hidden="true"></i></span>',
+                        "P2": '<span class="event-type-p"><i class="mdi mdi-fan-speed-2" aria-hidden="true"></i></span>',
+                        "P3": '<span class="event-type-p"><i class="mdi mdi-fan-speed-3" aria-hidden="true"></i></span>',
 
                         "S0": '<span class="event-type-p"><i class="mdi mdi-arrow-horizontal-lock" aria-hidden="true"></i></span>',
                         "S1": '<span class="event-type-p"><i class="mdi mdi-arrow-up-down" aria-hidden="true"></i></span>',
@@ -300,7 +300,7 @@ def utility_processor():
                         "MH": '<span class="event-type-p"><i class="mdi mdi-fire" aria-hidden="true"></i></span>',
                         "MD": '<span class="event-type-p"><i class="mdi mdi-water-remove" aria-hidden="true"></i></span>',
                         "MA": '<span class="event-type-p"><i class="mdi mdi-thermostat-auto" aria-hidden="true"></i></span>',
-                        "MR": '<span class="event-type-p"><i class="mdi mdi-fan" aria-hidden="true"></i></span>',
+                        "MF": '<span class="event-type-p"><i class="mdi mdi-fan" aria-hidden="true"></i></span>',
                     }
 
                     for key in map_icon:
@@ -776,7 +776,7 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                         "H": "heat",
                         "D": "dry",
                         "A": "auto",
-                        "R": "fan_only",
+                        "F": "fan_only",
                     }
                     command_url = simpleschedulerconf.HASSIO_URL + "/services/climate/set_hvac_mode"
                     postdata = '{"entity_id":"%s","hvac_mode":"%s"}' % (eid, mode_mapping[mode])
@@ -796,8 +796,8 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                     printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
                     call_ha_api(command_url, postdata)
 
-                if "F" in value:
-                    d = value.find("F")
+                if "P" in value:
+                    d = value.find("P")
                     fan = value[d + 1]
                     fan_mapping = {
                         "A": "auto",
