@@ -1,3 +1,13 @@
+**Version 2.6**
+- New feature: add support for BUTTON
+- New feature: double click on row to enable/disable scheduler (#165)
+- New feature: notification on failure (#134)
+- Improvement: entity dropboxes are now searchable 
+- Improvement: Reduced backup size (#139,#137,#85)
+- Fix "returned a non-zero code" during install on some devices (#158)
+- Fix "Crash on dot instead of colon" (#177)
+- Fix vacuum start and stop
+
 **Version 2.5**
 - New feature: add template conditions
 - New feature: support valve (#146) 

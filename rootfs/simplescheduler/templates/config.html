@@ -36,6 +36,17 @@
         <td colspan="2">
     </tr>
     <tr class="config_item">
+        <td class="config_label">Notify on error:</td>
+        <td class="config_input">
+            <select class="form-control input-sm" name="notifier" value="{{ o.notifier }}" id="notifier_dropdown" >
+                {% for n in notifiers %}
+                <option value="{{ n }}" {{ 'selected' if o.notifier==n else ' ' }} >{{ n }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td colspan="2">
+    </tr>
+    <tr class="config_item">
         <td class="config_label">Details uncovered</td>
         <td class="config_input"><input type="checkbox" name="details_uncovered" value="1" {{ 'checked ' if o.details_uncovered else ' ' }}  ></td>
         <td colspan="2">

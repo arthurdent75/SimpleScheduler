@@ -20,7 +20,7 @@
 						{% for e in p.entity_id %}
 							<div id="inputFormRow">
 								<div class="input-group mb-3">
-									<select name="entity_id[]" aria-data="{{ e }}" class="form-control entity-dropdown-fix">{{ switchlist|safe }}</select>
+									<select name="entity_id[]" aria-data="{{ e }}" class="entity-dropdown-fix">{{ switchlist|safe }}</select>
 									<div class="input-group-append"><button id="removeRow" type="button" class="btn btn-danger"><span class="mdi mdi-delete" ></span></button></div>
 								</div>
 							</div>

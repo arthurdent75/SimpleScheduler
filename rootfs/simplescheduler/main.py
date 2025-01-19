@@ -14,9 +14,10 @@ import psutil
 
 import simpleschedulerconf
 
-valid_domains = ["light", "scene", "switch", "script", "camera", "climate", "cover", "vacuum", "fan", "humidifier",
+valid_domains = ["light", "scene", "switch", "button", "script", "camera", "climate", "cover", "vacuum", "fan", "humidifier",
                  "valve","automation", "input_boolean", "media_player"]
 lwt_topic = "homeassistant/switch/simplescheduler/availability"
+no_notification_placeholder = " - disabled - "
 sun_data = ""
 schedulers_list = []
 options = []
@@ -59,7 +60,7 @@ def webserver_delete():
     if os.path.exists(file):
         os.remove(file)
     if options['MQTT']['enabled']:
-        mqttclient.publish('homeassistant/switch/simplescheduler/' + sid + '/config', "", qos=0, retain=1)
+        mqttclient.publish('homeassistant/switch/simplescheduler/' + sid + '/config', "", qos=0, retain=True)
     return redirect("main")
 
 
@@ -87,11 +88,24 @@ def webserver_edit():
                            )
 
 
+@app.route('/update_json', methods=['GET'])
+def webserver_update_json():
+    args = request.args
+    sid = args.get('id')
+    f:str = args.get('f')
+    v = args.get('v')
+    if f=="enabled": v=int(v)
+    result=update_json_file(sid,f,v)
+    r = '1' if result else '0'
+    return make_response(r, 200)
+
+
 @app.route('/config', methods=['GET'])
 def webserver_config():
     return render_template('config.html',
                            o=get_options(),
-                           d=valid_domains
+                           d=valid_domains,
+                           notifiers=get_notifiers()
                            )
 
 
@@ -503,7 +517,6 @@ def mqtt_send_config(client):
 
 
 def get_options():
-    # path = "/data/options.json"
     path = os.path.join(simpleschedulerconf.json_folder, "options.dat")
     if not os.path.exists(path):
         path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "options.dat")
@@ -548,7 +561,7 @@ def get_switch_html_select_options():
                 htmlstring += '</optgroup>'
             comp = c[0]
             htmlstring += '<optgroup label="' + comp + '">'
-        name = s['id'] if s['friendly_name'] == "" else s['friendly_name'] + '(' + s['id'] + ')'
+        name = s['id'] if s['friendly_name'] == "" else s['friendly_name'] + ' (' + s['id'] + ')'
         htmlstring += '<option value="' + s['id'] + '">' + name + '</option>'
     htmlstring += '</optgroup>'
     htmlstring = htmlstring.replace(chr(39), "&#39;")
@@ -617,6 +630,8 @@ def get_entity_status(e, check):
                 altered_response = 'on' if response == "open" else 'off'
             if domain[0] == 'climate' and response != 'off':
                 altered_response = 'on'
+            if domain[0] == 'vacuum':
+                altered_response = 'on' if response == "cleaning" else 'off'
 
             response = altered_response
     except:
@@ -738,7 +753,16 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                     command = "Setting"
                     extra = "temperature to " + v + '°'
 
+            if domain[0] == "vacuum":
+                command_url = simpleschedulerconf.HASSIO_URL + "/services/vacuum/start"
+                command = "Starting"
+
         else:
+
+            if domain[0] == "vacuum":
+                command_url = simpleschedulerconf.HASSIO_URL + "/services/vacuum/stop"
+                command = "Stopping"
+
             if domain[0] == "cover":
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/cover/close_cover"
                 command = "Closing"
@@ -746,6 +770,10 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
             if domain[0] == "valve":
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/valve/close_valve"
                 command = "Closing"
+
+        if domain[0] == "button":
+            command_url = simpleschedulerconf.HASSIO_URL + "/services/button/press"
+            command = "Pressing"
 
         printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
         call_ha_api(command_url, postdata)
@@ -769,6 +797,51 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
 
     return True
 
+def notify_on_error(message):
+    response = ""
+    options = get_options()
+    notifier = options.get('notifier', '' )
+
+    if notifier != no_notification_placeholder and len(notifier)>0 :
+        headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
+        command_url = simpleschedulerconf.HASSIO_URL + "/services/notify/" + notifier
+        post_data = '{"message":"%s"}' % (message)
+        try:
+            r = requests.post(url=command_url, data=post_data, headers=headers, timeout=request_timeout)
+            if r.content:
+                response = r.content.decode().lower()
+                printlog("SCHED:  ↳ Notification sent to %s" % (notifier))
+            if r.status_code != 200:
+                if "message" in response:
+                    json_response = json.loads(r.content)
+                    response = json_response['message']
+                printlog("ERROR:  ↳ Notification NOT sent - " % (response))
+        except:
+            printlog("ERROR:  ↳ Something went wrong " )
+    return True
+
+def get_notifiers():
+    notifiers = [no_notification_placeholder]
+    headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
+    command_url = simpleschedulerconf.HASSIO_URL + "/services"
+    try:
+        response = requests.get(url=command_url, headers=headers, timeout=request_timeout)
+        if response.status_code == 200 :
+            services = response.json()
+            for domain in services:
+                if domain['domain'] == 'notify':
+                    for service in domain['services']:
+                        if service not in ["send_message","notify"]: notifiers.append(service)
+        else:
+            if "message" in response:
+                json_response = json.loads(response.content)
+                response = json_response['message']
+            printlog("ERROR: Something went wrong getting notifiers - " % (response))
+    except:
+        printlog("ERROR: Something went wrong getting notifiers" )
+
+    return notifiers
+
 
 def is_a_retry_domain(entity):
     response = True
@@ -777,6 +850,7 @@ def is_a_retry_domain(entity):
     if "automation." in entity: response = False
     if "media_player." in entity: response = False
     if "camera." in entity: response = False
+    if "button." in entity: response = False
     return response
 
 
@@ -792,6 +866,7 @@ def evaluate_event_time(s, sunrise, sunset):
     sunrise_day = ""
     sunset_day = ""
 
+    s = s.replace('.', ':')
     if sunrise:
         sunrise_day = sunrise.strftime("%d")
     if sunset:

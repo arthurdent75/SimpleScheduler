@@ -408,6 +408,33 @@
         margin-left: 0.5em;
     }
 
+    .input-group-append {
+        position: absolute;
+        right: 0;
+    }
+
+    .ts-wrapper {
+        width: 100%;
+    }
+
+    .ts-control {
+        padding: .375rem .75rem;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .optgroup-header {
+        font-weight: bolder;
+    }
+
+    .ts-dropdown [data-selectable].option {
+        margin-left: 1em;
+    }
+
+    #notifier_dropdown {
+        appearance: auto;
+    }
+
 	@media screen and (min-width: 1281px) {
 		html {	font-size: 10pt; }
 

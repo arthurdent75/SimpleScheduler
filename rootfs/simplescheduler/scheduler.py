@@ -126,9 +126,11 @@ if __name__ == '__main__':
                         friendly_name.get(value['entity_id'], value['entity_id']), attempt, int(value['max_retry']) ))
                     command_queue[key]['countdown'] = int(value['countdown']) - 1
                     if command_queue[key]['countdown'] <= 0:
-                        main.printlog(
-                            "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'], value['entity_id']))
+                        giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'], value['entity_id'])
+                        main.printlog(giveup_message)
                         command_queue.pop(key)
+                        main.notify_on_error(giveup_message)
+
                 else:
                     if entity_status != value['state']:
                         attempt = 1 +  int(value['max_retry']) - int(value['countdown'])
@@ -137,9 +139,10 @@ if __name__ == '__main__':
                         main.call_ha(value['entity_id'], value['state'], value['value'], friendly_name )
                         command_queue[key]['countdown'] = int(value['countdown']) - 1
                         if command_queue[key]['countdown'] <= 0:
-                            main.printlog(
-                                "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'], value['entity_id']))
+                            giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'], value['entity_id'])
+                            main.printlog(giveup_message)
                             command_queue.pop(key)
+                            main.notify_on_error(giveup_message)
                     else:
                         main.printlog("SCHED: [%s] is %s as requested!" % (
                             friendly_name.get(value['entity_id'], value['entity_id']), entity_status.upper()))
