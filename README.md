@@ -116,3 +116,4 @@ When enabled, the log file can easily become very large, so be sure to keep the 
 ### Last but not least
 If you want to convince me to stay up at night to work on this, just <a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=8FN58C8SM9LLW">buy me a beer 🍺</a> \
 You may say that regular people need coffee to do that. Well, I'm not a regular person.
+
