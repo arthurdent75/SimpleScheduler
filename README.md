@@ -33,7 +33,7 @@ Once installed, open the GUI, click on the plus button in the top left and choos
 Choose one or more entities from the dropdown, fill in the ON time (in 24-hour format with leading zero, as suggested) and select the weekdays. Do the same for the OFF time and click "save".
 That's it!
 
-### Advanced Feature 
+### Advanced Features 
 If you need more advanced features:
 - You can set multiple times in the same scheduler: just write them in the field separated by spaces.  
 - You can use the words **sunrise** and **sunset** and also add an offset (in minutes) to it if you need (e.g: **sunrise+30** or **sunset-60** )
