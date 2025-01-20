@@ -44,7 +44,7 @@ Click on CONFIGURE and leave all the default, but be sure to enable auto discove
 
 
 
-#### 3. Configure Simpleschedule
+#### 3. Configure Simplescheduler
 Simplescheduler is already pre-configured to use the Mosquitto Addon, so leave the *server* and the *port* parameter as default.
 Set *enabled* to *true* and add the username and the password that you use to login in Home Assistant. 
 
