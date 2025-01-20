@@ -1,12 +1,14 @@
-# Install this addon as a standalone docker 
+# Run this addon as a standalone docker 
 
-## Create a token to access homeassistant
+If you're reading this tutorial, it's because you're familiar with Docker. Otherwise, it's not a good idea.
 
-Log in to home assistant, go to your user profile, create a long running access token and copy it.
+## Create a token to access Home Assistant
+
+Log in to Home Assistant, go to your user profile, create a *long-lived access token*, and copy it.
 
 ## Create a folder to store persistent data
 
-You need to create a folder where the addon will save the data. You need to specify tha path in the docker run command
+You have to create a folder where the addon will save the data. You need to specify that path in the docker run command
 
 ## Run the docker image
 
