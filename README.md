@@ -74,7 +74,7 @@ So be sure to "convert" switches, lights, and any other entity states to boolean
 ``` 
 If the template returns 'on', 'open', 'home', 'armed', '1' and so on,  they all will all be treated as 'False'. \
 If the template expression has syntax errors it will be considered 'false', and it will be reported in the addon log.\
-Use the template edito utility in Developer Tools to test the condition before putting it into the scheduler.
+Use the template editor utility in Developer Tools to test the condition before putting it into the scheduler.
 
 ### Frontend switch to enable/disable (with MQTT)
 If you want to enable/disable schedulers in frontend and/or automation, you can achieve that through MQTT.
