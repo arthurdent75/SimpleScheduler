@@ -23,6 +23,7 @@ docker run -d \
   ghcr.io/arthurdent75/simplescheduler/amd64:version
 ```
 For architectures other than amd64, just replace *amd64* with one of the following: *aarch64* , *armhf* , *armv7*.
+
 Also, replace *version* with the version you need (e.g. *amd64:2.6*)
 
 You can access the scheduler now at `http://localhost:8099`.
