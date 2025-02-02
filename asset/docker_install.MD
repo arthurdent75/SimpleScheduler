@@ -20,7 +20,7 @@ docker run -d \
   -e HASSIO_URL=http://your-hass-url:port/api \
   -v /path/to/persistent/data:/share/simplescheduler \
   -p 8099:8099 \
-  ghcr.io/arthurdent75/simplescheduler/amd64:latest
+  ghcr.io/arthurdent75/simplescheduler/amd64:2.6
 ```
 For architectures other than amd64, just replace amd64 with one of the following: aarch64 , armhf , armv7.
 
