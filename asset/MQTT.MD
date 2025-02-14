@@ -10,7 +10,7 @@ To use the feature you need three things:
 
 It's less complicated than it seems!
 
-## If you already have MQTT in Home Assistant
+## If you already have MQTT
 Set up Simplescheduler to point to your MQTT broker and set *Enabled* to *true*
 
 ![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_conf.png)
@@ -43,12 +43,7 @@ Click on CONFIGURE and leave all the default, but be sure to enable auto discove
 Simplescheduler is already pre-configured to use the Mosquitto Addon, so leave the *server* and the *port* parameter as default.
 Set *enabled* to *true* and add the username and the password that you use to login in Home Assistant. 
 
-    MQTT:
-      enabled: true
-      server: core-mosquitto
-      port: '1883'
-      username: your_homeassistant_user
-      password: your_homeassistant_password
+![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_conf.png)
 
 After that, restart the addon. 
 
