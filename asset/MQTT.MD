@@ -13,12 +13,7 @@ It's less complicated than it seems!
 ## If you already have MQTT in Home Assistant
 Set up Simplescheduler to point to your MQTT broker and set *Enabled* to *true*
 
-    MQTT:
-      enabled: true
-      server: your_mqtt_server_address
-      port: '1883'
-      username: your_mqtt_user
-      password: your_mqtt_password
+![](https://raw.githubusercontent.com/arthurdent75/SimpleScheduler/master/asset/mqtt_conf.png)
 
 If auth is not used, leave the *username* and *password* fields empty.
 You also need the MQTT Integration in your Home Assistant with discovery enabled. If you use MQTT you should already have it but if you don't, take a look at step 2 in the next section.
