@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: arthurdent75/simplescheduler-beta
+  IMAGE_NAME: arthurdent75/simplescheduler
   
 jobs:
   build:
