@@ -25,9 +25,11 @@
     "vacuum": true,
     "fan": true,
     "humidifier": true,	
-	"valve": true,	
+    "valve": true,	
     "automation": true,
     "input_boolean": true,
+    "input_button": true,    
+    "button": true,      
     "media_player": true
   },
   "MQTT": {

@@ -1,3 +1,14 @@
+**Version 3.0**
+- New feature: arrange scheduler in group
+- New feature: call script with parameters
+- New feature: add support for INPUT_BUTTON
+- Update addon base image with multi-architecture support
+- Faster download: reduced image size by 85%
+- Threading architecture
+- Update paho-mqtt version
+- No need to restart add-on to enable/disable MQTT
+- A lot of bugfix
+
 **Version 2.6**
 - New feature: add support for BUTTON
 - New feature: double click on row to enable/disable scheduler (#165)
@@ -13,6 +24,7 @@
 - New feature: support valve (#146) 
 - Fix crash due to new mqtt library (#151)
 - Improved documentation (including #152)
+- Fix few bugs in frontend
 
 **Version 2.2.1**
 - Fix "Simple Scheduler no longer switching on lamps with brightness" (#142)

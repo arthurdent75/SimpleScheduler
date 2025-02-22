@@ -186,6 +186,12 @@
 		margin-left: 0.1rem;
 	}
 
+	span.event-type-j {
+		font-size: 1rem;
+		color: #000000;
+		margin-left: 0.2rem;
+	}
+
     div.colorsample {
         display: inline-block;
         width: 1em;
@@ -344,6 +350,7 @@
         margin: 0;
         padding: 0;
         opacity: .5;
+        font-size: 0.8em;
 	}
     .col-sm-3 {margin-right: 0.5em; }
     .col-sm-3:last-child {margin-right: 0; }
@@ -434,6 +441,31 @@
     #notifier_dropdown {
         appearance: auto;
     }
+
+
+    tr.row-in-group > td:last-child,
+    tr.row-is-item > td {  padding-left: 1em; }
+    /* tr.row-in-group > td {  padding-left: 3em;   } */
+
+    .row-is-group {font-weight: bold;  cursor: pointer; }
+    .group-icon { margin-right: 5px; cursor: pointer; }
+    .edit-icon, .delete-icon { margin-left: 10px; cursor: pointer; }
+    .group-delete {	float: right;  }
+    .group-rename { margin-left: 1em; }
+    tr.row-is-group:hover .group-delete,
+    tr.row-is-group:hover .group-rename { display:initial; }
+
+    tr.row-is-group,
+    tr.row-in-group  {
+        border-left: 5px solid #03a9f4;
+        border-right: 1px solid #03a9f4;
+        background-color: #f0f6ff
+        }
+
+    #dtable thead tr  { border-left: 5px solid #03a9f4;}
+
+    /*  background-color: #c9faff;  background-color: #45e9f1;  */
+
 
 	@media screen and (min-width: 1281px) {
 		html {	font-size: 10pt; }

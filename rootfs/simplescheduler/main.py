@@ -1,3 +1,5 @@
+from operator import truediv
+
 from flask import Flask, render_template, request, redirect, make_response
 import paho.mqtt.client as mqtt
 import flask.cli
@@ -11,11 +13,16 @@ import pytz
 import requests
 import re
 import psutil
+import time
+import uuid
+import threading
+import re
+import base64
 
 import simpleschedulerconf
 
 valid_domains = ["light", "scene", "switch", "button", "script", "camera", "climate", "cover", "vacuum", "fan", "humidifier",
-                 "valve","automation", "input_boolean", "media_player"]
+                 "valve","automation", "input_boolean", "input_button","media_player"]
 lwt_topic = "homeassistant/switch/simplescheduler/availability"
 no_notification_placeholder = " - disabled - "
 sun_data = ""
@@ -24,10 +31,11 @@ options = []
 weekday = []
 has_changed: bool = False
 mqttclient = None
+mqtt_enabled = False
 ha_timezone = "utc"
-scheduler_pid = 0
 request_timeout = 5  # seconds
 domain_list = []
+
 
 app = Flask(__name__)
 
@@ -43,7 +51,8 @@ def webserver_home():
                            friendlynames=get_switch_friendly_names(),
                            sort=get_sort_list(),
                            weekday=weekday,
-                           statusbarinfo=get_statusbar_info()
+                           statusbarinfo=get_statusbar_info(),
+                           groups=get_groups()
                            )
 
 
@@ -90,6 +99,7 @@ def webserver_edit():
 
 @app.route('/update_json', methods=['GET'])
 def webserver_update_json():
+    global mqtt_enabled
     args = request.args
     sid = args.get('id')
     f:str = args.get('f')
@@ -97,6 +107,9 @@ def webserver_update_json():
     if f=="enabled": v=int(v)
     result=update_json_file(sid,f,v)
     r = '1' if result else '0'
+    if options['MQTT']['enabled']:
+        mqtt_enabled = True
+        mqtt_send_config(mqttclient)
     return make_response(r, 200)
 
 
@@ -137,7 +150,7 @@ def webserver_saveconfig():
 
     option_file_path = os.path.join(simpleschedulerconf.json_folder, "options.dat")
     with open(option_file_path, 'w') as option_file:
-        json_config = json.dump(jsondata, option_file)
+       json_config = json.dump(jsondata, option_file)
 
     init()
 
@@ -227,7 +240,6 @@ def webserver_update():
         json.dump(data, jsonFile)
     if options['MQTT']['enabled']:
         mqtt_send_config(mqttclient)
-        # mqtt_publish_state(mqttclient, id, enabled, True)
     return redirect("main")
 
 
@@ -282,6 +294,7 @@ def utility_processor():
         if not value: return ''
         result: str = ""
         extra: str = ""
+        value = encode_braces_to_base32(value)
         events = value.upper().replace(',', ' ').replace(';', ' ').split(" ")
 
         for e in events:
@@ -319,7 +332,8 @@ def utility_processor():
                         extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness + extrainfo + '</span>'
                     else:
                         extra = '<span class="event-type-b"><i class="mdi mdi-lightbulb" aria-hidden="true"></i>' + brightness + '%' + extrainfo + '</span>'
-
+                if prefix == 'J':
+                    extra = ' <span class="event-type-j"> <i class="mdi mdi-code-json" aria-hidden="true"></i></span>'
             if t: result += '<span>' + t + extra + '</span >'
 
         return result
@@ -345,7 +359,7 @@ def utility_processor():
     return dict(get_friendly_html_dow=get_friendly_html_dow)
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc,properties):
     if rc == 0:
         printlog("STATUS: MQTT connected! ")
         client.publish(lwt_topic, payload="online", qos=0, retain=True)
@@ -383,10 +397,7 @@ def get_statusbar_info():
     r['timezone'] = tz if tz else "N/A"
     r['sunrise'] = sunrise.strftime("%H:%M") if sunrise else "N/A"
     r['sunset'] = sunset.strftime("%H:%M") if sunset else "N/A"
-    pid = get_scheduler_pid()
-    if pid > 0:
-        r['scheduler'] = "Running (PID %s)" % pid
-    if options['MQTT']['enabled']:
+    if mqtt_enabled and mqttclient is not None:
         r['mqtt'] = "Connected" if mqttclient.is_connected() else "Disconnected"
     return r
 
@@ -512,8 +523,9 @@ def mqtt_send_config(client):
             # payload = payload.replace('&&&', slug)
             client.publish(topic, payload, qos=0, retain=1)
             # time.sleep(.1)
-            mqtt_publish_state(client, S['id'], S['enabled'], False)
+            mqtt_publish_state(client, S['id'], S['enabled'])
             # time.sleep(.1)
+
 
 
 def get_options():
@@ -598,15 +610,27 @@ def get_sort_list():
             i = i + 1
     return sorting
 
+def get_groups():
+    g = ""
+    group_file_path = simpleschedulerconf.json_folder + "group.dat"
+    if os.path.exists(group_file_path):
+        with open(group_file_path, "r") as group_file:
+            g = json.load(group_file)
+    return g
 
 def save_sort_list(data):
     idlist = []
     for el in data:
-        idlist.append(data[el])
+        if el == "groups":
+            json_groups = data[el]
+        else:
+            idlist.append(data[el])
     jsonlist = json.loads('{"id_order":[]}')
     jsonlist['id_order'] = idlist
     with open(simpleschedulerconf.json_folder + "sort.dat", "w") as sort_file:
         json.dump(jsonlist, sort_file)
+    with open(simpleschedulerconf.json_folder + "group.dat", "w") as group_file:
+        group_file.write(json_groups)
     return True
 
 
@@ -757,11 +781,18 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/vacuum/start"
                 command = "Starting"
 
+            if domain[0] == "script" and value != "":
+                params = base64.b32decode(passedvalue).decode()
+                command_url = simpleschedulerconf.HASSIO_URL + "/services/script/"+eid.replace("script.","")
+                postdata = params
+                command = "Executing"
+                extra = "with params " + params
+
         else:
 
             if domain[0] == "vacuum":
-                command_url = simpleschedulerconf.HASSIO_URL + "/services/vacuum/stop"
-                command = "Stopping"
+                command_url = simpleschedulerconf.HASSIO_URL + "/services/vacuum/return_to_base"
+                command = "Returning to base"
 
             if domain[0] == "cover":
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/cover/close_cover"
@@ -771,8 +802,17 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
                 command_url = simpleschedulerconf.HASSIO_URL + "/services/valve/close_valve"
                 command = "Closing"
 
+            if domain[0] == "scene":
+                # command_url = simpleschedulerconf.HASSIO_URL + "/services/scene/turn_on"
+                # command = "Turning ON"
+                continue
+
         if domain[0] == "button":
             command_url = simpleschedulerconf.HASSIO_URL + "/services/button/press"
+            command = "Pressing"
+
+        if domain[0] == "input_button":
+            command_url = simpleschedulerconf.HASSIO_URL + "/services/input_button/press"
             command = "Pressing"
 
         printlog("SCHED: %s [%s] %s" % (command, friendly_name.get(eid, eid), extra))
@@ -839,7 +879,6 @@ def get_notifiers():
             printlog("ERROR: Something went wrong getting notifiers - " % (response))
     except:
         printlog("ERROR: Something went wrong getting notifiers" )
-
     return notifiers
 
 
@@ -851,10 +890,19 @@ def is_a_retry_domain(entity):
     if "media_player." in entity: response = False
     if "camera." in entity: response = False
     if "button." in entity: response = False
+    if "input_button." in entity: response = False
     return response
 
 
+def encode_braces_to_base32(s):
+    def encode_match(match):
+        encoded = base64.b32encode(match.group(0).encode()).decode()
+        return encoded
+    return re.sub(r'\{.*?\}', encode_match, s)
+
+
 def get_events_array(s):
+    s = encode_braces_to_base32(s)
     s = s.upper().replace(',', ' ').replace(';', ' ').strip()
     s = re.sub(' +', ' ', s)
     events = s.split(' ')
@@ -936,18 +984,6 @@ def get_ha_timezone():
             printlog("ERROR: Unable to obtain timezone from OS")
     return response
 
-
-def get_scheduler_pid():
-    pid = 0
-    try:
-        for process in psutil.process_iter():
-            if "/simplescheduler/scheduler.py" in process.cmdline():
-                pid = process.pid
-    except:
-        printlog("ERROR: Unable to obtain scheduler PID")
-    return pid
-
-
 def printlog(message):
     t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     fullrow = "[%s] %s" % (t, message)
@@ -967,6 +1003,7 @@ def init():
     global schedulers_list
     global ha_timezone
     global domain_list
+    global mqtt_enabled
 
     options = get_options()
     weekday = \
@@ -990,6 +1027,223 @@ def init():
 
     ha_timezone = get_ha_timezone()
 
+    mqtt_enabled = options['MQTT']['enabled']
+
+
+def run_flask():
+    while True:
+        try:
+            # Disable Flask Messages
+            log = logging.getLogger('werkzeug')
+            log.disabled = True
+            flask.cli.show_server_banner = lambda *args: None
+            # app.logger.disabled = True
+            printlog('STATUS: Starting WebServer')
+            app.run(host='0.0.0.0', port=8099, debug=False)
+        except Exception as e:
+            printlog(f"ERROR: Interface thread crashed [ {e} ], restarting...")
+            time.sleep(2)
+
+def run_mqtt():
+    global mqttclient
+    while True:
+        if mqtt_enabled:
+            try:
+                printlog('STATUS: Starting MQTT')
+                mqttclient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="SimpleScheduler", clean_session=False)
+                mqttclient.on_connect = on_connect
+                mqttclient.on_message = on_message
+                mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
+                mqttclient.username_pw_set(options['MQTT']['username'], options['MQTT']['password'])
+                mqttclient.connect(options['MQTT']['server'], int(options['MQTT']['port']), 60)
+                mqttclient.loop_start()
+                mqttclient.publish(lwt_topic, payload="online", qos=0, retain=True)
+                mqtt_send_config(mqttclient)
+                while mqtt_enabled:
+                    time.sleep(1)
+                printlog("STATUS: MQTT disabled, disconnecting...")
+                mqttclient.publish(lwt_topic, payload="offline", qos=0, retain=True)
+                mqttclient.loop_stop()
+                mqttclient.disconnect()
+            except Exception as e:
+                printlog(f"ERROR: MQTT thread error [ {e} ], restarting...")
+                time.sleep(2)
+        else:
+            time.sleep(1)
+
+
+def run_scheduler():
+    while True:
+        try:
+            command_queue = {}
+            sunrise = ""
+            sunset = ""
+
+            printlog('STATUS: Starting Scheduler')
+
+            while True:
+                seconds = datetime.now().strftime("%S")
+                if seconds == '00':
+                    options = get_options()
+                    try:
+                        max_retry = int(options['max_retry'])
+                    except:
+                        max_retry = 3
+                    if max_retry < 0: max_retry = 3
+                    if max_retry > 5: max_retry = 5
+                    current_time = datetime.now().strftime("%H:%M")
+                    current_dow = datetime.now().strftime("%w")
+                    schedulers_list = load_json_schedulers()
+                    friendly_name = get_switch_friendly_names()
+                    if current_time == "00:01" or sunset == "" or sunrise == "":
+                        if options['debug']:
+                            printlog('DEBUG: Retrieving sunrise and sunset')
+                        sunrise, sunset = get_sun(get_ha_timezone())
+                    if current_dow == '0':
+                        current_dow = '7'
+                    for s in schedulers_list:
+                        if s['enabled']:
+                            condition = True
+                            dont_retry = s.get('dontretry', 0)
+                            template = s.get('template', '')
+                            on_tod_false = s.get('on_tod_false', '')
+                            off_tod_false = s.get('off_tod_false', '')
+                            if options['debug']: printlog("DEBUG: Parsing [%s]" % s['name'])
+                            week_onoff = s.get('weekly')
+
+                            if week_onoff:
+                                s['weekly'] = ''
+                                s['on_tod'] = week_onoff['on_' + current_dow]
+                                s['off_tod'] = week_onoff['off_' + current_dow]
+                                s['on_dow'] = current_dow
+                                s['off_dow'] = current_dow
+
+                            if current_dow in s['on_dow']:
+
+                                if template:
+                                    condition = evaluate_template(template)
+                                    if options['debug']: printlog(
+                                        "DEBUG: Evaluating template for [%s]: %s" % (s['name'], condition))
+
+                                if condition:
+                                    elist = get_events_array(s['on_tod'])
+                                else:
+                                    elist = get_events_array(on_tod_false)
+
+                                for e in elist:
+                                    value = ""
+                                    p = e.upper().split('>')
+                                    t = p[0]
+                                    if len(p) > 1:
+                                        value = p[1][1:]
+                                    event_time = evaluate_event_time(t, sunrise, sunset)
+                                    if event_time == current_time:
+                                        printlog("SCHED: Executing ON actions for [%s]" % s['name'])
+                                        call_ha(s['entity_id'], "on", value, friendly_name)
+                                        for entity in s['entity_id']:
+                                            if (len(value) > 0 and value[
+                                                0] != 'O') or not value:  # if TemperatureOnly don't add to queue
+                                                if not dont_retry and max_retry > 0:
+                                                    if is_a_retry_domain(entity):
+                                                        command_queue[uuid.uuid4().hex] = {"entity_id": entity,
+                                                                                           "sched_id": s['id'],
+                                                                                           "state": "on", "value": value,
+                                                                                           "countdown": max_retry,
+                                                                                           "max_retry": max_retry}
+
+                            if current_dow in s['off_dow']:
+
+                                if condition:
+                                    elist = get_events_array(s['off_tod'])
+                                else:
+                                    elist = get_events_array(off_tod_false)
+
+                                for e in elist:
+                                    value = ""
+                                    p = e.upper().split('>')
+                                    t = p[0]
+                                    if len(p) > 1:
+                                        value = p[1][1:]
+                                    event_time = evaluate_event_time(t, sunrise, sunset)
+                                    if event_time == current_time:
+                                        if template:
+                                            condition = evaluate_template(template)
+                                            printlog(
+                                                "SCHED: Evaluating template for [%s]: %s" % (s['name'], condition))
+                                        if condition:
+                                            printlog("SCHED: Executing OFF actions for [%s]" % s['name'])
+                                            call_ha(s['entity_id'], "off", value, friendly_name)
+                                            for entity in s['entity_id']:
+                                                if (len(value) > 0 and value[
+                                                    0] != 'O') or not value:  # if TemperatureOnly don't add to queue
+                                                    if not dont_retry and max_retry > 0:
+                                                        if is_a_retry_domain(entity):
+                                                            command_queue[uuid.uuid4().hex] = {"entity_id": entity,
+                                                                                               "sched_id": s['id'],
+                                                                                               "state": "off",
+                                                                                               "value": value,
+                                                                                               "countdown": max_retry,
+                                                                                               "max_retry": max_retry}
+                    time.sleep(5)
+
+                    if options['debug']: printlog("DEBUG: Max Retry: %d" % max_retry)
+                    if options['debug']: printlog(
+                        "DEBUG: Starting Queue management - Queue length: %d" % len(command_queue))
+
+                    for key in command_queue.copy():
+
+                        value = command_queue[key]
+                        entity_status = get_entity_status(value['entity_id'], True)
+                        if options['debug']: printlog(
+                            "DEBUG: ID:%s | Entity status:%s | Queue item:%s" % (key, entity_status.upper(), value))
+
+                        if entity_status == 'unavailable':
+                            attempt = 1 + int(value['max_retry']) - int(value['countdown'])
+                            printlog("SCHED: [%s] is unavailable. Attempt %d of %d" % (
+                                friendly_name.get(value['entity_id'], value['entity_id']), attempt,
+                                int(value['max_retry'])))
+                            command_queue[key]['countdown'] = int(value['countdown']) - 1
+                            if command_queue[key]['countdown'] <= 0:
+                                giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'],
+                                                                                                value['entity_id'])
+                                printlog(giveup_message)
+                                command_queue.pop(key)
+                                notify_on_error(giveup_message)
+
+                        else:
+                            if entity_status != value['state']:
+                                attempt = 1 + int(value['max_retry']) - int(value['countdown'])
+                                printlog("SCHED: Failed to set [%s]. Retry %d of %d " % (
+                                    friendly_name.get(value['entity_id'], value['entity_id']), attempt,
+                                    int(value['max_retry'])))
+                                call_ha(value['entity_id'], value['state'], value['value'], friendly_name)
+                                command_queue[key]['countdown'] = int(value['countdown']) - 1
+                                if command_queue[key]['countdown'] <= 0:
+                                    giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'],
+                                                                                                    value['entity_id'])
+                                    printlog(giveup_message)
+                                    command_queue.pop(key)
+                                    notify_on_error(giveup_message)
+                            else:
+                                printlog("SCHED: [%s] is %s as requested!" % (
+                                    friendly_name.get(value['entity_id'], value['entity_id']), entity_status.upper()))
+                                command_queue.pop(key)
+
+                    if options['debug']: printlog(
+                        "DEBUG: Finished Queue management - Queue length: %d" % len(command_queue))
+
+                time.sleep(1)
+
+        except Exception as e:
+            printlog(f"ERROR: Scheduler thread crashed [ {e} ], restarting...")
+            time.sleep(2)
+
+
+def start_thread(target):
+    thread = threading.Thread(target=target, daemon=True)
+    thread.start()
+    return thread
+
 
 if __name__ == '__main__':
 
@@ -997,26 +1251,26 @@ if __name__ == '__main__':
 
     init()
 
-    if options['MQTT']['enabled']:
-        printlog('STATUS: Starting MQTT')
-        mqttclient = mqtt.Client(client_id="SimpleScheduler", clean_session=False)
-        mqttclient.on_connect = on_connect
-        mqttclient.on_message = on_message
-        mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
-        mqttclient.username_pw_set(options['MQTT']['username'], options['MQTT']['password'])
-        try:
-            mqttclient.connect(options['MQTT']['server'], int(options['MQTT']['port']), 60)
-        except:
-            printlog("ERROR: MQTT Connection failed")
-        else:
-            mqttclient.loop_start()
-            mqtt_send_config(mqttclient)
+    flask_thread = start_thread(run_flask)
+    scheduler_thread = start_thread(run_scheduler)
+    mqtt_thread = start_thread(run_mqtt)
 
-    # Disable Flask Messages
-    log = logging.getLogger('werkzeug')
-    log.disabled = True
-    flask.cli.show_server_banner = lambda *args: None
-    # app.logger.disabled = True
+    try:
+        while True:
+            if not flask_thread.is_alive():
+                printlog("Restarting interface thread...")
+                flask_thread = start_thread(run_flask)
 
-    printlog('STATUS: Starting WebServer')
-    app.run(host='0.0.0.0', port=8099, debug=False)
+            if not scheduler_thread.is_alive():
+                printlog("Restarting scheduler thread...")
+                scheduler_thread = start_thread(run_scheduler)
+
+            if not mqtt_thread.is_alive()  :
+                printlog("Restarting MQTT thread...")
+                mqtt_thread = start_thread(run_mqtt)
+
+            time.sleep(1)
+
+
+    except KeyboardInterrupt:
+        printlog("Shutting down...")

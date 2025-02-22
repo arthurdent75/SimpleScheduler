@@ -5,7 +5,7 @@
 <title>Simple Scheduler for HA</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" >
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css" >
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
@@ -44,30 +44,58 @@
 					<tr>
 					  <th scope="col" colspan="5" >
 						  <span class="titlebar_span" id="title">SimpleScheduler</span>
-						  <span class="titlebar_span" id="show-add"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-plus"></span></button></span>
-						  <span class="titlebar_span" id="show-log"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-file-document-outline" ></span></button></span>
-						  <span class="titlebar_span" id="show-config"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-cog-outline"></span></button></span>
+						  <span class="titlebar_span" id="show-add" title="New scheduler"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-plus"></span></button></span>
+						  <span class="titlebar_span" id="add-group" title="New group"><button type="button" class="btn btn-default bg-white main-color"><span class="mdi mdi-format-list-group-plus"></span></button></span>
+						  <span class="titlebar_span" id="show-log" title="Show log"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-file-document-outline" ></span></button></span>
+						  <span class="titlebar_span" id="show-config" title="Edit config"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-cog-outline"></span></button></span>
+
 					  </th>
 					</tr>
 					</thead>
 					<tbody>
 
+					{% if groups %}
+					{% for key, group in groups.items() %}
+					   {% set group_id = "group-" + key %}
+						<tr data-value="{{ group_id }}" class="row-is-group" data-group="{{ key }}" data-order="{{ sort[group_id] }}" style="opacity: 1;"  {% if group.closed %}start-closed{% endif %}  >
+							<td colspan="5" title="Drag a scheduler over to add it to the group. Drag it away to remove it">
+								<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
+								<span class="group-name">{{ group.name }}</span>
+								<span class="group-rename" title="Rename group"><span class="mdi mdi-18px mdi-pencil " ></span></span>
+								<span class="group-delete" title="Delete group"><span class="mdi mdi-18px mdi-delete" ></span></span>
+							</td>
+						</tr>
+					{% endfor %}
+					{% endif %}
+
 					{% for s in data %}
 
-						  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] }}" style="opacity: {{ '1' if s.enabled else '0.3' }}">
+							{% set ns_id = namespace(value = None) %}
+							{% if groups %}
+								{% for key, group in groups.items() %}
+									{% for value in group["values"] %}
+										{% if s.id|string|lower|trim == value|string|lower|trim %}
+											{% set ns_id.value = key %}
+										{% endif %}
+									{% endfor %}
+								{% endfor %}
+							{% endif %}
+							{% set group_id = ns_id.value %}
+
+						  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] }}" class="row-is-item {% if group_id %}row-in-group{% endif %}" style="opacity: {{ '1' if s.enabled else '0.3' }}" {% if group_id %}data-group="{{ group_id }}"{% endif %}>
 							  {% if s.weekly %}
-							  <td class="text-center drag_icon fit"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
+							  <td class="text-left drag_icon fit" title="Weekly"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
 							  {% elif s.recurring %}
-							  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-refresh mdi-24px" ></span></td>
+							  <td class="text-left drag_icon fit" title="Recurring"> <span class="mdi mdi-calendar-refresh mdi-24px" ></span> </td>
 							  {% else %}
-							  <td class="text-center drag_icon fit"><span class="mdi mdi-calendar-week mdi-24px" ></span></td>
+							  <td class="text-left drag_icon fit" title="Daily"> <span class="mdi mdi-calendar-week mdi-24px" ></span> </td>
 							  {% endif %}
 
-							  <td class="text-center fit">{% if s.template %}<span class="mdi mdi-directions-fork mdi-24px" ></span>{% endif %}</span></td>
+							  <td class="text-left fit">{% if s.template %}<span class="mdi mdi-directions-fork mdi-24px" ></span>{% endif %}</span></td>
 
-							  <td class="text-center fit" >
-								<button type="button" class="btn btn-default bg-primary edit-button" aria-id="{{ s.id }}" ><span class="mdi mdi-pencil" ></span></button>
-								<button type="button" class="btn btn-default bg-primary view-button" aria-id="{{ s.id }}" ><span class="mdi mdi-eye" ></span></button>
+							  <td class="text-left fit" >
+								<button type="button" class="btn btn-default bg-primary edit-button" aria-id="{{ s.id }}" title="Edit"><span class="mdi mdi-pencil" ></span></button>
+								<button type="button" class="btn btn-default bg-primary view-button" aria-id="{{ s.id }}" title="Details"><span class="mdi mdi-eye" ></span></button>
 							  </td>
 							  <td  class="name_col" >
 								<div class="row-title"><p data-bs-toggle="tooltip" data-bs-html="true"  title="{{ s.id }}" >{{ s.name }}</p></div>
@@ -200,7 +228,6 @@
 				<span class="statusbar_span"><span class="mdi mdi-weather-sunset-up" ></span> {{ statusbarinfo.sunrise }}</span>
 				<span class="statusbar_span"><span class="mdi mdi-weather-sunset-down" ></span> {{ statusbarinfo.sunset }}</span>
 				<span class="statusbar_span"><span class="mdi mdi-map-clock-outline" ></span> {{ statusbarinfo.timezone }}</span>
-				<span class="statusbar_span"><span class="mdi mdi-calendar-clock" ></span> {{ statusbarinfo.scheduler }}</span>
 				<span class="statusbar_span">MQTT: {{ statusbarinfo.mqtt }}</span>
 
 			</p>
@@ -218,25 +245,124 @@
 
 <script>
 
+	function updateOrder() {
+		$("#dtable tbody tr").each(function(index) {
+			$(this).attr("data-order", index + 1);
+		});
+	}
+
+	function sendSortData() {
+		var orderlist = '';
+		$('tr').each(function (i) {
+			$(this).attr('data-order',i);
+			orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
+		});
+		let json_groups = generateJsonFromTable();
+		$("#sidebar-wrapper").load("sort?"+orderlist+"&groups="+json_groups);
+
+	}
+
+	function generateGroupId() {
+		let randomHex = Math.floor(Math.random() * 0xFFFFFFFFFF).toString(16);
+		return randomHex.padStart(10, '0');
+	}
+
+	function generateJsonFromTable() {
+        let groups = {};
+
+        $('#dtable tbody tr').each(function() {
+            let $row = $(this);
+            let dataValue = $row.attr('data-value');
+            let dataGroup = $row.attr('data-group');
+            let groupName = $row.find('span.group-name').text().trim();
+            // let icon = $(t).find(".group-icon > .mdi");
+			let closed = $row.find(".group-icon > .mdi").hasClass("mdi-rotate-90");
+
+            if (dataGroup) {
+                if (!groups[dataGroup]) {
+                    groups[dataGroup] = {
+                        name: groupName,
+                        closed: closed,
+                        values: []
+                    };
+                }
+                if (!dataValue.startsWith('group-')) {
+                    groups[dataGroup].values.push(dataValue);
+                }
+            }
+        });
+
+        let jsonString =  JSON.stringify(groups);
+		// console.log(jsonString);
+		return encodeURIComponent(jsonString);
+	}
+
+	function toggleGroup(t) {
+		let group = $(t).attr("data-group");
+		let rows = $(`.row-in-group[data-group='${group}']`);
+		let icon = $(t).find(".group-icon > .mdi");
+
+		if (rows.is(":visible")) {
+			rows.hide();
+			icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
+		} else {
+			rows.show();
+			icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
+		}
+		sendSortData();
+	}
+
+	function openGroup(t) {
+		let group = $(t).attr("data-group");
+		let rows = $(`.row-in-group[data-group='${group}']`);
+		let icon = $(t).find(".group-icon > .mdi");
+		rows.show();
+		icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
+		sendSortData();
+	}
+
+	function closeGroup(t) {
+		let group = $(t).attr("data-group");
+		let rows = $(`.row-in-group[data-group='${group}']`);
+		let icon = $(t).find(".group-icon > .mdi");
+		rows.hide();
+		icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
+		sendSortData();
+	}
+
 	$( document ).ready(function() {
 
 			var $tbody = $("#dtable tbody");
 
 			$tbody.sortable({
+				items: ".row-is-item, .row-is-group",
 				distance: 5,
 				delay: 100,
 				opacity: 0.6,
 				cursor: 'move',
-				update:  function(e, tr) {
-							var orderlist = '';
-							$('tr.ui-sortable-handle').each(function (i) {
-								$(this).attr('data-order',i);
-								orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
-							});
-							$("#sidebar-wrapper").load("sort?"+orderlist);
-						}
+				update:  function(e, ui) {
+							updateOrder();
+							let item = ui.item;
+							if (item.hasClass("row-is-group")) {
+								let group = item.attr("data-group");
+								let $groupRows = $(`tr[data-group='${group}']`).not(".row-is-group");
+								item.after($groupRows);
+							} else if (item.hasClass("row-is-item")) {
+								let group = item.prev().attr("data-group");
+								if (group) {
+									item.attr("data-group", group).addClass("row-in-group");
+								} else {
+									item.removeAttr("data-group").removeClass("row-in-group");
+								}
+							}
+							sendSortData();
+						},
+                start: function(event, ui) {
+                    if (ui.item.hasClass("row-is-group")) {
+                        closeGroup(ui.item);
+                    }
+                }
 			}).disableSelection();
-
 
 			$tbody.find('tr.ui-sortable-handle').sort(function (a, b) {
 				var tda = parseInt($(a).attr('data-order'));
@@ -245,6 +371,12 @@
 					   : tda < tdb ? -1
 					   : 0;
 			}).appendTo($tbody);
+
+		    $("tr.row-is-group[start-closed]").each(function () {
+        		closeGroup(this);
+    		});
+
+
 	});
 
 	function toggle_false_condition_section() {
@@ -260,6 +392,54 @@
 		$("#sidebar").hide();
 		$("body").css('overflow','auto');
 	}
+
+	$(document).on('click', '.name_col , .event-cell', function () {
+			toggle_sidebar();
+	});
+
+	$("#add-group").click(function() {
+		let id = generateGroupId();
+		let newRow = $(`<tr data-value='group-${id}' class='row-is-group' data-group='${id}'>
+			<td colspan='5'>
+				<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
+				<span class='group-name'>Group ${id}</span>
+				<span class="group-rename"><span class="mdi mdi-18px mdi-pencil " ></span></span>
+				<span class="group-delete"><span class="mdi mdi-18px mdi-delete" ></span></span>
+				</td>
+		</tr>`);
+		$("#dtable tbody").prepend(newRow);
+		updateOrder();
+		sendSortData();
+	});
+
+	$(document).on("click", ".group-icon", function() {
+		let tr = this.closest("tr");
+		toggleGroup(tr);
+	});
+
+	$(document).on("click", ".group-rename", function(event) {
+		event.stopPropagation();
+		let groupRow = $(this).closest(".row-is-group");
+		let groupName = groupRow.find(".group-name");
+		let newName = prompt("Group name:", groupName.text());
+		if (newName) {
+			groupName.text(newName);
+		}
+		sendSortData();
+	});
+
+	$(document).on("click", ".group-delete", function(event) {
+		event.stopPropagation();
+		let groupRow = $(this).closest(".row-is-group");
+		let group = groupRow.attr("data-group");
+		let groupItems = $(`tr[data-group='${group}']`).not(".row-is-group");
+		groupItems.removeAttr("data-group").removeClass("row-in-group");
+		groupItems.show();
+		groupRow.remove();
+		updateOrder();
+		sendSortData();
+	});
+
 
 	$(document).on('click', '.edit-button', function () {
 			v=$(this).attr('aria-id');
@@ -484,21 +664,32 @@
 			new TomSelect('#' + elementId, settings);
 	});
 
-	$(document).on('dblclick', '.ui-sortable-handle', function () {
-			id=$(this).attr('data-value');
-			row = $(this)[0]
-			o=row.style.opacity;
+	$(document).on('dblclick', '.row-is-item', function () {
+			toggleDisabled(this);
+	});
+
+	function toggleDisabled(tr) {
+			id=$(tr).attr('data-value');
+			o=tr.style.opacity;
 			V = (o=="0.3") ? '1' : '0';
 
 			$.get('update_json', { id: id, f: 'enabled' ,v: V }, function(response) {
 					if (response == '1') {
 						if (V=='0') V="0.3";
-						row.style.opacity=V;
+						tr.style.opacity=V;
 					}
 			});
+	}
 
 
+	$(document).on('dblclick', '.row-is-group', function () {
+			let group = $(this).attr("data-group");
+			let rows = $(`.row-in-group[data-group='${group}']`);
+			rows.each( function () {
+				toggleDisabled(this);
+			});
 	});
+
 </script>
 
 

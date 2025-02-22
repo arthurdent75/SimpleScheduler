@@ -1,10 +1,12 @@
 ---
 build_from:
-  aarch64: ghcr.io/hassio-addons/debian-base/aarch64:5.3.1
-  amd64: ghcr.io/hassio-addons/debian-base/amd64:5.3.1
-  armhf: ghcr.io/hassio-addons/debian-base/armhf:5.3.1
-  armv7: ghcr.io/hassio-addons/debian-base/armv7:5.3.1
-  i386: ghcr.io/hassio-addons/debian-base/i386:5.3.1
+  aarch64: ghcr.io/hassio-addons/base-python:16.1.0
+  amd64: ghcr.io/hassio-addons/base-python:16.1.0
+  armhf: ghcr.io/hassio-addons/base-python:16.1.0
+  armv7: ghcr.io/hassio-addons/base-python:16.1.0
+  i386: ghcr.io/hassio-addons/base-python:16.1.0
 codenotary:
   base_image: notary@home-assistant.io
   signer: notary@home-assistant.io
+  
+  

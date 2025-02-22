@@ -37,3 +37,8 @@ div.row-title P {color: white;}
     span.colorkelvin {
         color: white;
     }
+
+tr.row-in-group > td { background-color: #393989;  }
+.row-is-group { background-color: #1d1d66 ; }
+
+	span.event-type-j { color: #ffffff;}

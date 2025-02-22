@@ -1,9 +1,45 @@
+
+<tr class="config_section"><td colspan="4">GENERAL</td></tr>
+
+<tr class="config_item">
+    <td class="config_label">Max retry</td>
+    <td class="config_input"><input type="text" value="{{ o.max_retry }}" class="form-control input-sm" name="max_retry" ></td>
+    <td colspan="2">
+</tr>
+<tr class="config_item">
+    <td class="config_label">Notify on error:</td>
+    <td class="config_input">
+        <select class="form-control input-sm" name="notifier" value="{{ o.notifier }}" id="notifier_dropdown" >
+            {% for n in notifiers %}
+            <option value="{{ n }}" {{ 'selected' if o.notifier==n else ' ' }} >{{ n }}</option>
+            {% endfor %}
+        </select>
+    </td>
+    <td colspan="2">
+</tr>
+<tr class="config_item">
+    <td class="config_label">Details uncovered</td>
+    <td class="config_input"><input type="checkbox" name="details_uncovered" value="1" {{ 'checked ' if o.details_uncovered else ' ' }}  ></td>
+    <td colspan="2">
+</tr>
+<tr class="config_item">
+    <td class="config_label">Dark theme</td>
+    <td class="config_input"><input type="checkbox" name="dark_theme" value="1" {{ 'checked ' if o.dark_theme else ' ' }}  ></td>
+    <td colspan="2">
+</tr>
+<tr class="config_item">
+    <td class="config_label">Debug mode</td>
+    <td class="config_input"><input type="checkbox" name="debug" value="1" {{ 'checked ' if o.debug else ' ' }}  ></td>
+    <td colspan="2">
+</tr>
+
+
 <tr class="config_section"><td colspan="4">MQTT</td></tr>
     {% for t in o.MQTT %}
     <tr class="config_item">
         <td class="config_label">{{ t }}</td>
         {% if t=="enabled": %}
-        <td class="config_input"><input type="checkbox" name="MQTT.{{ t }}" value="1" {{ 'checked ' if o.MQTT[t] else ' ' }}  > &nbsp;&nbsp;<em>(need restart)</em></td>
+        <td class="config_input"><input type="checkbox" name="MQTT.{{ t }}" value="1" {{ 'checked ' if o.MQTT[t] else ' ' }}  ></td>
         {% else %}
         <td class="config_input"><input type="text" value="{{ o.MQTT[t] }}" class="form-control input-sm" name="MQTT.{{ t }}" ></td>
         {% endif %}
@@ -28,39 +64,6 @@
         <td colspan="2">
     </tr>
     {% endfor %}
-
-<tr class="config_section"><td colspan="4">Misc</td></tr>
-    <tr class="config_item">
-        <td class="config_label">Max retry</td>
-        <td class="config_input"><input type="text" value="{{ o.max_retry }}" class="form-control input-sm" name="max_retry" ></td>
-        <td colspan="2">
-    </tr>
-    <tr class="config_item">
-        <td class="config_label">Notify on error:</td>
-        <td class="config_input">
-            <select class="form-control input-sm" name="notifier" value="{{ o.notifier }}" id="notifier_dropdown" >
-                {% for n in notifiers %}
-                <option value="{{ n }}" {{ 'selected' if o.notifier==n else ' ' }} >{{ n }}</option>
-                {% endfor %}
-            </select>
-        </td>
-        <td colspan="2">
-    </tr>
-    <tr class="config_item">
-        <td class="config_label">Details uncovered</td>
-        <td class="config_input"><input type="checkbox" name="details_uncovered" value="1" {{ 'checked ' if o.details_uncovered else ' ' }}  ></td>
-        <td colspan="2">
-    </tr>
-    <tr class="config_item">
-        <td class="config_label">Dark theme</td>
-        <td class="config_input"><input type="checkbox" name="dark_theme" value="1" {{ 'checked ' if o.dark_theme else ' ' }}  ></td>
-        <td colspan="2">
-    </tr>
-    <tr class="config_item">
-        <td class="config_label">Debug mode</td>
-        <td class="config_input"><input type="checkbox" name="debug" value="1" {{ 'checked ' if o.debug else ' ' }}  ></td>
-        <td colspan="2">
-    </tr>
 
 <tr>
     <td colspan="4">
