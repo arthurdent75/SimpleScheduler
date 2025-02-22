@@ -1,0 +1,77 @@
+name: Build Docker Multiarch Image
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: arthurdent75/simplescheduler-beta
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+          
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Info
+        id: extract_info
+        shell: bash
+        run: |
+          VERSION=$(yq e '.version' config.yaml)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT          
+          
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+           
+      - name: Build and push container image
+        uses: docker/build-push-action@v6.13.0
+        id: docker_build
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.extract_info.outputs.version }}          
+          labels: |
+            org.opencontainers.image.title=SimpleScheduler Addon
+            org.opencontainers.image.description="A Home Assistant AddOn to schedule entities on/off"
+            org.opencontainers.image.vendor=SimpleScheduler Addon
+            org.opencontainers.image.authors=arthurdent75
+            org.opencontainers.image.url=https://github.com/arthurdent75/simplescheduler
+            org.opencontainers.image.source=https://github.com/arthurdent75/simplescheduler
+            org.opencontainers.image.version=${{ steps.extract_info.outputs.version }}
+            io.hass.name=SimpleScheduler Addon
+            io.hass.url=https://github.com/arthurdent75/simplescheduler
+            io.hass.version=${{ steps.extract_info.outputs.version }}
+            io.hass.type=addon
+            io.hass.arch=armv7|aarch64|amd64
+          annotations: |
+            org.opencontainers.image.title=SimpleScheduler Addon
+            org.opencontainers.image.description="A Home Assistant AddOn to schedule entities on/off"
+            org.opencontainers.image.vendor=SimpleScheduler Addon
+            org.opencontainers.image.authors=arthurdent75
+            org.opencontainers.image.version=${{ steps.extract_info.outputs.version }}
+            org.opencontainers.image.url=https://github.com/arthurdent75/simplescheduler              
+         
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}      
