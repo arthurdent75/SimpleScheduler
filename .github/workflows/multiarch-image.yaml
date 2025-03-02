@@ -42,7 +42,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
            
       - name: Build and push container image
-        uses: docker/build-push-action@v6.13.0
+        uses: docker/build-push-action@v6
         id: docker_build
         with:
           context: .
