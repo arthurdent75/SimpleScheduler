@@ -1,3 +1,11 @@
+**Version 3.1**
+- New feature: "excluded entities" in config (#149)
+- New feature: added group recap when closed (#187)
+- New feature: autoswitch to dark theme (#190)
+- Resizable sidebar
+- Improved error log
+- Many bugfixes in frontend (including: #188,#189)
+
 **Version 3.0**
 - New feature: arrange scheduler in group
 - New feature: call script with parameters

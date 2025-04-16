@@ -2,6 +2,11 @@
       --maincolor: #007bff;
     }
 
+    body {
+        font-family: Roboto, Noto, "Noto Sans", sans-serif
+
+        }
+
 	H5 {margin-bottom: 0 ; line-height: 14px; }
 
     .main-color { color: var(--maincolor)!important; }
@@ -23,7 +28,7 @@
 	#sidebar {
 		display:none;
 		min-width: 250px;
-		max-width: 30%;
+		max-width: 50%;
 		height: 100%;
 		position: fixed;
 		top: 0;
@@ -75,9 +80,10 @@
 	}
 
     .titlebar_span {
-        font-size: 1.25em;
+        font-size: 20px;
         margin-right: 1em;
-        text-shadow: 1px 1px 3px #000;
+        font-weight: 400;
+        /* text-shadow: 1px 1px 3px #000; */
     }
 
     .titlebar_span  button {
@@ -464,8 +470,43 @@
 
     #dtable thead tr  { border-left: 5px solid #03a9f4;}
 
-    /*  background-color: #c9faff;  background-color: #45e9f1;  */
+    .group-recap-en > div{
+        color: white;
+        margin-left: 2em;
+        border: 1px solid #03a9f4;
+        background: #03a9f4;
+        padding: 0.2em;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 2.5em;
+        text-align: center;
+        display: inline-block;
+    }
+    .group-recap-dis > div {
+        color: #03a9f4;
+        margin-left: 1em;
+        border: 1px solid #03a9f4;
+        background: #fff;
+        padding: 0.2em;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 2.5em;
+        text-align: center;
+        display: inline-block;
+    }
 
+
+    #resize-handle {
+        width: 10px;
+        height: 100px; /* Altezza dell'handle */
+        background-color: #ccc;
+        position: absolute;
+        left: -5px; /* Metà della larghezza per sovrapporsi al bordo */
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: ew-resize; /* Indica che può essere trascinato orizzontalmente */
+        border-radius: 5px;
+    }
 
 	@media screen and (min-width: 1281px) {
 		html {	font-size: 10pt; }
@@ -478,9 +519,13 @@
 		#sidebar { max-width: 50%; }
 	}
 
-	@media screen and (max-width: 800px) {
+	@media screen and (max-width: 860px) {
 		
 		html {	font-size: 8pt; }
+
+        #title { display: none; }
+
+        TH { text-align: center; }
 
 		#dtable TD {
 			display: block;
@@ -523,3 +568,51 @@
         }
 	}
 
+    @media (prefers-color-scheme: dark) {
+
+            BODY { 	background-color: #111111; color: white; }
+
+            .table td, .table th {  border-top: 1px solid #333; color: white; }
+
+            .week_table_header { color: #e1e1e1; }
+
+            .badge {font-weight: 400;  }
+
+            .btn-circle { box-shadow: none; }
+
+            .drag_icon { color: white; }
+
+            #sidebar {
+                background-color: #222;
+                box-shadow: 5px 5px 18px 0px #777;
+            }
+
+            .table-hover>tbody>tr:hover>* {
+                background-color: rgb(255 255 255 / 15%);
+                color: white; }
+
+            div.row-title P {color: white;}
+
+            .week_table_cell { border-bottom: 1px solid #777; }
+
+            .text-green {    color: lightgreen; }
+            .text-red   {    color: #F66; }
+
+                #recurring_preview_on,
+                #recurring_preview_off
+                 {
+                    opacity: 1;
+                 }
+
+            #logcontent {color: #000}
+
+                span.colorkelvin {
+                    color: white;
+                }
+
+            tr.row-in-group > td { background-color: #393989;  }
+            tr.row-is-group { background-color: #1d1d66 ; }
+
+                span.event-type-j { color: #ffffff;}
+
+    }

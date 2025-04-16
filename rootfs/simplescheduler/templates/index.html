@@ -28,6 +28,7 @@
 
 <div class="wrapper">
 		<nav id="sidebar">
+			<div id="resize-handle"></div>
 			<button type="button" aria-label="Close" class="btn btn-outline-secondary btn-sm" onclick="toggle_sidebar();">>>></button>
 
 			<div id="sidebar-wrapper">
@@ -57,11 +58,12 @@
 					{% if groups %}
 					{% for key, group in groups.items() %}
 					   {% set group_id = "group-" + key %}
-						<tr data-value="{{ group_id }}" class="row-is-group" data-group="{{ key }}" data-order="{{ sort[group_id] }}" style="opacity: 1;"  {% if group.closed %}start-closed{% endif %}  >
+						<tr data-value="{{ group_id }}" data-order="{{ sort[group_id] }}"  class="row-is-group" data-group="{{ key }}" style="opacity: 1;"  {% if group.closed %}start-closed{% endif %}  >
 							<td colspan="5" title="Drag a scheduler over to add it to the group. Drag it away to remove it">
 								<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
 								<span class="group-name">{{ group.name }}</span>
 								<span class="group-rename" title="Rename group"><span class="mdi mdi-18px mdi-pencil " ></span></span>
+								<span class="group-recap"><span class="group-recap-en"></span><span class="group-recap-dis"></span></span>
 								<span class="group-delete" title="Delete group"><span class="mdi mdi-18px mdi-delete" ></span></span>
 							</td>
 						</tr>
@@ -82,7 +84,7 @@
 							{% endif %}
 							{% set group_id = ns_id.value %}
 
-						  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] }}" class="row-is-item {% if group_id %}row-in-group{% endif %}" style="opacity: {{ '1' if s.enabled else '0.3' }}" {% if group_id %}data-group="{{ group_id }}"{% endif %}>
+						  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] if sort[s.id] is number else 99999 }}" class="row-is-item {% if group_id %}row-in-group{% endif %}" style="opacity: {{ '1' if s.enabled else '0.3' }}" {% if group_id %}data-group="{{ group_id }}"{% endif %}>
 							  {% if s.weekly %}
 							  <td class="text-left drag_icon fit" title="Weekly"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
 							  {% elif s.recurring %}
@@ -245,94 +247,21 @@
 
 <script>
 
-	function updateOrder() {
-		$("#dtable tbody tr").each(function(index) {
-			$(this).attr("data-order", index + 1);
-		});
-	}
-
-	function sendSortData() {
-		var orderlist = '';
-		$('tr').each(function (i) {
-			$(this).attr('data-order',i);
-			orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
-		});
-		let json_groups = generateJsonFromTable();
-		$("#sidebar-wrapper").load("sort?"+orderlist+"&groups="+json_groups);
-
-	}
-
-	function generateGroupId() {
-		let randomHex = Math.floor(Math.random() * 0xFFFFFFFFFF).toString(16);
-		return randomHex.padStart(10, '0');
-	}
-
-	function generateJsonFromTable() {
-        let groups = {};
-
-        $('#dtable tbody tr').each(function() {
-            let $row = $(this);
-            let dataValue = $row.attr('data-value');
-            let dataGroup = $row.attr('data-group');
-            let groupName = $row.find('span.group-name').text().trim();
-            // let icon = $(t).find(".group-icon > .mdi");
-			let closed = $row.find(".group-icon > .mdi").hasClass("mdi-rotate-90");
-
-            if (dataGroup) {
-                if (!groups[dataGroup]) {
-                    groups[dataGroup] = {
-                        name: groupName,
-                        closed: closed,
-                        values: []
-                    };
-                }
-                if (!dataValue.startsWith('group-')) {
-                    groups[dataGroup].values.push(dataValue);
-                }
-            }
-        });
-
-        let jsonString =  JSON.stringify(groups);
-		// console.log(jsonString);
-		return encodeURIComponent(jsonString);
-	}
-
-	function toggleGroup(t) {
-		let group = $(t).attr("data-group");
-		let rows = $(`.row-in-group[data-group='${group}']`);
-		let icon = $(t).find(".group-icon > .mdi");
-
-		if (rows.is(":visible")) {
-			rows.hide();
-			icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
-		} else {
-			rows.show();
-			icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
-		}
-		sendSortData();
-	}
-
-	function openGroup(t) {
-		let group = $(t).attr("data-group");
-		let rows = $(`.row-in-group[data-group='${group}']`);
-		let icon = $(t).find(".group-icon > .mdi");
-		rows.show();
-		icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
-		sendSortData();
-	}
-
-	function closeGroup(t) {
-		let group = $(t).attr("data-group");
-		let rows = $(`.row-in-group[data-group='${group}']`);
-		let icon = $(t).find(".group-icon > .mdi");
-		rows.hide();
-		icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
-		sendSortData();
-	}
-
 	$( document ).ready(function() {
 
-			var $tbody = $("#dtable tbody");
+			let $tbody = $("#dtable tbody");
+
+			let $rows = $(".row-is-item, .row-is-group");
+
+			$rows.sort(function (a, b) {
+				let orderA = $(a).data("order");
+				let orderB = $(b).data("order");
+				return parseInt(orderA, 10) - parseInt(orderB, 10);
+			});
+
+			$tbody.append($rows);
+
+			updateOrder();
 
 			$tbody.sortable({
 				items: ".row-is-item, .row-is-group",
@@ -351,33 +280,187 @@
 								let group = item.prev().attr("data-group");
 								if (group) {
 									item.attr("data-group", group).addClass("row-in-group");
+									let group_tr = $(`tr.row-is-group[data-group='${group}']`);
+									openGroup(group_tr);
 								} else {
 									item.removeAttr("data-group").removeClass("row-in-group");
 								}
 							}
 							sendSortData();
+							group_recap();
 						},
                 start: function(event, ui) {
-                    if (ui.item.hasClass("row-is-group")) {
-                        closeGroup(ui.item);
-                    }
-                }
-			}).disableSelection();
+                    		if (ui.item.hasClass("row-is-group")) { closeGroup(ui.item); }
+                		},
+				beforeStop: function(event, ui) {
+							const $draggedItem = ui.item;
+							const isGroupRow = $draggedItem.hasClass('row-is-group');
 
-			$tbody.find('tr.ui-sortable-handle').sort(function (a, b) {
-				var tda = parseInt($(a).attr('data-order'));
-				var tdb = parseInt($(b).attr('data-order'));
-				return tda > tdb ? 1
-					   : tda < tdb ? -1
-					   : 0;
-			}).appendTo($tbody);
+							if (isGroupRow) {
+								const newIndex = ui.item.index();
+								const $items = ui.item.parent().children();
+								const $prev = $items.eq(newIndex - 1);
+								const $next = $items.eq(newIndex);
+								const prevGroup = $prev.attr('data-group');
+								const nextGroup = $next.attr('data-group');
+								if (prevGroup && nextGroup) {
+									$(this).sortable('cancel');
+								}
+							}
+						}
+			}).disableSelection();
 
 		    $("tr.row-is-group[start-closed]").each(function () {
         		closeGroup(this);
     		});
 
+			$("tr.row-is-group:not([start-closed])").each(function () {
+				openGroup(this);
+			});
+
+			group_recap();
+
+			var isResizing = false;
+			var startX;
+			var startWidth;
+
+			$("#resize-handle").on("mousedown", function (e) {
+				isResizing = true;
+				startX = e.clientX;
+				startWidth = $("#sidebar").width();
+				$("body").css("user-select", "none");
+			});
+
+			$(document).on("mousemove", function (e) {
+				if (isResizing) {
+					var newWidth = startWidth - (e.clientX - startX);
+					$("#sidebar").css("width", newWidth + "px");
+				}
+			});
+
+			$(document).on("mouseup", function () {
+				isResizing = false;
+				$("body").css("user-select", "");
+			});
 
 	});
+
+function updateOrder() {
+	$("#dtable tbody tr").each(function(index) {
+		$(this).attr("data-order", index + 1);
+	});
+}
+
+function sendSortData() {
+	var orderlist = '';
+	$('tr').each(function (i) {
+		$(this).attr('data-order',i);
+		orderlist=orderlist+'&list['+i+']='+$(this).attr('data-value');
+	});
+	let json_groups = btoa(generateJsonFromTable());
+	$("#sidebar-wrapper").load("sort?"+orderlist+"&groups="+json_groups);
+
+}
+
+function generateGroupId() {
+	let randomHex = Math.floor(Math.random() * 0xFFFFFFFFFF).toString(16);
+	return randomHex.padStart(10, '0');
+}
+
+function generateJsonFromTable() {
+	let groups = {};
+
+	$('#dtable tbody tr').each(function() {
+		let $row = $(this);
+		let dataValue = $row.attr('data-value');
+		let dataGroup = $row.attr('data-group');
+		let groupName = $row.find('span.group-name').text().trim();
+		let closed = $row.find(".group-icon > .mdi").hasClass("mdi-rotate-90");
+
+		if (dataGroup) {
+			if (!groups[dataGroup]) {
+				groups[dataGroup] = {
+					name: groupName,
+					closed: closed,
+					values: []
+				};
+			}
+			if (!dataValue.startsWith('group-')) {
+				groups[dataGroup].values.push(dataValue);
+			}
+		}
+	});
+	// console.log(groups);
+	let jsonString =  JSON.stringify(groups);
+	return jsonString;
+}
+
+function toggleGroup(t) {
+	let group = $(t).attr("data-group");
+	let rows = $(`.row-in-group[data-group='${group}']`);
+	let icon = $(t).find(".group-icon > .mdi");
+	let recap = $(t).find(".group-recap");
+
+	if (rows.is(":visible")) {
+		rows.hide();
+		recap.show();
+		icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
+	} else {
+		rows.show();
+		recap.hide();
+		icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
+	}
+	sendSortData();
+}
+
+function openGroup(t) {
+	let group = $(t).attr("data-group");
+	let rows = $(`.row-in-group[data-group='${group}']`);
+	let icon = $(t).find(".group-icon > .mdi");
+	let recap = $(t).find(".group-recap");
+	rows.show();
+	recap.hide();
+	icon.removeClass("mdi-rotate-90").addClass("mdi-rotate-180");
+	sendSortData();
+}
+
+function closeGroup(t) {
+	let group = $(t).attr("data-group");
+	let rows = $(`.row-in-group[data-group='${group}']`);
+	let icon = $(t).find(".group-icon > .mdi");
+	let recap = $(t).find(".group-recap");
+	rows.hide();
+	recap.show();
+	icon.removeClass("mdi-rotate-180").addClass("mdi-rotate-90");
+	sendSortData();
+}
+
+function group_recap() {
+    document.querySelectorAll("tr.row-is-group").forEach(groupRow => {
+        let groupId = groupRow.getAttribute("data-group");
+        let recapSpanEnable = groupRow.querySelector(".group-recap-en");
+        let recapSpanDisable = groupRow.querySelector(".group-recap-dis");
+
+        if (groupId) {
+            let rowsInGroup = document.querySelectorAll(`tr.row-in-group[data-group='${groupId}']`);
+            let enabledCount = 0;
+            let disabledCount = 0;
+
+            rowsInGroup.forEach(row => {
+                let opacity = parseFloat(window.getComputedStyle(row).opacity);
+                if (opacity === 1) {
+                    enabledCount++;
+                } else {
+                    disabledCount++;
+                }
+            });
+
+            recapSpanEnable.innerHTML  = `<div>${enabledCount}</div>`;
+            recapSpanDisable.innerHTML  = `<div>${disabledCount}</div>`;
+        }
+    });
+}
+
 
 	function toggle_false_condition_section() {
 			t = document.getElementById('template');
@@ -404,6 +487,7 @@
 				<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
 				<span class='group-name'>Group ${id}</span>
 				<span class="group-rename"><span class="mdi mdi-18px mdi-pencil " ></span></span>
+				<span class="group-recap"><span class="group-recap-en"><div>0</div></span><span class="group-recap-dis"><div>0</div></span></span>
 				<span class="group-delete"><span class="mdi mdi-18px mdi-delete" ></span></span>
 				</td>
 		</tr>`);
@@ -677,6 +761,7 @@
 					if (response == '1') {
 						if (V=='0') V="0.3";
 						tr.style.opacity=V;
+						group_recap();
 					}
 			});
 	}
@@ -688,6 +773,7 @@
 			rows.each( function () {
 				toggleDisabled(this);
 			});
+			sendSortData();
 	});
 
 </script>

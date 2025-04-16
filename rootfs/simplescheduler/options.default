@@ -40,7 +40,8 @@
     "password": ""
   },
   "max_retry": "3",
+  "notifier": " - disabled - ",
   "details_uncovered": true,
-  "dark_theme": false,
-  "debug": false
+  "debug": false,
+  "excluded_entities": ""
 }
