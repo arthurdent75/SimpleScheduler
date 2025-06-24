@@ -69,12 +69,12 @@ The template expression **must return a boolean** ('True' or 'False'). Be sure t
 It is strongly advised to set a default with `replace("unavailable", "true")` or `replace("unavailable", "false")` to avoid errors in case the entity becomes unavailable. \
 A few examples:
 ``` 
-{{  states('switch.my_switch') | replace("unavailable", "false") | bool }}
-{{  not states('light.my_light') | replace("unavailable", "false") | bool }}
-{{  states('sensor.room_temperature') | replace("unavailable", "22") | float > 23.5   }}
-{{  is_state('person.my_kid', 'not_home') | replace("unavailable", "true") | bool  }}
-{{  states('sensor.room_temperature') | replace("unavailable", "22") | float > 23.5
-      and is_state('sun.sun', 'above_horizon') | replace("unavailable", "true") | bool  }}
+{{  states('switch.my_switch') | replace('unavailable', 'false') | bool }}
+{{  not states('light.my_light') | replace('unavailable', 'false') | bool }}
+{{  states('sensor.room_temperature') | replace('unavailable', '22') | float > 23.5   }}
+{{  is_state('person.my_kid', 'not_home') | replace('unavailable', 'true') | bool  }}
+{{  states('sensor.room_temperature') | replace('unavailable', '22') | float > 23.5
+      and is_state('sun.sun', 'above_horizon') | replace('unavailable', 'true') | bool  }}
 ``` 
 If the template returns '*on*', '*open*', '*home*', '*armed*', '*1*', and so on,  it will all be treated as 'False'. \
 If the template expression has syntax errors it will be considered 'false', and it will be reported in the addon log.\
