@@ -1,6 +1,6 @@
 # Install the beta version
 
-*First of all, thank you for helping me for testing the beta!*
+*First of all, thank you for helping me test the beta!*
 
 Add the beta repository
 
