@@ -33,11 +33,12 @@
 		position: fixed;
 		top: 0;
 		right: 0;
-		padding: 1em;
+		padding: 1em 1em 1em 2em;
 		z-index: 9999;
 		background-color: rgba(255,255,255,0.98);
 		box-shadow: 5px 5px 18px 0px #000;
-		overflow-y: auto;		
+		overflow-y: visible;
+		overflow-x: visible;
 	}
 	
 	.edit-form > div {
@@ -453,11 +454,12 @@
     tr.row-is-item > td {  padding-left: 1em; }
     /* tr.row-in-group > td {  padding-left: 3em;   } */
 
-    .row-is-group {font-weight: bold;  cursor: pointer; }
+    .row-is-group {font-weight: bold;  }
+    .group-icon {  cursor: pointer; }
     .group-icon { margin-right: 5px; cursor: pointer; }
     .edit-icon, .delete-icon { margin-left: 10px; cursor: pointer; }
     .group-delete {	float: right;  }
-    .group-rename { margin-left: 1em; }
+    .group-rename { margin-left: 1em; ursor: pointer; }
     tr.row-is-group:hover .group-delete,
     tr.row-is-group:hover .group-rename { display:initial; }
 
@@ -467,6 +469,18 @@
         border-right: 1px solid #03a9f4;
         background-color: #f0f6ff
         }
+    tr  {
+        border-left: 5px solid white;
+    }
+
+    td.drag_cell {
+        width: 1%;
+        min-width: 50px;
+        max-width: 50px;
+        text-align: center;
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
 
     #dtable thead tr  { border-left: 5px solid #03a9f4;}
 
@@ -495,17 +509,29 @@
         display: inline-block;
     }
 
-
+/*
     #resize-handle {
-        width: 10px;
-        height: 100px; /* Altezza dell'handle */
+        width: 2em;
+        height: 100px;
         background-color: #ccc;
         position: absolute;
-        left: -5px; /* Metà della larghezza per sovrapporsi al bordo */
+        left: -1em;
         top: 50%;
         transform: translateY(-50%);
-        cursor: ew-resize; /* Indica che può essere trascinato orizzontalmente */
+        cursor: ew-resize;
         border-radius: 5px;
+    }
+*/
+
+    #resize-handle {
+        width: 2em;
+        height: 100px;
+        background-color: trasparent;
+        position: absolute;
+        left: -0;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: ew-resize;
     }
 
 	@media screen and (min-width: 1281px) {
@@ -538,6 +564,8 @@
 		#dtable TR {
 			border-bottom: 1px solid var(--maincolor);
 		}
+
+        td.drag_cell { float: left !important;  padding: 0;  }
 
         #config-form .input-sm {text-align:center;}
 
@@ -573,6 +601,8 @@
             BODY { 	background-color: #111111; color: white; }
 
             .table td, .table th {  border-top: 1px solid #333; color: white; }
+
+            tr  {        border-left: 5px solid #111111;     }
 
             .week_table_header { color: #e1e1e1; }
 

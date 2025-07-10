@@ -1,3 +1,12 @@
+**Version 3.2**
+- Fixes crashes in scheduler on timeout (#193)
+- Add support for drag on mobile (#192)
+- Drag only by handle icon
+- Added support for double click on mobile
+- Optimized scheduler routine
+- Fixes Scheduler thread crashes when using unsupported times separator (#198)
+- Manage wrong id filename
+
 **Version 3.1**
 - New feature: "excluded entities" in config (#149)
 - New feature: added group recap when closed (#187)

@@ -23,10 +23,10 @@ lwt_topic = "homeassistant/switch/simplescheduler/availability"
 no_notification_placeholder = " - disabled - "
 sun_data = ""
 schedulers_list = []
-options = []
+options: dict = {}
 weekday = []
 has_changed: bool = False
-mqttclient = None
+mqttclient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="SimpleScheduler", clean_session=False)
 mqtt_enabled = False
 ha_timezone = "utc"
 request_timeout = 5  # seconds
@@ -148,7 +148,7 @@ def webserver_saveconfig():
 
     option_file_path = os.path.join(simpleschedulerconf.json_folder, "options.dat")
     with open(option_file_path, 'w') as option_file:
-       json.dump(jsondata, option_file)
+       json.dump(jsondata, option_file) # type: ignore
 
     init()
 
@@ -168,21 +168,22 @@ def webserver_clone():
         param['id'] = newsid
         param['name'] = param['name'] + " (2) "
         with open(newfile, 'w') as jsonFile:
-            json.dump(param, jsonFile)
+            json.dump(param, jsonFile) # type: ignore
     return redirect("main")
 
 
 @app.route("/update", methods=['POST'])
 def webserver_update():
+    on_tod = off_tod = on_dow = off_dow = on_tod_false = off_tod_false = ""
     sid = request.form.get('id')
     enabled = request.form.get("enabled")
     dontretry = request.form.get("dontretry")
     template = request.form.get("template")
     name = request.form.get("name")
     entity_id = request.form.getlist('entity_id[]')
-    type = request.form.get('type')
-    if type != 'weekly':
-        on_tod = request.form.get('on_tod')
+    sched_type:str = request.form.get('type',"")
+    if sched_type != 'weekly':
+        on_tod = request.form.get('on_tod' , "")
         on_tod_false = request.form.get('on_tod_false')
         off_tod = request.form.get('off_tod')
         off_tod_false = request.form.get('off_tod_false')
@@ -193,14 +194,14 @@ def webserver_update():
         for o in request.form.getlist('off_dow[]'):
             off_dow += o
 
-    data = json.loads(get_json_template(type))
+    data = json.loads(get_json_template(sched_type))
     data['id'] = sid
     data['name'] = name if name else sid
     data['enabled'] = enabled if enabled else 0
     data['dontretry'] = dontretry if dontretry else 0
     data['template'] = template.replace('"',"'") if template else ''
     data['entity_id'] = entity_id
-    if type == 'weekly':
+    if sched_type == 'weekly':
         data['weekly']['on_1'] = request.form.get('on_1')
         data['weekly']['on_2'] = request.form.get('on_2')
         data['weekly']['on_3'] = request.form.get('on_3')
@@ -215,7 +216,7 @@ def webserver_update():
         data['weekly']['off_5'] = request.form.get('off_5')
         data['weekly']['off_6'] = request.form.get('off_6')
         data['weekly']['off_7'] = request.form.get('off_7')
-    elif type == 'recurring':
+    elif sched_type == 'recurring':
         data['recurring']['on_start'] = request.form.get('on_start')
         data['recurring']['on_end'] = request.form.get('on_end')
         data['recurring']['on_interval'] = request.form.get('on_interval')
@@ -235,7 +236,7 @@ def webserver_update():
         data['off_tod_false'] = off_tod_false
     file = simpleschedulerconf.json_folder + sid + '.json'
     with open(file, 'w') as jsonFile:
-        json.dump(data, jsonFile)
+        json.dump(data, jsonFile) # type: ignore
     if options['MQTT']['enabled']:
         mqtt_send_config(mqttclient)
     return redirect("main")
@@ -291,7 +292,6 @@ def utility_processor():
     def format_event(value: str, showvalue: bool):
         if not value: return ''
         result: str = ""
-        extra: str = ""
         value = encode_braces_to_base32(value)
         events = value.upper().replace(',', ' ').replace(';', ' ').split(" ")
 
@@ -476,7 +476,7 @@ def update_json_file(object_id, field_name, field_value):
                 data = json.load(jsonFile)
             data[field_name] = field_value
             with open(file, "w") as jsonFile:
-                json.dump(data, jsonFile)
+                json.dump(data, jsonFile) # type: ignore
     except Exception as e:
         printlog("ERROR: Unable to update JSON file",e)
     return True
@@ -485,12 +485,26 @@ def update_json_file(object_id, field_name, field_value):
 def load_json_schedulers():
     ss = []
     os.chdir(simpleschedulerconf.json_folder)
+
     for file in glob.glob("*.json"):
         with open(file, "r") as read_file:
             try:
-                ss.append(json.load(read_file))
+                data = json.load(read_file)
+                ss.append(data)
+
+                filename_no_ext = os.path.splitext(file)[0]
+                json_id = str(data.get("id", "")).strip()
+
+                if json_id and filename_no_ext != json_id:
+                    new_filename = f"{json_id}.json"
+                    if not os.path.exists(new_filename):
+                        printlog(f"WARNING: Renaming {file} to {new_filename}")
+                        os.rename(file, new_filename)
+                    else:
+                        printlog(f"WARNING: Cannot rename {file} to {new_filename}, file already exists!")
             except Exception as e:
-                printlog("ERROR: scheduler file %s is corrupted" % file,e)
+                printlog("ERROR: scheduler file %s is corrupted" % file, e)
+
     return ss
 
 
@@ -632,7 +646,7 @@ def save_sort_list(data):
     jsonlist = json.loads('{"id_order":[]}')
     jsonlist['id_order'] = idlist
     with open(simpleschedulerconf.json_folder + "sort.dat", "w") as sort_file:
-        json.dump(jsonlist, sort_file)
+        json.dump(jsonlist, sort_file) # type: ignore
     if  json_groups.count('{') == json_groups.count('}'):
         with open(simpleschedulerconf.json_folder + "group.dat", "w") as group_file:
             group_file.write(json_groups)
@@ -711,7 +725,7 @@ def call_ha_api(command_url: str, post_data: str):
             printlog("ERROR:  Error calling HA API " + str(r.status_code))
     except requests.exceptions.ReadTimeout:
         if not ("/script/" in command_url):
-            printlog("ERROR: Unable to call Home Assistant service", e)
+            printlog("ERROR: Unable to call Home Assistant service (timeout)")
             # NB: when you call a script, the response is sent when execution ends,
             #     so scripts with delay throw timeout exception
     except Exception as e:
@@ -854,18 +868,18 @@ def call_ha(eid_list, action, passedvalue, friendly_name):
 
 def notify_on_error(message):
     response = ""
-    options = get_options()
-    notifier = options.get('notifier', '' )
+    opt : dict = get_options()
+    notifier = opt.get('notifier', '')
 
     if notifier != no_notification_placeholder and len(notifier)>0 :
         headers = {'content-type': 'application/json', 'Authorization': 'Bearer ' + simpleschedulerconf.SUPERVISOR_TOKEN}
         command_url = simpleschedulerconf.HASSIO_URL + "/services/notify/" + notifier
-        post_data = '{"message":"%s"}' % (message)
+        post_data = '{"message":"%s"}' % message
         try:
             r = requests.post(url=command_url, data=post_data, headers=headers, timeout=request_timeout)
             if r.content:
                 response = r.content.decode().lower()
-                printlog("SCHED:  ↳ Notification sent to %s" % (notifier))
+                printlog("SCHED:  ↳ Notification sent to %s" % notifier)
             if r.status_code != 200:
                 if "message" in response:
                     json_response = json.loads(r.content)
@@ -891,7 +905,7 @@ def get_notifiers():
             if "message" in response:
                 json_response = json.loads(response.content)
                 response = json_response['message']
-            printlog("ERROR: Something went wrong getting notifiers - " % (response))
+            printlog("ERROR: Something went wrong getting notifiers - %s " % response)
     except Exception as e:
         printlog("ERROR: Something went wrong getting notifiers",e )
 
@@ -910,15 +924,19 @@ def is_a_retry_domain(entity):
     return response
 
 
-def encode_braces_to_base32(s):
+def encode_braces_to_base32(input_str):
     def encode_match(match):
-        encoded = base64.b32encode(match.group(0).encode()).decode()
-        return encoded
-    return re.sub(r'\{.*?\}', encode_match, s)
-
+        json_str = match.group(1)
+        json_str_clean = json_str.replace('\n', '').replace('\r', '')
+        encoded = base64.b32encode(json_str_clean.encode()).decode()
+        return f'J{encoded}'
+    pattern = r'J({.*?})'
+    result = re.sub(pattern, encode_match, input_str, flags=re.DOTALL)
+    return result
 
 def get_events_array(s):
     s = encode_braces_to_base32(s)
+    s = s.replace('\n', '').replace('\r', '')
     s = s.upper().replace(',', ' ').replace(';', ' ').strip()
     s = re.sub(' +', ' ', s)
     events = s.split(' ')
@@ -1002,6 +1020,7 @@ def get_ha_timezone():
     return response
 
 def printlog(message,e=None ):
+    fullrow2 = ""
     t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     fullrow = "[%s] %s" % (t, message)
     print(fullrow)
@@ -1040,11 +1059,8 @@ def init():
             options['translations']['text_sunday'][:2]
         ]
 
-    if options['debug']:
-        printlog("   QUESTION: What do you get if you multiply six by nine?")
-        printlog("   ANSWER: 42")
-
     # domain_list = get_domains()
+
     schedulers_list = load_json_schedulers()
 
     ha_timezone = get_ha_timezone()
@@ -1053,26 +1069,24 @@ def init():
 
 
 def run_flask():
-    while True:
-        try:
-            # Disable Flask Messages
-            log = logging.getLogger('werkzeug')
-            log.disabled = True
-            flask.cli.show_server_banner = lambda *args: None
-            # app.logger.disabled = True
-            printlog('STATUS: Starting WebServer')
-            app.run(host='0.0.0.0', port=8099, debug=False)
-        except Exception as e:
-            printlog(f"ERROR: Interface thread crashed [ {e} ], restarting...")
-            time.sleep(2)
+    try:
+        # Disable Flask Messages
+        log = logging.getLogger('werkzeug')
+        log.disabled = True
+        flask.cli.show_server_banner = lambda *args: None
+        # app.logger.disabled = True
+        printlog('STATUS: Starting WebServer')
+        app.run(host='0.0.0.0', port=8099, debug=False)
+    except Exception as e:
+        printlog(f"ERROR: Interface thread crashed: [ {e} ]")
+        time.sleep(2)
+
 
 def run_mqtt():
     global mqttclient
-    while True:
-        if mqtt_enabled:
+    if mqtt_enabled:
             try:
                 printlog('STATUS: Starting MQTT')
-                mqttclient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="SimpleScheduler", clean_session=False)
                 mqttclient.on_connect = on_connect
                 mqttclient.on_message = on_message
                 mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
@@ -1088,178 +1102,135 @@ def run_mqtt():
                 mqttclient.loop_stop()
                 mqttclient.disconnect()
             except Exception as e:
-                printlog(f"ERROR: MQTT thread error [ {e} ], restarting...")
+                printlog(f"ERROR: MQTT thread error: [ {e} ]")
                 time.sleep(2)
-        else:
-            time.sleep(1)
+    else:
+        time.sleep(1)
 
 
 def run_scheduler():
-    while True:
         try:
             command_queue = {}
-            sunrise = ""
-            sunset = ""
+            sunrise, sunset = "", ""
 
             printlog('STATUS: Starting Scheduler')
 
             while True:
-                seconds = datetime.now().strftime("%S")
+                now = datetime.now()
+                seconds = now.strftime("%S")
                 if seconds == '00':
-                    options = get_options()
-                    try:
-                        max_retry = int(options['max_retry'])
-                    except:
-                        max_retry = 3
-                    if max_retry < 0: max_retry = 3
-                    if max_retry > 5: max_retry = 5
-                    current_time = datetime.now().strftime("%H:%M")
-                    current_dow = datetime.now().strftime("%w")
-                    schedulers_list = load_json_schedulers()
-                    friendly_name = get_switch_friendly_names()
-                    if current_time == "00:01" or sunset == "" or sunrise == "":
-                        if options['debug']:
-                            printlog('DEBUG: Retrieving sunrise and sunset')
-                        sunrise, sunset = get_sun(get_ha_timezone())
+                    opt : dict = get_options()
+                    max_retry = min(max(int(opt.get('max_retry', 3)), 0), 5)
+
+                    current_time = now.strftime("%H:%M")
+                    current_dow = now.strftime("%w")
                     if current_dow == '0':
                         current_dow = '7'
-                    for s in schedulers_list:
-                        if s['enabled']:
+
+                    friendly_name = get_switch_friendly_names()
+
+                    if current_time == "00:01" or not sunrise or not sunset:
+                        if opt.get('debug'):
+                            printlog('DEBUG: Retrieving sunrise and sunset')
+                        sunrise, sunset = get_sun(get_ha_timezone())
+
+                    for s in load_json_schedulers():
+                        if not s.get('enabled'):
+                            continue
+
+                        template = s.get('template', '')
+                        dont_retry = s.get('dontretry', 0)
+                        week_onoff = s.get('weekly')
+
+                        if opt.get('debug'):
+                            printlog(f"DEBUG: Parsing [{s['name']}] [{s['id']}]")
+
+                        if week_onoff:
+                            s['weekly'] = ''
+                            s['on_tod'] = week_onoff.get(f'on_{current_dow}', '')
+                            s['off_tod'] = week_onoff.get(f'off_{current_dow}', '')
+                            s['on_dow'] = s['off_dow'] = current_dow
+
+                        for action in ['on', 'off']:
+                            if current_dow not in s.get(f'{action}_dow', ''):
+                                continue
+
                             condition = True
-                            dont_retry = s.get('dontretry', 0)
-                            template = s.get('template', '')
-                            on_tod_false = s.get('on_tod_false', '')
-                            off_tod_false = s.get('off_tod_false', '')
-                            if options['debug']: printlog("DEBUG: Parsing [%s]" % s['name'])
-                            week_onoff = s.get('weekly')
+                            if template:
+                                condition = evaluate_template(template)
+                                if opt.get('debug'):
+                                    printlog(f"DEBUG: Evaluating template for [{s['name']}]: {condition}")
+                            if not condition:
+                                tod = s.get(f'{action}_tod_false', '')
+                            else:
+                                tod = s.get(f'{action}_tod', '')
 
-                            if week_onoff:
-                                s['weekly'] = ''
-                                s['on_tod'] = week_onoff['on_' + current_dow]
-                                s['off_tod'] = week_onoff['off_' + current_dow]
-                                s['on_dow'] = current_dow
-                                s['off_dow'] = current_dow
+                            for e in get_events_array(tod):
+                                p = e.upper().split('>')
+                                event_time = evaluate_event_time(p[0], sunrise, sunset)
+                                value = p[1][1:] if len(p) > 1 else ""
 
-                            if current_dow in s['on_dow']:
+                                if event_time != current_time:
+                                    continue
 
-                                if template:
-                                    condition = evaluate_template(template)
-                                    if options['debug']: printlog(
-                                        "DEBUG: Evaluating template for [%s]: %s" % (s['name'], condition))
+                                printlog(f"SCHED: Executing {action.upper()} actions for [{s['name']}]")
+                                call_ha(s['entity_id'], action, value, friendly_name)
 
-                                if condition:
-                                    elist = get_events_array(s['on_tod'])
-                                else:
-                                    elist = get_events_array(on_tod_false)
+                                for entity in s['entity_id']:
+                                    skip = len(value) > 0 and value[0] == 'O'
+                                    if skip or dont_retry or max_retry <= 0:
+                                        continue
+                                    if is_a_retry_domain(entity):
+                                        command_queue[uuid.uuid4().hex] = {
+                                            "entity_id": entity,
+                                            "sched_id": s['id'],
+                                            "state": action,
+                                            "value": value,
+                                            "countdown": max_retry,
+                                            "max_retry": max_retry
+                                        }
 
-                                for e in elist:
-                                    value = ""
-                                    p = e.upper().split('>')
-                                    t = p[0]
-                                    if len(p) > 1:
-                                        value = p[1][1:]
-                                    event_time = evaluate_event_time(t, sunrise, sunset)
-                                    if event_time == current_time:
-                                        printlog("SCHED: Executing ON actions for [%s]" % s['name'])
-                                        call_ha(s['entity_id'], "on", value, friendly_name)
-                                        for entity in s['entity_id']:
-                                            if (len(value) > 0 and value[
-                                                0] != 'O') or not value:  # if TemperatureOnly don't add to queue
-                                                if not dont_retry and max_retry > 0:
-                                                    if is_a_retry_domain(entity):
-                                                        command_queue[uuid.uuid4().hex] = {"entity_id": entity,
-                                                                                           "sched_id": s['id'],
-                                                                                           "state": "on", "value": value,
-                                                                                           "countdown": max_retry,
-                                                                                           "max_retry": max_retry}
-
-                            if current_dow in s['off_dow']:
-
-                                if condition:
-                                    elist = get_events_array(s['off_tod'])
-                                else:
-                                    elist = get_events_array(off_tod_false)
-
-                                for e in elist:
-                                    value = ""
-                                    p = e.upper().split('>')
-                                    t = p[0]
-                                    if len(p) > 1:
-                                        value = p[1][1:]
-                                    event_time = evaluate_event_time(t, sunrise, sunset)
-                                    if event_time == current_time:
-                                        if template:
-                                            condition = evaluate_template(template)
-                                            printlog(
-                                                "SCHED: Evaluating template for [%s]: %s" % (s['name'], condition))
-                                        if condition:
-                                            printlog("SCHED: Executing OFF actions for [%s]" % s['name'])
-                                            call_ha(s['entity_id'], "off", value, friendly_name)
-                                            for entity in s['entity_id']:
-                                                if (len(value) > 0 and value[
-                                                    0] != 'O') or not value:  # if TemperatureOnly don't add to queue
-                                                    if not dont_retry and max_retry > 0:
-                                                        if is_a_retry_domain(entity):
-                                                            command_queue[uuid.uuid4().hex] = {"entity_id": entity,
-                                                                                               "sched_id": s['id'],
-                                                                                               "state": "off",
-                                                                                               "value": value,
-                                                                                               "countdown": max_retry,
-                                                                                               "max_retry": max_retry}
                     time.sleep(5)
 
-                    if options['debug']: printlog("DEBUG: Max Retry: %d" % max_retry)
-                    if options['debug']: printlog(
-                        "DEBUG: Starting Queue management - Queue length: %d" % len(command_queue))
+                    if opt.get('debug'):
+                        printlog(f"DEBUG: Max Retry: {max_retry}")
+                        printlog(f"DEBUG: Starting Queue management - Queue length: {len(command_queue)}")
 
-                    for key in command_queue.copy():
+                    for key in list(command_queue):
+                        item = command_queue[key]
+                        status = get_entity_status(item['entity_id'], True)
 
-                        value = command_queue[key]
-                        entity_status = get_entity_status(value['entity_id'], True)
-                        if options['debug']: printlog(
-                            "DEBUG: ID:%s | Entity status:%s | Queue item:%s" % (key, entity_status.upper(), value))
+                        if opt.get('debug'):
+                            printlog(f"DEBUG: ID:{key} | Entity status:{status.upper()} | Queue item:{item}")
 
-                        if entity_status == 'unavailable':
-                            attempt = 1 + int(value['max_retry']) - int(value['countdown'])
-                            printlog("SCHED: [%s] is unavailable. Attempt %d of %d" % (
-                                friendly_name.get(value['entity_id'], value['entity_id']), attempt,
-                                int(value['max_retry'])))
-                            command_queue[key]['countdown'] = int(value['countdown']) - 1
-                            if command_queue[key]['countdown'] <= 0:
-                                giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'],
-                                                                                                value['entity_id'])
-                                printlog(giveup_message)
-                                command_queue.pop(key)
-                                notify_on_error(giveup_message)
+                        name = friendly_name.get(item['entity_id'], item['entity_id'])
+                        attempt = item['max_retry'] - item['countdown'] + 1
 
+                        if status == 'unavailable':
+                            printlog(f"SCHED: [{name}] is unavailable. Attempt {attempt} of {item['max_retry']}")
+                        elif status != item['state']:
+                            printlog(f"SCHED: Failed to set [{name}]. Retry {attempt} of {item['max_retry']}")
+                            call_ha(item['entity_id'], item['state'], item['value'], friendly_name)
                         else:
-                            if entity_status != value['state']:
-                                attempt = 1 + int(value['max_retry']) - int(value['countdown'])
-                                printlog("SCHED: Failed to set [%s]. Retry %d of %d " % (
-                                    friendly_name.get(value['entity_id'], value['entity_id']), attempt,
-                                    int(value['max_retry'])))
-                                call_ha(value['entity_id'], value['state'], value['value'], friendly_name)
-                                command_queue[key]['countdown'] = int(value['countdown']) - 1
-                                if command_queue[key]['countdown'] <= 0:
-                                    giveup_message = "SCHED: Giving up on [%s]" % friendly_name.get(value['entity_id'],
-                                                                                                    value['entity_id'])
-                                    printlog(giveup_message)
-                                    command_queue.pop(key)
-                                    notify_on_error(giveup_message)
-                            else:
-                                printlog("SCHED: [%s] is %s as requested!" % (
-                                    friendly_name.get(value['entity_id'], value['entity_id']), entity_status.upper()))
-                                command_queue.pop(key)
+                            printlog(f"SCHED: [{name}] is {status.upper()} as requested!")
+                            command_queue.pop(key)
+                            continue  # Skip countdown update
 
-                    if options['debug']: printlog(
-                        "DEBUG: Finished Queue management - Queue length: %d" % len(command_queue))
+                        item['countdown'] -= 1
+                        if item['countdown'] <= 0:
+                            msg = f"SCHED: Giving up on [{name}]"
+                            printlog(msg)
+                            notify_on_error(msg)
+                            command_queue.pop(key)
+
+                    if opt.get('debug'):
+                        printlog(f"DEBUG: Finished Queue management - Queue length: {len(command_queue)}")
 
                 time.sleep(1)
 
         except Exception as e:
-            printlog(f"ERROR: Scheduler thread crashed [ {e} ], restarting...")
+            printlog(f"ERROR: Scheduler thread crashed: [ {e} ]")
             time.sleep(2)
-
 
 def start_thread(target):
     thread = threading.Thread(target=target, daemon=True)
@@ -1272,6 +1243,10 @@ if __name__ == '__main__':
     printlog('STATUS: Starting main program')
 
     init()
+
+    if options['debug']:
+        printlog("   QUESTION: What do you get if you multiply six by nine?")
+        printlog("   ANSWER: 42")
 
     flask_thread = start_thread(run_flask)
     scheduler_thread = start_thread(run_scheduler)

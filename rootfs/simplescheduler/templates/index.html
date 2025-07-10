@@ -10,6 +10,7 @@
 	<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 
 	<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
@@ -28,7 +29,15 @@
 
 <div class="wrapper">
 		<nav id="sidebar">
-			<div id="resize-handle"></div>
+			<div id="resize-handle">
+				    <svg viewBox="0 0 25 120"  xmlns="http://www.w3.org/2000/svg">
+					  <circle cx="10" cy="15" r="2" fill="#888"/>
+					  <circle cx="10" cy="30" r="2" fill="#888"/>
+					  <circle cx="10" cy="45" r="2" fill="#888"/>
+					  <circle cx="10" cy="60" r="2" fill="#888"/>
+					  <circle cx="10" cy="75" r="2" fill="#888"/>
+					</svg>
+			</div>
 			<button type="button" aria-label="Close" class="btn btn-outline-secondary btn-sm" onclick="toggle_sidebar();">>>></button>
 
 			<div id="sidebar-wrapper">
@@ -43,7 +52,7 @@
 				<table class="table table-hover" id="dtable">
 					<thead class="bg-primary">
 					<tr>
-					  <th scope="col" colspan="5" >
+					  <th scope="col" colspan="6" >
 						  <span class="titlebar_span" id="title">SimpleScheduler</span>
 						  <span class="titlebar_span" id="show-add" title="New scheduler"><button type="button" class="btn btn-default bg-white main-color" ><span class="mdi mdi-plus"></span></button></span>
 						  <span class="titlebar_span" id="add-group" title="New group"><button type="button" class="btn btn-default bg-white main-color"><span class="mdi mdi-format-list-group-plus"></span></button></span>
@@ -59,6 +68,7 @@
 					{% for key, group in groups.items() %}
 					   {% set group_id = "group-" + key %}
 						<tr data-value="{{ group_id }}" data-order="{{ sort[group_id] }}"  class="row-is-group" data-group="{{ key }}" style="opacity: 1;"  {% if group.closed %}start-closed{% endif %}  >
+							<td class="text-left fit drag_cell"><span class="mdi mdi-drag mdi-24px drag_icon" ></span></td>
 							<td colspan="5" title="Drag a scheduler over to add it to the group. Drag it away to remove it">
 								<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
 								<span class="group-name">{{ group.name }}</span>
@@ -85,12 +95,13 @@
 							{% set group_id = ns_id.value %}
 
 						  <tr data-value="{{ s.id }}" data-order="{{ sort[s.id] if sort[s.id] is number else 99999 }}" class="row-is-item {% if group_id %}row-in-group{% endif %}" style="opacity: {{ '1' if s.enabled else '0.3' }}" {% if group_id %}data-group="{{ group_id }}"{% endif %}>
+							  <td class="text-left fit drag_cell"><span class="mdi mdi-drag mdi-24px drag_icon" ></span></td>
 							  {% if s.weekly %}
-							  <td class="text-left drag_icon fit" title="Weekly"> <span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
+							  <td class="text-left fit" title="Weekly"><span class="mdi mdi-calendar-range mdi-24px" ></span> </td>
 							  {% elif s.recurring %}
-							  <td class="text-left drag_icon fit" title="Recurring"> <span class="mdi mdi-calendar-refresh mdi-24px" ></span> </td>
+							  <td class="text-left fit" title="Recurring"><span class="mdi mdi-calendar-refresh mdi-24px" ></span> </td>
 							  {% else %}
-							  <td class="text-left drag_icon fit" title="Daily"> <span class="mdi mdi-calendar-week mdi-24px" ></span> </td>
+							  <td class="text-left fit" title="Daily"><span class="mdi mdi-calendar-week mdi-24px" ></span> </td>
 							  {% endif %}
 
 							  <td class="text-left fit">{% if s.template %}<span class="mdi mdi-directions-fork mdi-24px" ></span>{% endif %}</span></td>
@@ -265,6 +276,7 @@
 
 			$tbody.sortable({
 				items: ".row-is-item, .row-is-group",
+				handle: ".drag_icon",
 				distance: 5,
 				delay: 100,
 				opacity: 0.6,
@@ -320,28 +332,7 @@
 
 			group_recap();
 
-			var isResizing = false;
-			var startX;
-			var startWidth;
 
-			$("#resize-handle").on("mousedown", function (e) {
-				isResizing = true;
-				startX = e.clientX;
-				startWidth = $("#sidebar").width();
-				$("body").css("user-select", "none");
-			});
-
-			$(document).on("mousemove", function (e) {
-				if (isResizing) {
-					var newWidth = startWidth - (e.clientX - startX);
-					$("#sidebar").css("width", newWidth + "px");
-				}
-			});
-
-			$(document).on("mouseup", function () {
-				isResizing = false;
-				$("body").css("user-select", "");
-			});
 
 	});
 
@@ -461,6 +452,45 @@ function group_recap() {
     });
 }
 
+var isResizing = false;
+var startX;
+var startWidth;
+
+function getClientX(e) {
+	if (e.type.startsWith("touch")) {
+		return e.touches[0].clientX;
+	} else {
+		return e.clientX;
+	}
+}
+
+$("#resize-handle").on("mousedown touchstart", function (e) {
+	isResizing = true;
+	startX = getClientX(e);
+	startWidth = $("#sidebar").width();
+	$("body").css("user-select", "none");
+
+	// Impedisci lo scroll su touch
+	if (e.type === "touchstart") e.preventDefault();
+});
+
+$(document).on("mousemove touchmove", function (e) {
+	if (isResizing) {
+		let currentX = getClientX(e);
+		let newWidth = startWidth - (currentX - startX);
+		$("#sidebar").css("width", newWidth + "px");
+
+		// Impedisci lo scroll su touch
+		if (e.type === "touchmove") e.preventDefault();
+	}
+});
+
+$(document).on("mouseup touchend", function () {
+	if (isResizing) {
+		isResizing = false;
+		$("body").css("user-select", "");
+	}
+});
 
 	function toggle_false_condition_section() {
 			t = document.getElementById('template');
@@ -483,6 +513,7 @@ function group_recap() {
 	$("#add-group").click(function() {
 		let id = generateGroupId();
 		let newRow = $(`<tr data-value='group-${id}' class='row-is-group' data-group='${id}'>
+			<td class="text-left fit drag_cell"><span class="mdi mdi-drag mdi-24px drag_icon" ></span></td>
 			<td colspan='5'>
 				<span class="group-icon"><span class="mdi mdi-18px mdi-triangle mdi-rotate-180" ></span></span>
 				<span class='group-name'>Group ${id}</span>
@@ -497,6 +528,7 @@ function group_recap() {
 	});
 
 	$(document).on("click", ".group-icon", function() {
+		$("#sidebar").hide();
 		let tr = this.closest("tr");
 		toggleGroup(tr);
 	});
@@ -750,6 +782,20 @@ function group_recap() {
 
 	$(document).on('dblclick', '.row-is-item', function () {
 			toggleDisabled(this);
+	});
+
+	let lastTap = 0;
+
+	$(document).on('touchend', '.row-is-item', function (e) {
+		const currentTime = new Date().getTime();
+		const tapLength = currentTime - lastTap;
+
+		if (tapLength < 500 && tapLength > 0) {
+			toggleDisabled(this); // Per dispositivi touch
+			e.preventDefault();
+		}
+
+		lastTap = currentTime;
 	});
 
 	function toggleDisabled(tr) {
