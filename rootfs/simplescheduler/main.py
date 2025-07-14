@@ -1084,28 +1084,29 @@ def run_flask():
 
 def run_mqtt():
     global mqttclient
-    if mqtt_enabled:
-            try:
-                printlog('STATUS: Starting MQTT')
-                mqttclient.on_connect = on_connect
-                mqttclient.on_message = on_message
-                mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
-                mqttclient.username_pw_set(options['MQTT']['username'], options['MQTT']['password'])
-                mqttclient.connect(options['MQTT']['server'], int(options['MQTT']['port']), 60)
-                mqttclient.loop_start()
-                mqttclient.publish(lwt_topic, payload="online", qos=0, retain=True)
-                mqtt_send_config(mqttclient)
-                while mqtt_enabled:
-                    time.sleep(1)
-                printlog("STATUS: MQTT disabled, disconnecting...")
-                mqttclient.publish(lwt_topic, payload="offline", qos=0, retain=True)
-                mqttclient.loop_stop()
-                mqttclient.disconnect()
-            except Exception as e:
-                printlog(f"ERROR: MQTT thread error: [ {e} ]")
-                time.sleep(2)
-    else:
-        time.sleep(1)
+    while True:
+        if mqtt_enabled:
+                try:
+                    printlog('STATUS: Starting MQTT')
+                    mqttclient.on_connect = on_connect
+                    mqttclient.on_message = on_message
+                    mqttclient.will_set(lwt_topic, payload="offline", qos=0, retain=True)
+                    mqttclient.username_pw_set(options['MQTT']['username'], options['MQTT']['password'])
+                    mqttclient.connect(options['MQTT']['server'], int(options['MQTT']['port']), 60)
+                    mqttclient.loop_start()
+                    mqttclient.publish(lwt_topic, payload="online", qos=0, retain=True)
+                    mqtt_send_config(mqttclient)
+                    while mqtt_enabled:
+                        time.sleep(1)
+                    printlog("STATUS: MQTT disabled, disconnecting...")
+                    mqttclient.publish(lwt_topic, payload="offline", qos=0, retain=True)
+                    mqttclient.loop_stop()
+                    mqttclient.disconnect()
+                except Exception as e:
+                    printlog(f"ERROR: MQTT thread error: [ {e} ]")
+                    time.sleep(2)
+        else:
+            time.sleep(1)
 
 
 def run_scheduler():

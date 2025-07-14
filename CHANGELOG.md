@@ -1,3 +1,6 @@
+**Version 3.2.1**
+- Fixes "Restarting MQTT thread..." (#199)
+
 **Version 3.2**
 - Fixes crashes in scheduler on timeout (#193)
 - Add support for drag on mobile (#192)
