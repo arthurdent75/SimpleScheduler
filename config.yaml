@@ -4,7 +4,6 @@ name: Simple Scheduler
 description: Simple timer on weekly base
 slug: simplescheduler
 url: https://github.com/arthurdent75/SimpleScheduler
-codenotary: notary@home-assistant.io
 arch:
   - aarch64
   - amd64
