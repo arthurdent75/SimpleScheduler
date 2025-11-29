@@ -1,3 +1,9 @@
+**Version 3.2.2**
+- Fixes "Unable to scroll on large lists" (#205)
+- Fixes "Entity dropdown does not show all the entities, unless you use the filter" (#201)
+- Changing the name retireval logic to avoid "Unable to obtain entities names" (#206)
+- Removing armv7 support as Home Assistant deprecate it
+
 **Version 3.2.1**
 - Fixes "Restarting MQTT thread..." (#199)
 

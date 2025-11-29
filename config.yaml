@@ -1,5 +1,5 @@
 ---
-version: "3.2.1"
+version: "3.2.2"
 name: Simple Scheduler
 description: Simple timer on weekly base
 slug: simplescheduler
@@ -8,7 +8,6 @@ codenotary: notary@home-assistant.io
 arch:
   - aarch64
   - amd64
-  - armv7
 image: ghcr.io/arthurdent75/simplescheduler
 init: false
 homeassistant_api: true

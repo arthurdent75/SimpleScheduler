@@ -37,7 +37,7 @@
 		z-index: 9999;
 		background-color: rgba(255,255,255,0.98);
 		box-shadow: 5px 5px 18px 0px #000;
-		overflow-y: visible;
+		overflow-y: auto;
 		overflow-x: visible;
 	}
 	
@@ -526,7 +526,7 @@
     #resize-handle {
         width: 2em;
         height: 100px;
-        background-color: trasparent;
+        background-color: transparent;
         position: absolute;
         left: -0;
         top: 50%;

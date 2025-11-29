@@ -563,7 +563,7 @@ $(document).on("mouseup touchend", function () {
 			$("#sidebar").show();
 			$("body").css('overflow','hidden');
             $("#sidebar-wrapper").load("edit?id="+v, function() {
-				var settings = {plugins: ['dropdown_input'],sortField: 'text'};
+				var settings = {plugins: ['dropdown_input'],sortField: 'text',maxOptions:null};
 				$(".entity-dropdown-fix").each(function( t ) {
 					  this.value = $(this).attr('aria-data');
 					});
@@ -628,7 +628,7 @@ $(document).on("mouseup touchend", function () {
 			$("#sidebar-wrapper").html('');
 			$("#sidebar").show();
             $("#sidebar-wrapper").load("edit?id="+0+"&type="+v, function() {
-				var settings = {plugins: ['dropdown_input'],sortField: 'text'};
+				var settings = {plugins: ['dropdown_input'],sortField: 'text',maxOptions:null};
 				new TomSelect('.entity-dropdown-fix',settings);
             });
     });
@@ -776,7 +776,7 @@ $(document).on("mouseup touchend", function () {
 			html += '</div>';
 			$("#info").html('Clic ADD');
 			$('.indexInput').append(html);
-			var settings = {plugins: ['dropdown_input'], sortField: 'text'};
+			var settings = {plugins: ['dropdown_input'], sortField: 'text',maxOptions:null};
 			new TomSelect('#' + elementId, settings);
 	});
 

@@ -1119,6 +1119,7 @@ def run_scheduler():
             while True:
                 now = datetime.now()
                 seconds = now.strftime("%S")
+                first_event = True
                 if seconds == '00':
                     opt : dict = get_options()
                     max_retry = min(max(int(opt.get('max_retry', 3)), 0), 5)
@@ -1127,8 +1128,6 @@ def run_scheduler():
                     current_dow = now.strftime("%w")
                     if current_dow == '0':
                         current_dow = '7'
-
-                    friendly_name = get_switch_friendly_names()
 
                     if current_time == "00:01" or not sunrise or not sunset:
                         if opt.get('debug'):
@@ -1173,6 +1172,12 @@ def run_scheduler():
 
                                 if event_time != current_time:
                                     continue
+
+                                # retrieve names only if there is an event and only on first event
+                                if first_event:
+                                    friendly_name = get_switch_friendly_names()
+                                    first_event = False
+                                    if opt.get('debug'): printlog(f"DEBUG: Retrieving entity names")
 
                                 printlog(f"SCHED: Executing {action.upper()} actions for [{s['name']}]")
                                 call_ha(s['entity_id'], action, value, friendly_name)
