@@ -1,0 +1,14 @@
+**Version 4.0**
+- New *web interface* with a visual timeline for every scheduler, groups, drag & drop and a text editor for the events
+- New *random* time for the events of daily and weekly schedulers 
+- New *calendar view*: the events of all schedulers in a typical weekly calendar 
+- New per-event *force* option: the state is kept until the next event
+- Adde support for *HVAC mode* (heat, cool, dry, …)
+- Extra features are now entered via UI, no more letter code to remember
+- Added test now button
+- Manage collitions and report them in log
+- Events run on time even after Home Assistant was offline: they wait and run as soon as the connection is back
+- Data moved from /share/simplescheduler to the add-on configuration folder (addon_config) 
+- MQTT connects to Mosquitto Broker app internally, no credentials needed
+- Real-time web interface: changes (MQTT switches, other browsers, Home Assistant connection) reach the page at once
+- Theme option: automatic (follows the device), light or dark. 
