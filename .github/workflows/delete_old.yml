@@ -1,0 +1,16 @@
+name: Eliminazione Vecchi Pacchetti
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  clean-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Old Package Versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'simplescheduler-beta'
+          package-type: 'container'
+          min-versions-to-keep: 10   
+          delete-only-untagged-versions: 'false' 
