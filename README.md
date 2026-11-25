@@ -6,7 +6,7 @@ You keep all the schedules in one place and add or change them in a few clicks, 
 <img width="974" height="895" alt="image" src="https://github.com/user-attachments/assets/df05c07d-a485-4623-b07f-ab9044c706ce" />
 
 ### Demo
-[Here](https://htmlpreview.github.io/?https://github.com/arthurdent75/SimpleScheduler/blob/main/demo/index.html) you can find a working simulation with the most common scenarios:
+[Here](https://htmlpreview.github.io/?https://github.com/arthurdent75/SimpleScheduler/blob/main/demo/index.html) you can find a working simulation with the most common scenarios
 
 
 ### Installation
