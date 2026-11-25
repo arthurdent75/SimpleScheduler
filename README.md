@@ -5,6 +5,13 @@ You keep all the schedules in one place and add or change them in a few clicks, 
 
 <img width="974" height="895" alt="image" src="https://github.com/user-attachments/assets/df05c07d-a485-4623-b07f-ab9044c706ce" />
 
+<img width="1684" height="933" alt="image" src="https://github.com/user-attachments/assets/f88ac52c-4476-4ba7-a1a5-a74d39da3c58" />
+
+<img width="689" height="639" alt="image" src="https://github.com/user-attachments/assets/28f13622-334b-4035-ac4d-e833154f780b" />
+
+<img width="468" height="400" alt="image" src="https://github.com/user-attachments/assets/130df8d3-b846-4598-a104-835945f8f184" />
+
+
 ### Demo
 [Here](https://htmlpreview.github.io/?https://github.com/arthurdent75/SimpleScheduler/blob/master/demo/index.html) you can find a working simulation with the most common scenarios
 
