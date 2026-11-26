@@ -1,4 +1,4 @@
-version: "4.0"
+version: "4.0.10"
 name: Simple Scheduler
 description: Entities Scheduler
 slug: simplescheduler

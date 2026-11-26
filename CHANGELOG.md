@@ -1,3 +1,8 @@
+**Version 4.0.10**
+- Fix #220 (UI bug on mobile)
+- Fix #221 (Fahrenheit bug)
+- Fix #222 (Standalone docker)
+
 **Version 4.0**
 - New *web interface* with a visual timeline for every scheduler, groups, drag & drop and a text editor for the events
 - New *random* time for the events of daily and weekly schedulers 
@@ -12,3 +17,4 @@
 - MQTT connects to Mosquitto Broker app internally, no credentials needed
 - Real-time web interface: changes (MQTT switches, other browsers, Home Assistant connection) reach the page at once
 - Theme option: automatic (follows the device), light or dark. 
+
